@@ -9,15 +9,14 @@ import {
 import { api } from '@/api/client';
 import ListingCard from '../components/marketplace/ListingCard';
 import WinnerBanner from '../components/competitions/WinnerBanner';
+import { ChickenIcon } from '../components/icons/PoultryIcons';
+import { CATEGORY_ICONS } from '../components/icons/PoultryIcons';
 import { createPageUrl } from '../utils';
 
-// Inline emoji illustrations for poultry categories — no external images.
-const CategoryArt = ({ name }) => {
-  const c = {
-    chickens: '🐔', ducks: '🦆', turkeys: '🦃', quail: '🐦',
-    eggs_table: '🥚', chicks: '🐥', feed: '🌾', equipment: '🧰',
-  };
-  return <span className="text-4xl" aria-hidden>{c[name] || '🐓'}</span>;
+// Custom inline SVG illustrations for poultry categories.
+const CategoryArt = ({ name, className = 'w-10 h-10' }) => {
+  const Icon = CATEGORY_ICONS[name] || ChickenIcon;
+  return <Icon className={className} aria-hidden />;
 };
 
 export default function Home() {
@@ -208,7 +207,7 @@ export default function Home() {
                 <ArrowUpRight className="w-4 h-4 text-ink" />
               </div>
               <div className="aspect-square flex flex-col justify-between">
-                <CategoryArt name={cat.value} />
+                <CategoryArt name={cat.value} className="w-12 h-12 text-moss-700 group-hover:text-terracotta-500 transition-colors" />
                 <div>
                   <h3 className="font-display text-2xl text-ink leading-tight">{cat.name}</h3>
                   <p className="text-xs text-ink/50 mt-1">Browse listings</p>

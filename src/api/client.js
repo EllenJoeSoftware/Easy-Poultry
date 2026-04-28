@@ -114,9 +114,23 @@ function entityProxy(name) {
       return snap.docs.map(normalizeDoc);
     },
     async filter(whereObj, ordStr, lim) {
+      // Special-case lookups by `id`. Firestore stores the doc key separately
+      // from the doc fields, so a where('id','==',x) query never matches.
+      // Pages frequently call .filter({ id: someId }) expecting a single result.
+      if (whereObj && whereObj.id != null) {
+        const { id, ...rest } = whereObj;
+        const single = await this.get(id);
+        if (!single) return [];
+        // If extra constraints were passed, post-filter in memory.
+        if (Object.keys(rest).length > 0) {
+          const matches = Object.entries(rest).every(([k, v]) => v === undefined || single[k] === v);
+          return matches ? [single] : [];
+        }
+        return [single];
+      }
       if (!db) {
         const all = Array.from(ensureCollection(name).values()).filter((d) =>
-          Object.entries(whereObj || {}).every(([k, v]) => d[k] === v)
+          Object.entries(whereObj || {}).every(([k, v]) => v === undefined || d[k] === v)
         );
         return applyDemoOrderAndLimit(all, ordStr, lim);
       }
@@ -283,13 +297,68 @@ const authApi = {
   },
 };
 
+// Read a File/Blob as a base64 data URL.
+const readAsDataURL = (file) =>
+  new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+
+// Resize an image to maxDim (longest side) and re-encode to JPEG to keep
+// data URLs small enough to safely store inline in Firestore docs.
+const resizeImage = (file, maxDim = 1280, quality = 0.82) =>
+  new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const ratio = Math.min(1, maxDim / Math.max(img.width, img.height));
+      const w = Math.round(img.width * ratio);
+      const h = Math.round(img.height * ratio);
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+
 const Core = {
+  /**
+   * Upload a file. Tries Firebase Storage first (best — proper CDN URLs).
+   * If Storage isn't enabled or rules block the write, falls back to an
+   * inline base64 data URL so the app keeps working out-of-the-box.
+   */
   async UploadFile({ file }) {
-    if (!storage) return { file_url: URL.createObjectURL(file) };
-    const path = `uploads/${Date.now()}_${file.name}`;
-    const r = ref(storage, path);
-    await uploadBytes(r, file);
-    return { file_url: await getDownloadURL(r) };
+    if (storage) {
+      try {
+        const safeName = (file.name || 'file').replace(/[^a-zA-Z0-9._-]/g, '_');
+        const userPath = auth?.currentUser?.uid || 'public';
+        const path = `uploads/${userPath}/${Date.now()}_${safeName}`;
+        const r = ref(storage, path);
+        await uploadBytes(r, file, { contentType: file.type || 'application/octet-stream' });
+        const file_url = await getDownloadURL(r);
+        return { file_url };
+      } catch (err) {
+        // Common causes: Storage not enabled, rules blocking the write, CORS, billing required for new bucket format.
+        console.warn('[UploadFile] Firebase Storage upload failed, falling back to base64. Reason:', err?.code || err?.message || err);
+      }
+    }
+    // --- Fallback: inline base64 data URL ----------------------------
+    try {
+      // Resize images to keep data URL size manageable (<800KB typically).
+      if (file.type?.startsWith('image/')) {
+        const file_url = await resizeImage(file, 1280, 0.82);
+        return { file_url, _inline: true };
+      }
+      // Non-image files: just embed as data URL (no resize).
+      const file_url = await readAsDataURL(file);
+      return { file_url, _inline: true };
+    } catch (err) {
+      console.error('[UploadFile] Even base64 fallback failed:', err);
+      throw err;
+    }
   },
   async SendEmail(p) { console.info('[SendEmail stub]', p); return { success: true, stub: true }; },
   async SendSMS(p) { console.info('[SendSMS stub]', p); return { success: true, stub: true }; },

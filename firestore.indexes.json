@@ -1,0 +1,131 @@
+{
+  "indexes": [
+    { "collectionGroup": "Listing", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "created_by", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "Listing", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "Listing", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "category", "order": "ASCENDING" },
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "Listing", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "seller_id", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "Listing", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "featured", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "SavedListing", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "created_by", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "Inquiry", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "seller_email", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "Inquiry", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "buyer_email", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "Notification", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "user_email", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "Notification", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "user_email", "order": "ASCENDING" },
+      { "fieldPath": "read", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "Auction", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "end_time", "order": "ASCENDING" }
+    ]},
+    { "collectionGroup": "Auction", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "created_by", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "AuctionBid", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "auction_id", "order": "ASCENDING" },
+      { "fieldPath": "amount", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "AuctionBid", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "auction_id", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "AuctionEvent", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "start_time", "order": "ASCENDING" }
+    ]},
+    { "collectionGroup": "Competition", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "status", "order": "ASCENDING" },
+      { "fieldPath": "end_date", "order": "ASCENDING" }
+    ]},
+    { "collectionGroup": "CompetitionEntry", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "competition_id", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "CompetitionEntry", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "created_by", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "PoultryBatch", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "created_by", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "BatchExpense", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "batch_id", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "BatchExpense", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "created_by", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "FeedPurchase", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "created_by", "order": "ASCENDING" },
+      { "fieldPath": "purchase_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "FeedUsage", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "batch_id", "order": "ASCENDING" },
+      { "fieldPath": "usage_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "VaccinationEvent", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "batch_id", "order": "ASCENDING" },
+      { "fieldPath": "scheduled_date", "order": "ASCENDING" }
+    ]},
+    { "collectionGroup": "VaccinationEvent", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "created_by", "order": "ASCENDING" },
+      { "fieldPath": "scheduled_date", "order": "ASCENDING" }
+    ]},
+    { "collectionGroup": "EggIncubation", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "created_by", "order": "ASCENDING" },
+      { "fieldPath": "set_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "IncubationLog", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "incubation_id", "order": "ASCENDING" },
+      { "fieldPath": "day", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "ChatMessage", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "chat_id", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "ASCENDING" }
+    ]},
+    { "collectionGroup": "Chat", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "participants", "arrayConfig": "CONTAINS" },
+      { "fieldPath": "updated_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "SellerReview", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "seller_email", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "Prospect", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "seller_email", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]}
+  ],
+  "fieldOverrides": []
+}

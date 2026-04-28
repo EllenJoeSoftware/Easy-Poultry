@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/AuthContext';
 import CliffieChat from './components/chat/CliffieChat';
 import NotificationBell from './components/notifications/NotificationBell';
+import { LogoMark } from './components/icons/EasyPoultryLogo';
 
 export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -64,11 +65,8 @@ export default function Layout({ children, currentPageName }) {
             {/* Logo lockup */}
             <div className="flex items-center gap-10">
               <Link to={createPageUrl('Home')} className="flex items-center gap-3 group">
-                <div className="relative">
-                  <div className="w-11 h-11 rounded-xl bg-moss-gradient flex items-center justify-center shadow-soft transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3">
-                    <Bird className="w-6 h-6 text-cream" strokeWidth={1.75} />
-                  </div>
-                  <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-yolk-300 border-2 border-cream" />
+                <div className="transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3">
+                  <LogoMark className="w-11 h-11 drop-shadow-sm" />
                 </div>
                 <div className="hidden sm:flex flex-col leading-none">
                   <span className="font-display text-xl font-bold text-ink tracking-tight">Easy Poultry</span>
@@ -267,9 +265,7 @@ export default function Layout({ children, currentPageName }) {
             {/* Brand block */}
             <div className="lg:col-span-5">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 rounded-xl bg-moss-gradient flex items-center justify-center">
-                  <Bird className="w-5 h-5 text-cream" strokeWidth={1.75} />
-                </div>
+                <LogoMark className="w-10 h-10" showAccent={false} />
                 <span className="font-display text-2xl font-bold text-cream">Easy Poultry</span>
               </div>
               <p className="font-display text-2xl leading-snug text-cream/85 max-w-md">
