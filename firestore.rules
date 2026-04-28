@@ -1,0 +1,147 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(email) {
+      return isSignedIn() && request.auth.token.email == email;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && exists(/databases/$(database)/documents/User/$(request.auth.uid))
+        && get(/databases/$(database)/documents/User/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    // User profile docs — keyed by Firebase UID
+    match /User/{uid} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.auth.uid == uid;
+      allow update, delete: if isSignedIn() && (request.auth.uid == uid || isAdmin());
+    }
+
+    // Public-read collections (anyone can browse listings, auctions, competitions)
+    match /Listing/{id} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(resource.data.created_by) || isAdmin();
+    }
+
+    match /Auction/{id} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(resource.data.created_by) || isAdmin();
+    }
+
+    match /AuctionEvent/{id} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /AuctionHouse/{id} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(resource.data.created_by) || isAdmin();
+    }
+
+    match /Competition/{id} {
+      allow read: if true;
+      allow write: if isSignedIn();
+    }
+
+    match /CompetitionEntry/{id} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(resource.data.created_by) || isAdmin();
+    }
+
+    match /CompetitionWinner/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /SellerProfile/{id} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(resource.data.created_by) || isAdmin();
+    }
+
+    match /SellerReview/{id} {
+      allow read: if true;
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(resource.data.created_by) || isAdmin();
+    }
+
+    // Owner-private collections — only owner can read/write
+    match /PoultryBatch/{id} {
+      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+      allow create: if isSignedIn();
+    }
+
+    match /BatchExpense/{id} {
+      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+      allow create: if isSignedIn();
+    }
+
+    match /FeedPurchase/{id} {
+      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+      allow create: if isSignedIn();
+    }
+
+    match /FeedUsage/{id} {
+      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+      allow create: if isSignedIn();
+    }
+
+    match /VaccinationEvent/{id} {
+      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+      allow create: if isSignedIn();
+    }
+
+    match /EggIncubation/{id} {
+      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+      allow create: if isSignedIn();
+    }
+
+    match /IncubationLog/{id} {
+      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+      allow create: if isSignedIn();
+    }
+
+    match /BankingInfo/{id} {
+      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+    }
+
+    // Messaging — participants can read; sender can write
+    match /Chat/{id} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /ChatMessage/{id} {
+      allow read, write: if isSignedIn();
+    }
+
+    match /Notification/{id} {
+      allow read: if isSignedIn() && resource.data.user_email == request.auth.token.email;
+      allow create: if isSignedIn();
+      allow update, delete: if isSignedIn() && resource.data.user_email == request.auth.token.email;
+    }
+
+    // Admin-only
+    match /AdminSettings/{id} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /EmailCampaign/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    // Catch-all for the rest of the entities — authenticated read/write
+    match /{collection}/{id} {
+      allow read, write: if isSignedIn();
+    }
+  }
+}

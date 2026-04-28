@@ -1,0 +1,338 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   Easy Poultry — Premium Design System
+   Palette: Moss · Terracotta · Cream · Ink · Yolk · Sage
+   Type: Playfair Display (display/headings) + Inter (body/UI)
+   ============================================================ */
+
+@layer base {
+  :root {
+    /* Brand palette in HSL for shadcn token compatibility */
+    /* Moss #3A5A40  → 124 23% 29%   (primary) */
+    /* Terracotta #E07A5F → 14 67% 63%   (accent) */
+    /* Cream #FAF7F2  → 36 35% 97%   (background/surface) */
+    /* Ink #1B1B1F    → 240 8% 11%    (foreground) */
+    /* Yolk #F4B860   → 36 87% 67%    (highlight/destructive-warn) */
+    /* Sage #A3B18A   → 84 19% 62%    (muted accent) */
+    /* Forest Deep #2D3142 → 224 19% 22%  (secondary anchor) */
+
+    --background: 36 35% 97%;
+    --foreground: 240 8% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 8% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 8% 11%;
+
+    --primary: 124 23% 29%;
+    --primary-foreground: 36 35% 97%;
+
+    --secondary: 224 19% 22%;
+    --secondary-foreground: 36 35% 97%;
+
+    --muted: 36 25% 92%;
+    --muted-foreground: 240 5% 38%;
+
+    --accent: 14 67% 63%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 36 14% 87%;
+    --input: 36 14% 87%;
+    --ring: 124 23% 29%;
+
+    --chart-1: 124 23% 29%;
+    --chart-2: 14 67% 63%;
+    --chart-3: 36 87% 67%;
+    --chart-4: 84 19% 62%;
+    --chart-5: 224 19% 22%;
+
+    --radius: 0.75rem;
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 240 8% 11%;
+    --sidebar-primary: 124 23% 29%;
+    --sidebar-primary-foreground: 36 35% 97%;
+    --sidebar-accent: 36 25% 92%;
+    --sidebar-accent-foreground: 240 8% 11%;
+    --sidebar-border: 36 14% 87%;
+    --sidebar-ring: 124 23% 29%;
+
+    /* Premium signal colors (used directly via arbitrary values) */
+    --moss-50:  #F2F6F2;
+    --moss-100: #DCE6DD;
+    --moss-200: #B8CCBA;
+    --moss-300: #94B197;
+    --moss-400: #6F9374;
+    --moss-500: #4F7458;
+    --moss-600: #3A5A40;
+    --moss-700: #2C4632;
+    --moss-800: #1F3324;
+    --moss-900: #112016;
+
+    --terracotta-50:  #FCEEEA;
+    --terracotta-100: #F8D9CF;
+    --terracotta-200: #F1B59E;
+    --terracotta-300: #EB916D;
+    --terracotta-400: #E07A5F;
+    --terracotta-500: #C9603F;
+    --terracotta-600: #A84A30;
+    --terracotta-700: #843722;
+    --terracotta-800: #5F2618;
+    --terracotta-900: #3D170E;
+
+    --yolk-50:  #FEF7E8;
+    --yolk-100: #FCEAC0;
+    --yolk-200: #F9D688;
+    --yolk-300: #F4B860;
+    --yolk-400: #ED9F3A;
+    --yolk-500: #D7841E;
+    --yolk-600: #AE6816;
+
+    --cream:  #FAF7F2;
+    --cream-deep: #F2EBDC;
+    --ink:    #1B1B1F;
+    --ink-soft: #2D3142;
+    --sage:   #A3B18A;
+  }
+
+  .dark {
+    --background: 240 8% 7%;
+    --foreground: 36 35% 97%;
+    --card: 240 8% 9%;
+    --card-foreground: 36 35% 97%;
+    --popover: 240 8% 9%;
+    --popover-foreground: 36 35% 97%;
+    --primary: 124 23% 55%;
+    --primary-foreground: 240 8% 7%;
+    --secondary: 224 19% 22%;
+    --secondary-foreground: 36 35% 97%;
+    --muted: 240 5% 17%;
+    --muted-foreground: 36 14% 70%;
+    --accent: 14 67% 63%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 5% 20%;
+    --input: 240 5% 20%;
+    --ring: 124 23% 55%;
+    --sidebar-background: 240 8% 9%;
+    --sidebar-foreground: 36 35% 97%;
+    --sidebar-primary: 124 23% 55%;
+    --sidebar-primary-foreground: 240 8% 7%;
+    --sidebar-accent: 240 5% 17%;
+    --sidebar-accent-foreground: 36 35% 97%;
+    --sidebar-border: 240 5% 20%;
+    --sidebar-ring: 124 23% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: 'cv02','cv03','cv04','cv11';
+  }
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Playfair Display', Georgia, serif;
+    letter-spacing: -0.015em;
+  }
+  ::selection {
+    background-color: var(--moss-200);
+    color: var(--ink);
+  }
+}
+
+/* ============================================================
+   Premium component utilities
+   ============================================================ */
+@layer components {
+  /* Glass nav blur (used by Layout) */
+  .glass-nav {
+    background: hsla(36, 35%, 97%, 0.75);
+    backdrop-filter: saturate(140%) blur(14px);
+    -webkit-backdrop-filter: saturate(140%) blur(14px);
+    border-bottom: 1px solid hsla(36, 14%, 87%, 0.6);
+  }
+
+  /* Editorial section heading */
+  .eyebrow {
+    @apply text-xs uppercase tracking-[0.18em] font-semibold;
+    color: var(--moss-600);
+  }
+
+  /* Premium gradient pill button (cta) */
+  .btn-cta {
+    @apply inline-flex items-center justify-center font-medium rounded-full transition-all duration-300;
+    background: linear-gradient(135deg, var(--moss-600) 0%, var(--moss-700) 100%);
+    color: var(--cream);
+    box-shadow:
+      0 1px 0 hsla(0,0%,100%,0.15) inset,
+      0 10px 30px -8px hsla(124, 30%, 18%, 0.45);
+  }
+  .btn-cta:hover {
+    background: linear-gradient(135deg, var(--moss-700) 0%, var(--moss-800) 100%);
+    transform: translateY(-1px);
+    box-shadow:
+      0 1px 0 hsla(0,0%,100%,0.15) inset,
+      0 14px 36px -8px hsla(124, 30%, 18%, 0.55);
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center font-medium rounded-full transition-all duration-300;
+    background: linear-gradient(135deg, var(--terracotta-400) 0%, var(--terracotta-500) 100%);
+    color: white;
+    box-shadow:
+      0 1px 0 hsla(0,0%,100%,0.2) inset,
+      0 10px 30px -8px hsla(14, 60%, 35%, 0.45);
+  }
+  .btn-accent:hover {
+    background: linear-gradient(135deg, var(--terracotta-500) 0%, var(--terracotta-600) 100%);
+    transform: translateY(-1px);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center font-medium rounded-full transition-all duration-200;
+    color: var(--ink);
+    background: transparent;
+  }
+  .btn-ghost:hover {
+    background: var(--moss-50);
+    color: var(--moss-700);
+  }
+
+  /* Premium card with subtle warmth + lift */
+  .card-premium {
+    @apply rounded-2xl bg-white transition-all duration-300;
+    border: 1px solid hsla(36, 14%, 87%, 0.7);
+    box-shadow:
+      0 1px 2px hsla(240, 8%, 11%, 0.04),
+      0 8px 24px -10px hsla(240, 8%, 11%, 0.08);
+  }
+  .card-premium:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 1px 2px hsla(240, 8%, 11%, 0.05),
+      0 18px 40px -12px hsla(240, 8%, 11%, 0.16);
+    border-color: var(--moss-200);
+  }
+
+  /* Editorial divider */
+  .rule {
+    height: 1px;
+    background: linear-gradient(to right, transparent, hsla(36, 14%, 60%, 0.4), transparent);
+  }
+
+  /* Tag chip */
+  .chip {
+    @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium;
+    background: var(--moss-50);
+    color: var(--moss-700);
+    border: 1px solid var(--moss-100);
+  }
+  .chip-accent {
+    background: var(--terracotta-50);
+    color: var(--terracotta-700);
+    border-color: var(--terracotta-100);
+  }
+  .chip-yolk {
+    background: var(--yolk-50);
+    color: var(--yolk-600);
+    border-color: var(--yolk-100);
+  }
+
+  /* Hero textured background */
+  .hero-warm {
+    background:
+      radial-gradient(circle at 20% 20%, hsla(124, 23%, 92%, 0.7), transparent 50%),
+      radial-gradient(circle at 80% 0%, hsla(14, 67%, 90%, 0.5), transparent 50%),
+      radial-gradient(circle at 50% 100%, hsla(36, 87%, 92%, 0.4), transparent 50%),
+      var(--cream);
+  }
+
+  /* Subtle grain overlay (used inside hero panels) */
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.06 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    opacity: 0.5;
+  }
+
+  /* Animated underline link */
+  .link-underline {
+    position: relative;
+  }
+  .link-underline::after {
+    content: '';
+    position: absolute;
+    left: 0; bottom: -2px;
+    width: 100%; height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform 0.3s ease;
+  }
+  .link-underline:hover::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* Display heading — magazine size */
+  .h-display {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+  }
+
+  /* Stat number */
+  .stat-num {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  /* Scroll fade in */
+  .reveal {
+    opacity: 0;
+    transform: translateY(12px);
+    animation: reveal 0.7s cubic-bezier(.2,.7,.3,1) forwards;
+  }
+  @keyframes reveal {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Marquee bar (trust strip) */
+  .marquee {
+    display: flex;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 10%, black 90%, transparent);
+  }
+  .marquee-track {
+    display: flex;
+    gap: 3rem;
+    animation: marquee 28s linear infinite;
+    flex-shrink: 0;
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+}
