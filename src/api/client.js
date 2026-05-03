@@ -52,6 +52,9 @@ import {
   signOut,
   onAuthStateChanged,
   updateProfile,
+  sendPasswordResetEmail,
+  confirmPasswordReset as fbConfirmPasswordReset,
+  verifyPasswordResetCode as fbVerifyPasswordResetCode,
 } from 'firebase/auth';
 import { db, storage, auth, googleProvider, isFirebaseConfigured } from '@/lib/firebase';
 
@@ -281,6 +284,35 @@ const authApi = {
     if (!auth || !googleProvider) throw new Error('Firebase auth not initialised');
     const cred = await signInWithPopup(auth, googleProvider);
     return fetchOrCreateUserDoc(cred.user);
+  },
+
+  /**
+   * Send a password-reset email. Firebase's hosted reset page handles the rest
+   * (or we can override with our own /ResetPassword route via actionCodeSettings).
+   */
+  async sendPasswordReset(email) {
+    if (!auth) throw new Error('Firebase auth not initialised');
+    if (!email) throw new Error('Email is required');
+    await sendPasswordResetEmail(auth, email, {
+      // After clicking the link in the email, return user to the app.
+      url: typeof window !== 'undefined'
+        ? `${window.location.origin}/Login`
+        : 'https://localhost/Login',
+      handleCodeInApp: false,
+    });
+    return { sent: true };
+  },
+
+  /** Verify the oobCode from the password-reset email link. */
+  async verifyPasswordResetCode(oobCode) {
+    if (!auth) throw new Error('Firebase auth not initialised');
+    return fbVerifyPasswordResetCode(auth, oobCode);
+  },
+
+  /** Complete the reset by setting the new password. */
+  async confirmPasswordReset(oobCode, newPassword) {
+    if (!auth) throw new Error('Firebase auth not initialised');
+    return fbConfirmPasswordReset(auth, oobCode, newPassword);
   },
   onChange(cb) {
     if (!auth) { cb(null); return () => {}; }

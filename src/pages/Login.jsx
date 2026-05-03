@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, Mail, Lock, User as UserIcon, Bird, Sparkles, ArrowRight, Eye, EyeOff, AlertCircle } from 'lucide-react';
+import { Loader2, Mail, Lock, User as UserIcon, Bird, Sparkles, ArrowRight, Eye, EyeOff, AlertCircle, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -12,7 +12,7 @@ import { isFirebaseConfigured } from '@/lib/firebase';
 import { createPageUrl } from '@/utils';
 
 export default function Login() {
-  const [mode, setMode] = useState('signin'); // 'signin' | 'signup'
+  const [mode, setMode] = useState('signin'); // 'signin' | 'signup' | 'reset'
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -20,19 +20,28 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [resetSent, setResetSent] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const returnUrl = searchParams.get('return') || createPageUrl('Dashboard');
 
-  // Redirect immediately if already signed in
+  // Redirect immediately if already signed in (skip when in reset mode so they
+  // can stay on the page after clicking the email link)
   useEffect(() => {
+    if (mode === 'reset') return;
     const unsub = api.auth.onChange((u) => {
       if (u) {
         navigate(returnUrl.startsWith('/') ? returnUrl : '/' + returnUrl, { replace: true });
       }
     });
     return () => { if (typeof unsub === 'function') unsub(); };
-  }, [navigate, returnUrl]);
+  }, [navigate, returnUrl, mode]);
+
+  const switchMode = (next) => {
+    setMode(next);
+    setError(null);
+    setResetSent(false);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,19 +51,30 @@ export default function Login() {
       if (mode === 'signin') {
         await api.auth.signIn(email, password);
         toast.success('Welcome back!');
-      } else {
+      } else if (mode === 'signup') {
         await api.auth.signUp(email, password, { full_name: fullName });
         toast.success('Account created! Welcome to Easy Poultry.');
+      } else if (mode === 'reset') {
+        await api.auth.sendPasswordReset(email);
+        setResetSent(true);
+        toast.success('Reset link sent — check your inbox.');
       }
     } catch (err) {
       const code = err?.code || '';
-      const friendly = code.includes('wrong-password') || code.includes('user-not-found')
-        ? 'Wrong email or password.'
-        : code.includes('email-already')
-          ? 'An account with that email already exists.'
-          : code.includes('weak-password')
-            ? 'Password must be at least 6 characters.'
-            : err?.message || 'Authentication failed.';
+      const friendly =
+        code.includes('wrong-password') || code.includes('user-not-found') || code.includes('invalid-credential')
+          ? 'Wrong email or password.'
+          : code.includes('email-already')
+            ? 'An account with that email already exists.'
+            : code.includes('weak-password')
+              ? 'Password must be at least 6 characters.'
+              : code.includes('invalid-email')
+                ? 'That email address looks invalid.'
+                : code.includes('too-many-requests')
+                  ? 'Too many attempts. Please wait a few minutes and try again.'
+                  : code.includes('missing-email')
+                    ? 'Please enter your email address.'
+                    : err?.message || 'Something went wrong. Please try again.';
       setError(friendly);
     } finally {
       setLoading(false);
@@ -73,6 +93,42 @@ export default function Login() {
       setGoogleLoading(false);
     }
   };
+
+  // Reset-mode: simplified panel after the link is sent
+  if (mode === 'reset' && resetSent) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-cream px-6">
+        <div className="card-premium p-10 max-w-md w-full text-center">
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-moss-50 border border-moss-100 flex items-center justify-center text-moss-700 mb-6">
+            <CheckCircle2 className="w-8 h-8" />
+          </div>
+          <h2 className="font-display text-3xl text-ink mb-3">Check your inbox</h2>
+          <p className="text-ink/70 leading-relaxed mb-8">
+            We've sent a password reset link to <span className="font-medium text-ink">{email}</span>.
+            Click the link in that email to choose a new password.
+          </p>
+          <p className="text-xs text-ink/50 mb-6">
+            Don't see it? Check your spam folder, or wait 30 seconds and try again.
+          </p>
+          <div className="flex flex-col gap-2">
+            <Button
+              onClick={() => { switchMode('signin'); }}
+              className="btn-cta w-full h-11 text-sm"
+            >
+              Back to sign in
+            </Button>
+            <button
+              type="button"
+              onClick={() => { setResetSent(false); }}
+              className="text-xs text-ink/50 hover:text-moss-700 hover:underline mt-2"
+            >
+              Send to a different email
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row bg-white">
@@ -156,13 +212,25 @@ export default function Login() {
               exit={{ opacity: 0, x: -10 }}
               transition={{ duration: 0.2 }}
             >
+              {mode === 'reset' && (
+                <button
+                  type="button"
+                  onClick={() => switchMode('signin')}
+                  className="inline-flex items-center gap-1.5 text-sm text-ink/60 hover:text-moss-700 transition-colors mb-4 group"
+                >
+                  <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
+                  Back to sign in
+                </button>
+              )}
               <h2 className="text-3xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'Playfair Display, serif' }}>
-                {mode === 'signin' ? 'Welcome back' : 'Create your account'}
+                {mode === 'signin' && 'Welcome back'}
+                {mode === 'signup' && 'Create your account'}
+                {mode === 'reset'  && 'Reset your password'}
               </h2>
               <p className="text-gray-500 mb-8">
-                {mode === 'signin'
-                  ? 'Sign in to manage your farm, listings, and auctions.'
-                  : 'Join thousands of poultry farmers and buyers.'}
+                {mode === 'signin' && 'Sign in to manage your farm, listings, and auctions.'}
+                {mode === 'signup' && 'Join thousands of poultry farmers and buyers.'}
+                {mode === 'reset'  && "Enter the email you signed up with and we'll send you a reset link."}
               </p>
 
               {!isFirebaseConfigured && (
@@ -181,6 +249,7 @@ export default function Login() {
                 </Alert>
               )}
 
+              {mode !== 'reset' && (
               <Button
                 type="button"
                 variant="outline"
@@ -211,6 +280,7 @@ export default function Login() {
                   <span className="bg-white px-3 text-gray-400 tracking-wider">or with email</span>
                 </div>
               </div>
+              )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 {mode === 'signup' && (
@@ -249,11 +319,18 @@ export default function Login() {
                   </div>
                 </div>
 
+                {mode !== 'reset' && (
                 <div>
                   <div className="flex items-center justify-between">
                     <Label htmlFor="password" className="text-gray-700">Password</Label>
                     {mode === 'signin' && (
-                      <button type="button" className="text-xs text-moss-700 hover:underline">Forgot?</button>
+                      <button
+                        type="button"
+                        onClick={() => switchMode('reset')}
+                        className="text-xs text-moss-700 hover:underline font-medium"
+                      >
+                        Forgot password?
+                      </button>
                     )}
                   </div>
                   <div className="relative mt-1.5">
@@ -278,6 +355,7 @@ export default function Login() {
                     </button>
                   </div>
                 </div>
+                )}
 
                 <Button
                   type="submit"
@@ -288,23 +366,39 @@ export default function Login() {
                     <Loader2 className="w-5 h-5 animate-spin" />
                   ) : (
                     <>
-                      {mode === 'signin' ? 'Sign in' : 'Create account'}
+                      {mode === 'signin' && 'Sign in'}
+                      {mode === 'signup' && 'Create account'}
+                      {mode === 'reset'  && 'Send reset link'}
                       <ArrowRight className="w-4 h-4 ml-1" />
                     </>
                   )}
                 </Button>
               </form>
 
-              <p className="mt-8 text-sm text-center text-gray-500">
-                {mode === 'signin' ? "Don't have an account?" : 'Already have an account?'}{' '}
-                <button
-                  type="button"
-                  onClick={() => { setMode(mode === 'signin' ? 'signup' : 'signin'); setError(null); }}
-                  className="text-moss-700 hover:underline font-medium"
-                >
-                  {mode === 'signin' ? 'Sign up' : 'Sign in'}
-                </button>
-              </p>
+              {mode !== 'reset' && (
+                <p className="mt-8 text-sm text-center text-gray-500">
+                  {mode === 'signin' ? "Don't have an account?" : 'Already have an account?'}{' '}
+                  <button
+                    type="button"
+                    onClick={() => switchMode(mode === 'signin' ? 'signup' : 'signin')}
+                    className="text-moss-700 hover:underline font-medium"
+                  >
+                    {mode === 'signin' ? 'Sign up' : 'Sign in'}
+                  </button>
+                </p>
+              )}
+              {mode === 'reset' && (
+                <p className="mt-8 text-sm text-center text-gray-500">
+                  Remembered it?{' '}
+                  <button
+                    type="button"
+                    onClick={() => switchMode('signin')}
+                    className="text-moss-700 hover:underline font-medium"
+                  >
+                    Sign in
+                  </button>
+                </p>
+              )}
             </motion.div>
           </AnimatePresence>
         </div>
