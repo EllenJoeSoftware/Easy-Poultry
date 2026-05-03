@@ -4,7 +4,7 @@ import { createPageUrl } from './utils';
 import {
   Menu, X, LayoutGrid, Plus, Settings, Shield, Package, Star,
   MessageCircle, Gavel, Users, Bird, Trophy, LogOut, ChevronDown,
-  Search as SearchIcon, Bell, ArrowUpRight,
+  ArrowUpRight,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/AuthContext';
@@ -34,7 +34,7 @@ export default function Layout({ children, currentPageName }) {
   }, [location.pathname]);
 
   // Hide layout chrome for full-bleed pages
-  if (currentPageName === 'Search' || currentPageName === 'Login') {
+  if (currentPageName === 'Login') {
     return <div>{children}</div>;
   }
 
@@ -100,16 +100,6 @@ export default function Layout({ children, currentPageName }) {
 
             {/* Right cluster */}
             <div className="hidden lg:flex items-center gap-2">
-              {/* Search shortcut */}
-              <Link
-                to={createPageUrl('Search')}
-                className="flex items-center gap-2 px-3.5 py-2 rounded-full text-sm text-ink/60 hover:text-ink bg-white/70 border border-border hover:border-moss-200 transition-all"
-              >
-                <SearchIcon className="w-4 h-4" />
-                <span className="hidden xl:inline">Search the marketplace</span>
-                <kbd className="hidden xl:inline-flex ml-2 px-1.5 py-0.5 text-[10px] font-mono bg-moss-50 text-moss-700 rounded border border-moss-100">⌘K</kbd>
-              </Link>
-
               {user ? (
                 <>
                   {isSeller && (

@@ -33,7 +33,6 @@ import Onboarding from './pages/Onboarding';
 import PrivacyPolicy from './pages/PrivacyPolicy';
 import ProductDetail from './pages/ProductDetail';
 import ProfileSettings from './pages/ProfileSettings';
-import Search from './pages/Search';
 import SellerFinances from './pages/SellerFinances';
 import SellerListings from './pages/SellerListings';
 import SellerReviews from './pages/SellerReviews';
@@ -81,7 +80,6 @@ export const PAGES = {
     "PrivacyPolicy": PrivacyPolicy,
     "ProductDetail": ProductDetail,
     "ProfileSettings": ProfileSettings,
-    "Search": Search,
     "SellerFinances": SellerFinances,
     "SellerListings": SellerListings,
     "SellerReviews": SellerReviews,

@@ -9,13 +9,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Plus, Package, Eye, MessageCircle, Heart, TrendingUp, Loader2, CheckCircle2, Archive, Star, BarChart3 } from 'lucide-react';
+import { Plus, Package, Eye, MessageCircle, Heart, TrendingUp, Loader2, CheckCircle2, Archive, Star, BarChart3, ShoppingBag, AlertCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import ListingCard from '../components/marketplace/ListingCard';
 import FeatureListingModal from '../components/listings/FeatureListingModal';
 import SellerAnalytics from '../components/dashboard/SellerAnalytics';
 import { createPageUrl } from '../utils';
 import { toast } from 'sonner';
+import PageShell from '@/components/shell/PageShell';
+import EmptyState from '@/components/shell/EmptyState';
+import StatCard from '@/components/shell/StatCard';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -190,7 +193,7 @@ export default function Dashboard() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
@@ -199,32 +202,50 @@ export default function Dashboard() {
   const activeListings = myListings.filter(l => l.status === 'active');
   const soldListings = myListings.filter(l => l.status === 'sold');
   const totalViews = myListings.reduce((sum, l) => sum + (l.view_count || 0), 0);
+  const totalInquiries = receivedInquiries.length;
+  const totalRevenue = soldListings.reduce((sum, l) => sum + (l.price || 0) * (l.sold_quantity || l.stock_quantity || 0), 0);
+  const firstName = (user.full_name || user.email || 'there').split(' ')[0];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-[#7A9D7A] to-[#6A8D6A] text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Welcome back, {user.full_name}!</h1>
-              <p className="text-white/90">Manage your marketplace activity</p>
-              {isSeller && !user.seller_activated && (
-                <Badge className="mt-2 bg-yellow-500 text-white">Pending Admin Activation</Badge>
-              )}
-            </div>
-            {isSeller && user.seller_activated && (
-              <Link to={createPageUrl('CreateListing')}>
-                <Button className="bg-white text-[#7A9D7A] hover:bg-gray-50 h-11 px-6">
-                  <Plus className="w-5 h-5 mr-2" />
-                  New Listing
-                </Button>
-              </Link>
-            )}
+    <PageShell
+      eyebrow={`Welcome back, ${firstName}`}
+      title={isSeller ? 'Your seller dashboard' : 'Your account'}
+      subtitle={isSeller
+        ? 'Track listings, inquiries and sales — all in one place.'
+        : 'Saved listings, inquiries you sent, and your account.'}
+      breadcrumb={[{ label: 'Home', href: '/' }, { label: 'Dashboard' }]}
+      action={
+        isSeller && user.seller_activated && (
+          <Link to={createPageUrl('CreateListing')}>
+            <Button className="btn-cta px-5 py-2.5 text-sm gap-1.5">
+              <Plus className="w-4 h-4" />
+              New listing
+            </Button>
+          </Link>
+        )
+      }
+    >
+      {isSeller && !user.seller_activated && (
+        <div className="mb-8 flex items-start gap-3 p-4 rounded-2xl bg-yolk-50 border border-yolk-100">
+          <AlertCircle className="w-5 h-5 text-yolk-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-medium text-ink">Seller account pending activation</p>
+            <p className="text-sm text-ink/60 mt-0.5">An admin will review your account shortly. You can still browse and message buyers.</p>
           </div>
         </div>
-      </div>
+      )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Stats row */}
+      {isSeller && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+          <StatCard icon={Package}       label="Active listings" value={activeListings.length}                                      tint="moss" />
+          <StatCard icon={Eye}           label="Total views"     value={totalViews.toLocaleString()}                                tint="sage" />
+          <StatCard icon={MessageCircle} label="Inquiries"       value={totalInquiries}                                             tint="terracotta" />
+          <StatCard icon={ShoppingBag}   label="Revenue"         value={`R${totalRevenue.toLocaleString('en-ZA', { maximumFractionDigits: 0 })}`} tint="yolk" />
+        </div>
+      )}
+
+      <div>
         {isSeller && (
           <SellerAnalytics userEmail={user.email} />
         )}
@@ -259,30 +280,30 @@ export default function Dashboard() {
         )}
 
         <Tabs defaultValue={isSeller ? "listings" : "saved"} className="space-y-6 mt-8">
-          <TabsList className="bg-white border shadow-sm">
-            {isSeller && <TabsTrigger value="listings">Active Listings</TabsTrigger>}
-            {isSeller && <TabsTrigger value="sold">Sold History</TabsTrigger>}
-            <TabsTrigger value="saved">Saved</TabsTrigger>
-            {isSeller && <TabsTrigger value="inquiries">Inquiries</TabsTrigger>}
-            <TabsTrigger value="my-inquiries">My Inquiries</TabsTrigger>
+          <TabsList className="bg-white border border-border rounded-full p-1 h-auto inline-flex">
+            {isSeller && <TabsTrigger value="listings" className="rounded-full px-4 py-2 data-[state=active]:bg-moss-600 data-[state=active]:text-cream data-[state=active]:shadow-soft">Active listings</TabsTrigger>}
+            {isSeller && <TabsTrigger value="sold" className="rounded-full px-4 py-2 data-[state=active]:bg-moss-600 data-[state=active]:text-cream">Sold history</TabsTrigger>}
+            <TabsTrigger value="saved" className="rounded-full px-4 py-2 data-[state=active]:bg-moss-600 data-[state=active]:text-cream">Saved</TabsTrigger>
+            {isSeller && <TabsTrigger value="inquiries" className="rounded-full px-4 py-2 data-[state=active]:bg-moss-600 data-[state=active]:text-cream">Inquiries</TabsTrigger>}
+            <TabsTrigger value="my-inquiries" className="rounded-full px-4 py-2 data-[state=active]:bg-moss-600 data-[state=active]:text-cream">My inquiries</TabsTrigger>
           </TabsList>
 
           {isSeller && (
             <TabsContent value="listings">
               {activeListings.length === 0 ? (
-                <Card className="p-12 text-center border-0 shadow-lg">
-                  <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No active listings</h3>
-                  <p className="text-gray-600 mb-6">Start selling by creating your first listing</p>
-                  {user.seller_activated && (
+                <EmptyState
+                  icon={Package}
+                  title="No active listings"
+                  subtitle="Start selling by creating your first listing. Free to list, free to message buyers."
+                  action={user.seller_activated && (
                     <Link to={createPageUrl('CreateListing')}>
-                      <Button className="bg-[#7A9D7A] hover:bg-[#6A8D6A]">
-                        <Plus className="w-5 h-5 mr-2" />
-                        Create Listing
+                      <Button className="btn-cta px-5 py-2.5 text-sm gap-1.5">
+                        <Plus className="w-4 h-4" />
+                        Create your first listing
                       </Button>
                     </Link>
                   )}
-                </Card>
+                />
               ) : (
                 <div className="space-y-4">
                   {activeListings.map((listing) => (
@@ -360,11 +381,11 @@ export default function Dashboard() {
           {isSeller && (
             <TabsContent value="sold">
               {soldListings.length === 0 ? (
-                <Card className="p-12 text-center border-0 shadow-lg">
-                  <Archive className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No sold items yet</h3>
-                  <p className="text-gray-600">Your sold items history will appear here</p>
-                </Card>
+                <EmptyState
+                  icon={Archive}
+                  title="No sold items yet"
+                  subtitle="Your sold items history will appear here once you've made your first sale."
+                />
               ) : (
                 <div className="space-y-4">
                   {soldListings.map((listing) => (
@@ -401,16 +422,16 @@ export default function Dashboard() {
 
           <TabsContent value="saved">
             {savedListings.length === 0 ? (
-              <Card className="p-12 text-center border-0 shadow-lg">
-                <Heart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No saved listings</h3>
-                <p className="text-gray-600 mb-6">Save listings you're interested in to view them here</p>
-                <Link to={createPageUrl('Marketplace')}>
-                  <Button className="bg-[#7A9D7A] hover:bg-[#6A8D6A]">
-                    Browse Marketplace
-                  </Button>
-                </Link>
-              </Card>
+              <EmptyState
+                icon={Heart}
+                title="No saved listings"
+                subtitle="Save listings you're interested in by clicking the heart icon to view them here."
+                action={
+                  <Link to={createPageUrl('Marketplace')}>
+                    <Button className="btn-cta px-5 py-2.5 text-sm">Browse marketplace</Button>
+                  </Link>
+                }
+              />
             ) : (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {savedListings.map((listing) => (
@@ -422,13 +443,14 @@ export default function Dashboard() {
 
           {isSeller && (
             <TabsContent value="inquiries">
-              <Card className="border-0 shadow-lg overflow-hidden">
+              <Card className="border-border shadow-soft rounded-2xl overflow-hidden">
                 {receivedInquiries.length === 0 ? (
-                  <div className="p-12 text-center">
-                    <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No inquiries yet</h3>
-                    <p className="text-gray-600">Buyer inquiries will appear here</p>
-                  </div>
+                  <EmptyState
+                    variant="plain"
+                    icon={MessageCircle}
+                    title="No inquiries yet"
+                    subtitle="Buyer inquiries about your listings will appear here."
+                  />
                 ) : (
                   <div className="divide-y">
                     {receivedInquiries.map((inquiry) => (
@@ -521,13 +543,19 @@ export default function Dashboard() {
           )}
 
           <TabsContent value="my-inquiries">
-            <Card className="border-0 shadow-lg overflow-hidden">
+            <Card className="border-border shadow-soft rounded-2xl overflow-hidden">
               {myInquiries.length === 0 ? (
-                <div className="p-12 text-center">
-                  <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No inquiries sent</h3>
-                  <p className="text-gray-600">Your sent inquiries will appear here</p>
-                </div>
+                <EmptyState
+                  variant="plain"
+                  icon={MessageCircle}
+                  title="No inquiries sent"
+                  subtitle="When you contact a seller from a listing, your message thread will appear here."
+                  action={
+                    <Link to={createPageUrl('Marketplace')}>
+                      <Button className="btn-cta px-5 py-2.5 text-sm">Find listings</Button>
+                    </Link>
+                  }
+                />
               ) : (
                 <div className="divide-y">
                   {myInquiries.map((inquiry) => (
@@ -640,6 +668,6 @@ export default function Dashboard() {
           </DialogContent>
         </Dialog>
       )}
-    </div>
+    </PageShell>
   );
 }

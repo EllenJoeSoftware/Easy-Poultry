@@ -319,6 +319,15 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
+  /* Hide scrollbars but keep scrollability */
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
   /* Marquee bar (trust strip) */
   .marquee {
     display: flex;

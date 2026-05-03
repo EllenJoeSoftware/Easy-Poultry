@@ -7,10 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
-import { Upload, X, Loader2 } from 'lucide-react';
+import { Upload, X, Loader2, ImagePlus, Sparkles, Eye, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
+import PageShell from '@/components/shell/PageShell';
+import { CATEGORY_ICONS } from '@/components/icons/PoultryIcons';
 
 export default function CreateListing() {
   const navigate = useNavigate();
@@ -187,36 +189,71 @@ export default function CreateListing() {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Create New Listing</h1>
-          <p className="text-gray-600">Share your poultry products with buyers</p>
-        </div>
+  const PreviewIcon = formData.category ? CATEGORY_ICONS[formData.category] : null;
+  const titleLen = formData.title?.length || 0;
+  const descLen = formData.description?.length || 0;
+  const completeness = (() => {
+    let score = 0;
+    if (formData.title) score += 20;
+    if (formData.category) score += 20;
+    if (formData.price) score += 20;
+    if (formData.images.length > 0) score += 20;
+    if (formData.description?.length > 30) score += 10;
+    if (formData.breed) score += 10;
+    return score;
+  })();
 
-        <form onSubmit={handleSubmit}>
-          <Card className="p-6 border-0 shadow-lg mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Product Images</h2>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+  return (
+    <PageShell
+      eyebrow="New listing"
+      title="Create a listing"
+      subtitle="Share your poultry, eggs, feed or equipment with thousands of buyers."
+      breadcrumb={[
+        { label: 'Home', href: '/' },
+        { label: 'Dashboard', href: createPageUrl('Dashboard') },
+        { label: 'New listing' },
+      ]}
+    >
+      <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
+        {/* ============ FORM (left, 2 cols) ============ */}
+        <div className="lg:col-span-2 space-y-6">
+          {/* PHOTOS */}
+          <Card className="card-premium p-6 lg:p-7 border-0 shadow-none">
+            <div className="flex items-center justify-between mb-5">
+              <div>
+                <h2 className="font-display text-xl text-ink">Photos</h2>
+                <p className="text-sm text-ink/55 mt-1">First image is the cover. Drag to reorder later.</p>
+              </div>
+              <span className="text-xs text-ink/50">{formData.images.length}/10</span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {formData.images.map((url, index) => (
-                <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+                <div key={index} className="relative aspect-square rounded-2xl overflow-hidden bg-cream-deep group ring-1 ring-border">
                   <img src={url} alt={`Upload ${index + 1}`} className="w-full h-full object-cover" />
+                  {index === 0 && (
+                    <span className="absolute top-2 left-2 chip text-[10px] !py-0.5">Cover</span>
+                  )}
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
-                    className="absolute top-2 right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600"
+                    className="absolute top-2 right-2 w-7 h-7 bg-white/90 backdrop-blur-sm hover:bg-white rounded-full flex items-center justify-center shadow-soft opacity-0 group-hover:opacity-100 transition-opacity"
+                    aria-label="Remove image"
                   >
-                    <X className="w-4 h-4" />
+                    <X className="w-3.5 h-3.5 text-terracotta-600" />
                   </button>
                 </div>
               ))}
-              
               {formData.images.length < 10 && (
-                <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-[#7A9D7A] cursor-pointer flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors">
-                  <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                  <span className="text-sm text-gray-500">Upload</span>
+                <label className="aspect-square rounded-2xl border-2 border-dashed border-border hover:border-moss-400 cursor-pointer flex flex-col items-center justify-center bg-cream/50 hover:bg-moss-50/40 text-ink/50 hover:text-moss-700 transition-all">
+                  {uploadingImages ? (
+                    <Loader2 className="w-7 h-7 animate-spin" />
+                  ) : (
+                    <>
+                      <ImagePlus className="w-7 h-7 mb-1.5" strokeWidth={1.5} />
+                      <span className="text-xs font-medium">Add photo</span>
+                    </>
+                  )}
                   <input
                     type="file"
                     multiple
@@ -228,93 +265,97 @@ export default function CreateListing() {
                 </label>
               )}
             </div>
-            <p className="text-sm text-gray-500">
-              {uploadingImages ? 'Uploading...' : `${formData.images.length}/10 images uploaded`}
-            </p>
           </Card>
 
-          <Card className="p-6 border-0 shadow-lg mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Product Details</h2>
-            
-            <div className="space-y-4">
+          {/* DETAILS */}
+          <Card className="card-premium p-6 lg:p-7 border-0 shadow-none space-y-5">
+            <div>
+              <h2 className="font-display text-xl text-ink">The basics</h2>
+              <p className="text-sm text-ink/55 mt-1">Buyers search for these fields, so be specific.</p>
+            </div>
+
+            <div>
+              <Label htmlFor="title">Title <span className="text-terracotta-500">*</span></Label>
+              <Input
+                id="title"
+                value={formData.title}
+                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                placeholder="e.g., Rhode Island Red point-of-lay hens"
+                maxLength={80}
+                required
+                className="mt-1.5"
+              />
+              <div className="flex justify-between mt-1">
+                <span className="text-xs text-ink/40">A clear, searchable title sells faster</span>
+                <span className={`text-xs ${titleLen > 70 ? 'text-yolk-600' : 'text-ink/40'}`}>{titleLen}/80</span>
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="title">Title *</Label>
+                <Label htmlFor="category">Category <span className="text-terracotta-500">*</span></Label>
+                <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                  <SelectTrigger className="mt-1.5"><SelectValue placeholder="Select category" /></SelectTrigger>
+                  <SelectContent>
+                    {categories.map(cat => (
+                      <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="breed">Breed</Label>
                 <Input
-                  id="title"
-                  value={formData.title}
-                  onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                  placeholder="e.g., Rhode Island Red Hens"
-                  required
+                  id="breed"
+                  value={formData.breed}
+                  onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
+                  placeholder="e.g., Boschveld, Koekoek, Potchefstroom Koekoek…"
+                  className="mt-1.5"
                 />
               </div>
+            </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="category">Category *</Label>
-                  <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map(cat => (
-                        <SelectItem key={cat.value} value={cat.value}>{cat.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="breed">Breed</Label>
-                  <Input
-                    id="breed"
-                    value={formData.breed}
-                    onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
-                    placeholder="e.g., Rhode Island Red"
-                  />
-                </div>
+            <div className="grid sm:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="age">Age</Label>
+                <Input
+                  id="age"
+                  value={formData.age}
+                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                  placeholder="e.g., 6 months"
+                  className="mt-1.5"
+                />
               </div>
-
-              <div className="grid sm:grid-cols-3 gap-4">
-                <div>
-                  <Label htmlFor="age">Age</Label>
-                  <Input
-                    id="age"
-                    value={formData.age}
-                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                    placeholder="e.g., 6 months"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="gender">Gender</Label>
-                  <Select value={formData.gender} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="male">Male</SelectItem>
-                      <SelectItem value="female">Female</SelectItem>
-                      <SelectItem value="mixed">Mixed</SelectItem>
-                      <SelectItem value="n/a">N/A</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <Label htmlFor="stock">Stock Quantity</Label>
-                  <Input
-                    id="stock"
-                    type="number"
-                    min="1"
-                    value={formData.stock_quantity}
-                    onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
-                  />
-                </div>
+              <div>
+                <Label htmlFor="gender">Gender</Label>
+                <Select value={formData.gender} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
+                  <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="mixed">Mixed</SelectItem>
+                    <SelectItem value="n/a">N/A</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
+              <div>
+                <Label htmlFor="stock">Stock</Label>
+                <Input
+                  id="stock"
+                  type="number"
+                  min="1"
+                  value={formData.stock_quantity}
+                  onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
+                  className="mt-1.5"
+                />
+              </div>
+            </div>
 
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="price">Price (ZAR) *</Label>
+            <div className="grid sm:grid-cols-3 gap-4">
+              <div className="sm:col-span-2">
+                <Label htmlFor="price">Price <span className="text-terracotta-500">*</span></Label>
+                <div className="relative mt-1.5">
+                  <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink/40 font-medium">R</span>
                   <Input
                     id="price"
                     type="number"
@@ -324,54 +365,129 @@ export default function CreateListing() {
                     onChange={(e) => setFormData({ ...formData, price: e.target.value })}
                     placeholder="0.00"
                     required
+                    className="pl-8"
                   />
                 </div>
-                <div>
-                  <Label htmlFor="price_type">Price Type</Label>
-                  <Select value={formData.price_type} onValueChange={(value) => setFormData({ ...formData, price_type: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="per_item">Per Item</SelectItem>
-                      <SelectItem value="batch">For Entire Batch</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
               </div>
-
               <div>
-                <Label htmlFor="description">Description</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Describe your product..."
-                  rows={5}
-                />
+                <Label htmlFor="price_type">Pricing</Label>
+                <Select value={formData.price_type} onValueChange={(value) => setFormData({ ...formData, price_type: value })}>
+                  <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="per_item">Per item</SelectItem>
+                    <SelectItem value="batch">Whole batch</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div>
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                placeholder="Tell buyers about feeding, vaccinations, lineage, collection details, etc."
+                rows={6}
+                maxLength={1200}
+                className="mt-1.5"
+              />
+              <div className="flex justify-between mt-1">
+                <span className="text-xs text-ink/40">A great description sells the bird before the buyer even picks up the phone</span>
+                <span className="text-xs text-ink/40">{descLen}/1200</span>
               </div>
             </div>
           </Card>
 
-          <div className="flex gap-4">
+          {/* ACTIONS */}
+          <div className="flex gap-3">
             <Button
               type="submit"
               disabled={createListingMutation.isPending}
-              className="flex-1 bg-[#7A9D7A] hover:bg-[#6A8D6A] h-12"
+              className="btn-cta px-7 py-3 text-base flex-1"
             >
-              {createListingMutation.isPending ? 'Creating...' : 'Create Listing'}
+              {createListingMutation.isPending ? (<><Loader2 className="w-4 h-4 mr-2 animate-spin" />Publishing…</>) : 'Publish listing'}
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => navigate(createPageUrl('Dashboard'))}
-              className="px-8 h-12"
+              className="px-6 py-3 rounded-full border-border"
             >
               Cancel
             </Button>
           </div>
-        </form>
-      </div>
-    </div>
+        </div>
+
+        {/* ============ LIVE PREVIEW (right) ============ */}
+        <aside className="lg:sticky lg:top-28 self-start">
+          <p className="eyebrow mb-3">Live preview</p>
+
+          <div className="card-premium overflow-hidden">
+            <div className="aspect-[4/3] bg-cream-deep relative overflow-hidden">
+              {formData.images[0] ? (
+                <img src={formData.images[0]} alt="Preview" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center text-ink/30">
+                  {PreviewIcon ? <PreviewIcon className="w-14 h-14" /> : <ImagePlus className="w-12 h-12" strokeWidth={1.5} />}
+                  <p className="mt-2 text-xs">Photos appear here</p>
+                </div>
+              )}
+              {formData.category && (
+                <span className="absolute top-3 left-3 chip">
+                  {categories.find(c => c.value === formData.category)?.label}
+                </span>
+              )}
+            </div>
+            <div className="p-5">
+              <h3 className="font-display text-lg text-ink leading-snug line-clamp-2">
+                {formData.title || <span className="text-ink/30">Your listing title</span>}
+              </h3>
+              {formData.breed && <p className="text-sm text-ink/60 mt-1">{formData.breed}</p>}
+              <div className="flex items-center gap-2 text-xs text-ink/50 mt-3">
+                <MapPin className="w-3.5 h-3.5" />
+                {user.city || 'Your city'}{user.province && ', '}{user.province || ''}
+              </div>
+              <div className="mt-4 pt-4 border-t border-border flex items-baseline justify-between">
+                <div>
+                  <span className="font-display text-2xl font-bold text-ink">
+                    R{formData.price ? Number(formData.price).toLocaleString('en-ZA') : '0'}
+                  </span>
+                  <span className="text-xs text-ink/40 ml-1">
+                    /{formData.price_type === 'batch' ? 'batch' : 'each'}
+                  </span>
+                </div>
+                {formData.stock_quantity > 0 && (
+                  <span className="text-xs text-moss-600">{formData.stock_quantity} available</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Completeness meter */}
+          <div className="mt-5 p-4 rounded-2xl bg-moss-50 border border-moss-100">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs uppercase tracking-[0.16em] text-moss-700 font-semibold">Listing strength</span>
+              <span className="text-sm font-semibold text-moss-700">{completeness}%</span>
+            </div>
+            <div className="h-1.5 rounded-full bg-white overflow-hidden">
+              <div
+                className="h-full bg-moss-gradient transition-all duration-500"
+                style={{ width: `${completeness}%` }}
+              />
+            </div>
+            <p className="text-xs text-ink/60 mt-3 leading-relaxed">
+              {completeness < 60 && 'Add photos, a clear title and price to make your listing stand out.'}
+              {completeness >= 60 && completeness < 90 && 'Looking good. Add a description and breed to seal the deal.'}
+              {completeness >= 90 && (
+                <span className="inline-flex items-center gap-1 text-moss-700 font-medium">
+                  <Sparkles className="w-3 h-3" /> This is a top-tier listing.
+                </span>
+              )}
+            </p>
+          </div>
+        </aside>
+      </form>
+    </PageShell>
   );
 }
