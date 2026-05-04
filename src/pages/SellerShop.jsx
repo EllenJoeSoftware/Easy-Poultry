@@ -120,68 +120,71 @@ export default function SellerShop() {
           </div>
         </div>
 
-        {/* Identity block — sits over the cover */}
+        {/* Identity block — avatar overlaps cover, text lives on cream below */}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="-mt-20 sm:-mt-24 flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-7 pb-8"
+            className="-mt-16 sm:-mt-20 pb-8"
           >
-            <img
-              src={profilePhoto}
-              alt={businessName}
-              className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl object-cover border-4 border-cream shadow-lift bg-white flex-shrink-0"
-            />
-            <div className="flex-1 min-w-0 text-ink sm:text-cream">
-              <p className="text-xs uppercase tracking-[0.18em] font-semibold mb-2 text-cream/80 sm:text-cream/80">
-                Easy Poultry shop
-              </p>
+            {/* Top row: avatar + actions */}
+            <div className="flex items-end justify-between gap-4">
+              <img
+                src={profilePhoto}
+                alt={businessName}
+                className="w-28 h-28 sm:w-36 sm:h-36 rounded-3xl object-cover border-4 border-cream shadow-lift bg-white flex-shrink-0"
+              />
+
+              {/* Quick actions */}
+              <div className="flex gap-2 flex-shrink-0">
+                {sellerProfile.whatsapp_number && (
+                  <a
+                    href={`https://wa.me/${sellerProfile.whatsapp_number.replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-[#25D366] hover:bg-[#20BD5C] text-white text-sm font-medium shadow-soft transition-all"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    <span className="hidden sm:inline">WhatsApp</span>
+                  </a>
+                )}
+                {sellerProfile.contact_number && (
+                  <a
+                    href={`tel:${sellerProfile.contact_number}`}
+                    className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-white hover:bg-cream-deep text-ink border border-border text-sm font-medium shadow-soft transition-all"
+                  >
+                    <Phone className="w-4 h-4" />
+                    <span className="hidden sm:inline">Call</span>
+                  </a>
+                )}
+              </div>
+            </div>
+
+            {/* Identity text — dark ink on cream */}
+            <div className="mt-5 max-w-3xl">
+              <p className="eyebrow mb-2">Easy Poultry shop</p>
               <div className="flex flex-wrap items-center gap-3">
-                <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-none truncate">
+                <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-ink leading-none">
                   {businessName}
                 </h1>
                 {sellerProfile.seller_verified && (
-                  <Badge className="bg-cream text-moss-700 hover:bg-cream gap-1 border-0">
+                  <Badge className="bg-moss-50 text-moss-700 hover:bg-moss-50 gap-1 border border-moss-100">
                     <ShieldCheck className="w-3.5 h-3.5" />
                     Verified
                   </Badge>
                 )}
               </div>
               {ownerName && ownerName !== businessName && (
-                <p className="mt-2 text-sm text-cream/85 sm:text-cream/85">
-                  Run by <span className="font-medium">{ownerName}</span>
+                <p className="mt-2 text-sm text-ink/65">
+                  Run by <span className="font-medium text-ink">{ownerName}</span>
                 </p>
               )}
               {(sellerProfile.city || sellerProfile.province) && (
-                <p className="mt-1 text-sm text-cream/75 inline-flex items-center gap-1.5">
+                <p className="mt-1 text-sm text-ink/55 inline-flex items-center gap-1.5">
                   <MapPin className="w-3.5 h-3.5" />
                   {[sellerProfile.city, sellerProfile.province].filter(Boolean).join(', ')}
                 </p>
-              )}
-            </div>
-
-            {/* Quick actions */}
-            <div className="flex gap-2 sm:flex-shrink-0">
-              {sellerProfile.whatsapp_number && (
-                <a
-                  href={`https://wa.me/${sellerProfile.whatsapp_number.replace(/\D/g, '')}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-[#25D366] hover:bg-[#20BD5C] text-white text-sm font-medium shadow-soft transition-all"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  WhatsApp
-                </a>
-              )}
-              {sellerProfile.contact_number && (
-                <a
-                  href={`tel:${sellerProfile.contact_number}`}
-                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-white hover:bg-cream-deep text-ink border border-border text-sm font-medium shadow-soft transition-all"
-                >
-                  <Phone className="w-4 h-4" />
-                  Call
-                </a>
               )}
             </div>
           </motion.div>

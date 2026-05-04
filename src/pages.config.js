@@ -37,6 +37,7 @@ import SellerFinances from './pages/SellerFinances';
 import SellerListings from './pages/SellerListings';
 import SellerReviews from './pages/SellerReviews';
 import SellerShop from './pages/SellerShop';
+import Shops from './pages/Shops';
 import SubmitEntry from './pages/SubmitEntry';
 import TermsOfService from './pages/TermsOfService';
 import VaccinationManagement from './pages/VaccinationManagement';
@@ -84,6 +85,7 @@ export const PAGES = {
     "SellerListings": SellerListings,
     "SellerReviews": SellerReviews,
     "SellerShop": SellerShop,
+    "Shops": Shops,
     "SubmitEntry": SubmitEntry,
     "TermsOfService": TermsOfService,
     "VaccinationManagement": VaccinationManagement,

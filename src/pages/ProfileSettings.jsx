@@ -33,12 +33,14 @@ export default function ProfileSettings() {
     city: '',
     exact_location: '',
     profile_photo_url: '',
+    cover_image_url: '',
     farm_name: '',
     seller_description: '',
     business_hours: '',
     id_document_url: '',
     proof_of_address_url: ''
   });
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   const [sellerInfo, setSellerInfo] = useState({
     subdomain: ''
@@ -58,6 +60,7 @@ export default function ProfileSettings() {
           city: currentUser.city || '',
           exact_location: currentUser.exact_location || '',
           profile_photo_url: currentUser.profile_photo_url || '',
+          cover_image_url: currentUser.cover_image_url || '',
           farm_name: currentUser.farm_name || '',
           seller_description: currentUser.seller_description || '',
           business_hours: currentUser.business_hours || '',
@@ -134,8 +137,10 @@ export default function ProfileSettings() {
           user_email: currentUser.email,
           display_name: data.full_name || currentUser.full_name,
           farm_name: data.farm_name || '',
+          business_name: data.farm_name || '',
           subdomain: data.subdomain || '',
           profile_photo_url: data.profile_photo_url || '',
+          cover_image_url: data.cover_image_url || '',
           bio: data.seller_description || '',
           province: data.province || '',
           city: data.city || '',
@@ -171,12 +176,32 @@ export default function ProfileSettings() {
     try {
       const { file_url } = await api.integrations.Core.UploadFile({ file });
       setFormData(prev => ({ ...prev, profile_photo_url: file_url }));
-      toast.success('Photo uploaded successfully');
+      toast.success('Logo uploaded');
     } catch (error) {
-      toast.error('Failed to upload photo');
+      toast.error('Failed to upload logo');
     } finally {
       setUploading(false);
     }
+  };
+
+  const handleCoverUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploadingCover(true);
+    try {
+      const { file_url } = await api.integrations.Core.UploadFile({ file });
+      setFormData(prev => ({ ...prev, cover_image_url: file_url }));
+      toast.success('Banner uploaded');
+    } catch (error) {
+      toast.error('Failed to upload banner');
+    } finally {
+      setUploadingCover(false);
+    }
+  };
+
+  const removeCover = () => {
+    setFormData(prev => ({ ...prev, cover_image_url: '' }));
   };
 
   const handleSubmit = (e) => {
@@ -372,6 +397,111 @@ export default function ProfileSettings() {
                       <TrendingUp className="w-4 h-4 mr-2" />
                       Upgrade Tier
                     </Button>
+                  </div>
+                </Card>
+
+                {/* ============ Shop branding (banner + logo) ============ */}
+                <Card className="p-6 border-0 shadow-lg space-y-6">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Shop branding</h3>
+                    <p className="text-sm text-gray-500">Your banner and logo appear on your shop page and in the shops directory.</p>
+                  </div>
+
+                  {/* Banner upload */}
+                  <div>
+                    <Label>Shop banner</Label>
+                    <p className="text-xs text-gray-500 mb-2">Recommended: 1600×400px. Used as the cover image at the top of your shop.</p>
+                    <div className="relative aspect-[4/1] sm:aspect-[5/1] rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 hover:border-[#7A9D7A] bg-gradient-to-br from-[#3A5A40]/10 to-[#E07A5F]/10 group transition-colors">
+                      {formData.cover_image_url ? (
+                        <>
+                          <img
+                            src={formData.cover_image_url}
+                            alt="Shop banner"
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={removeCover}
+                            className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-sm hover:bg-white text-xs font-medium text-red-600 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            Remove
+                          </button>
+                        </>
+                      ) : (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
+                          {uploadingCover ? (
+                            <Loader2 className="w-7 h-7 animate-spin" />
+                          ) : (
+                            <>
+                              <Upload className="w-7 h-7 mb-2" strokeWidth={1.5} />
+                              <p className="text-sm font-medium">Click to upload banner</p>
+                              <p className="text-xs mt-1">JPG or PNG, up to 8MB</p>
+                            </>
+                          )}
+                        </div>
+                      )}
+                      <label className="absolute inset-0 cursor-pointer">
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleCoverUpload}
+                          className="hidden"
+                          disabled={uploadingCover}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Logo upload */}
+                  <div>
+                    <Label>Shop logo</Label>
+                    <p className="text-xs text-gray-500 mb-2">Recommended: square, 256×256px or larger. Shown on your shop page and in the directory.</p>
+                    <div className="flex items-center gap-5">
+                      <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 bg-gradient-to-br from-[#3A5A40]/10 to-[#E07A5F]/10 group">
+                        {formData.profile_photo_url ? (
+                          <img
+                            src={formData.profile_photo_url}
+                            alt="Shop logo"
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                            {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-6 h-6" strokeWidth={1.5} />}
+                          </div>
+                        )}
+                        <label className="absolute inset-0 cursor-pointer">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            disabled={uploading}
+                          />
+                        </label>
+                      </div>
+                      <div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.currentTarget.previousElementSibling?.querySelector('input')?.click();
+                          }}
+                          className="h-9"
+                        >
+                          {formData.profile_photo_url ? 'Change logo' : 'Upload logo'}
+                        </Button>
+                        {formData.profile_photo_url && (
+                          <button
+                            type="button"
+                            onClick={() => setFormData((p) => ({ ...p, profile_photo_url: '' }))}
+                            className="ml-2 text-xs text-red-600 hover:underline"
+                          >
+                            Remove
+                          </button>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </Card>
 

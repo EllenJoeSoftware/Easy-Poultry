@@ -4,7 +4,7 @@ import { createPageUrl } from './utils';
 import {
   Menu, X, LayoutGrid, Plus, Settings, Shield, Package, Star,
   MessageCircle, Gavel, Users, Bird, Trophy, LogOut, ChevronDown,
-  ArrowUpRight,
+  ArrowUpRight, Store,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/AuthContext';
@@ -42,6 +42,7 @@ export default function Layout({ children, currentPageName }) {
     { name: 'Marketplace', path: createPageUrl('Marketplace'), icon: LayoutGrid },
     { name: 'Auctions',    path: createPageUrl('Auctions'),    icon: Gavel },
     { name: 'Competitions',path: createPageUrl('Competitions'),icon: Trophy },
+    { name: 'Shops',       path: createPageUrl('Shops'),       icon: Store },
   ];
 
   const userNavigation = user ? [
