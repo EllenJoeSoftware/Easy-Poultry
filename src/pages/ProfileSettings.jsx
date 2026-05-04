@@ -410,8 +410,8 @@ export default function ProfileSettings() {
                   {/* Banner upload */}
                   <div>
                     <Label>Shop banner</Label>
-                    <p className="text-xs text-gray-500 mb-2">Recommended: 1600×400px. Used as the cover image at the top of your shop.</p>
-                    <div className="relative aspect-[4/1] sm:aspect-[5/1] rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 hover:border-[#7A9D7A] bg-gradient-to-br from-[#3A5A40]/10 to-[#E07A5F]/10 group transition-colors">
+                    <p className="text-xs text-gray-500 mb-2">Recommended: <strong>1500×500px</strong> (3:1 ratio). Wider images will be cropped on the shops directory cards. Important text/logos should sit in the center.</p>
+                    <div className="relative aspect-[3/1] rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 hover:border-[#7A9D7A] bg-gradient-to-br from-[#3A5A40]/10 to-[#E07A5F]/10 group transition-colors">
                       {formData.cover_image_url ? (
                         <>
                           <img

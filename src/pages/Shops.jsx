@@ -254,7 +254,7 @@ function ShopCard({ shop }) {
       )}
 
       {/* Banner */}
-      <div className="relative aspect-[16/9] overflow-hidden bg-moss-gradient">
+      <div className="relative aspect-[3/1] overflow-hidden bg-moss-gradient">
         {profile.cover_image_url ? (
           <img
             src={profile.cover_image_url}
@@ -351,7 +351,7 @@ function ShopCard({ shop }) {
 function ShopCardSkeleton() {
   return (
     <div className="card-premium overflow-hidden animate-pulse">
-      <div className="aspect-[16/9] bg-cream-deep" />
+      <div className="aspect-[3/1] bg-cream-deep" />
       <div className="px-5 pt-5 pb-5 space-y-3">
         <div className="h-5 bg-cream-deep rounded w-3/4" />
         <div className="h-3 bg-cream-deep rounded w-1/2" />
