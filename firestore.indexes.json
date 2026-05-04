@@ -123,6 +123,10 @@
       { "fieldPath": "created_date", "order": "DESCENDING" }
     ]},
     { "collectionGroup": "Prospect", "queryScope": "COLLECTION", "fields": [
+      { "fieldPath": "created_by", "order": "ASCENDING" },
+      { "fieldPath": "created_date", "order": "DESCENDING" }
+    ]},
+    { "collectionGroup": "Prospect", "queryScope": "COLLECTION", "fields": [
       { "fieldPath": "seller_email", "order": "ASCENDING" },
       { "fieldPath": "created_date", "order": "DESCENDING" }
     ]}

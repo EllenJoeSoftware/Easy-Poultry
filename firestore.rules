@@ -129,6 +129,25 @@ service cloud.firestore {
       allow update, delete: if isSignedIn() && resource.data.user_email == request.auth.token.email;
     }
 
+    // Prospects (CRM) — strictly owner-private
+    match /Prospect/{id} {
+      allow read, update, delete: if isOwner(resource.data.created_by) || isAdmin();
+      allow create: if isSignedIn();
+    }
+
+    // Inquiries — buyer & seller can both read; both can update (for response threads)
+    match /Inquiry/{id} {
+      allow read, update: if isSignedIn() && (
+        resource.data.created_by == request.auth.token.email ||
+        resource.data.seller_id  == request.auth.token.email ||
+        resource.data.buyer_email == request.auth.token.email ||
+        resource.data.seller_email == request.auth.token.email ||
+        isAdmin()
+      );
+      allow create: if isSignedIn();
+      allow delete: if isOwner(resource.data.created_by) || isAdmin();
+    }
+
     // Admin-only
     match /AdminSettings/{id} {
       allow read: if isSignedIn();

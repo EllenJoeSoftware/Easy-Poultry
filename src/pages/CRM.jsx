@@ -65,13 +65,28 @@ export default function CRM() {
     enabled: !!user
   });
 
+  const friendlyError = (err) => {
+    const code = err?.code || '';
+    if (code.includes('permission-denied'))
+      return 'Permission denied. Check your Firestore security rules for the Prospect collection.';
+    if (code.includes('failed-precondition'))
+      return 'Missing Firestore index. Open the browser console for the auto-create link, or deploy firestore.indexes.json.';
+    if (code.includes('unavailable') || code.includes('network'))
+      return 'Network error. Check your connection and try again.';
+    return err?.message || 'Could not save prospect. Please try again.';
+  };
+
   const createProspectMutation = useMutation({
     mutationFn: (data) => api.entities.Prospect.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries(['prospects']);
       toast.success('Prospect added successfully');
       resetForm();
-    }
+    },
+    onError: (err) => {
+      console.error('[CRM] create failed:', err);
+      toast.error(friendlyError(err));
+    },
   });
 
   const updateProspectMutation = useMutation({
@@ -80,7 +95,11 @@ export default function CRM() {
       queryClient.invalidateQueries(['prospects']);
       toast.success('Prospect updated');
       resetForm();
-    }
+    },
+    onError: (err) => {
+      console.error('[CRM] update failed:', err);
+      toast.error(friendlyError(err));
+    },
   });
 
   const deleteProspectMutation = useMutation({
@@ -88,7 +107,11 @@ export default function CRM() {
     onSuccess: () => {
       queryClient.invalidateQueries(['prospects']);
       toast.success('Prospect deleted');
-    }
+    },
+    onError: (err) => {
+      console.error('[CRM] delete failed:', err);
+      toast.error(friendlyError(err));
+    },
   });
 
   const resetForm = () => {

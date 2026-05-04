@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080">
+  <!-- ============== Definitions ============== -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FAF7F2"/>
+      <stop offset="100%" stop-color="#F2EBDC"/>
+    </linearGradient>
+    <linearGradient id="moss" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3A5A40"/>
+      <stop offset="100%" stop-color="#1F3324"/>
+    </linearGradient>
+    <linearGradient id="terra" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E07A5F"/>
+      <stop offset="100%" stop-color="#A84A30"/>
+    </linearGradient>
+    <radialGradient id="orb1" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#3A5A40" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#3A5A40" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="orb2" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#E07A5F" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#E07A5F" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" stitchTiles="stitch"/>
+      <feColorMatrix values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.04 0"/>
+    </filter>
+  </defs>
+
+  <!-- ============== Background ============== -->
+  <rect width="1080" height="1080" fill="url(#bg)"/>
+  <circle cx="900" cy="180" r="380" fill="url(#orb1)"/>
+  <circle cx="120" cy="950" r="380" fill="url(#orb2)"/>
+  <rect width="1080" height="1080" filter="url(#grain)" opacity="0.6"/>
+
+  <!-- ============== Logo lockup (top) ============== -->
+  <g transform="translate(80, 80)">
+    <!-- Logo mark (rounded square + hen silhouette) -->
+    <rect width="72" height="72" rx="18" fill="url(#moss)"/>
+    <g transform="translate(0,0) scale(1.5)" fill="#FAF7F2">
+      <path d="M21.2 9.1c.5-1 1.4-1.1 1.9-.2.5-.9 1.4-.9 1.9 0 .5-.9 1.4-.8 1.7.2.4-.7 1.1-.6 1.4.3.2.7-.1 1.4-.7 1.7-.4-.7-1-.8-1.4-.2-.4-.6-1.1-.6-1.5 0-.4-.6-1.1-.6-1.5 0-.5.6-1.2.6-1.6 0-.2-.6.1-1.2.8-1.8z"/>
+      <path d="M28 13c1.5.6 2.6 2.1 2.6 3.9 0 1.4-.7 2.6-1.7 3.4 1.4.7 2.7 1.7 3.6 3 2.6 3.6 2.6 8.8-1.6 12.4-2.7 2.3-7 3.3-10.6 3.3-6.5 0-11-2.6-11-7.6 0-3.6 1.6-7 4.5-9.4 2.4-2 5.5-3.2 8.7-3.4-.6-.7-1-1.7-1-2.7 0-2.4 1.9-4.4 4.4-4.4.5 0 1 .1 1.4.2-.5.7-.7 1.5-.5 2.4z"/>
+      <path d="M9 26.6c-3.5-1-5.3-4.5-4.7-7.4 1.6 1.6 3.4 2.8 5 3.4-.2 1.3-.3 2.6-.3 4z"/>
+      <path d="M8 30.5c-3.4 0-5.5-2.4-5.7-4.9 1.7 1 3.6 1.6 5.3 1.7 0 1.1.1 2.2.4 3.2z"/>
+      <path d="M9.2 33.9c-3 1.1-5.6-.4-6.6-2.8 1.8.5 3.7.5 5.3.1.3 1 .8 1.9 1.3 2.7z"/>
+    </g>
+    <circle cx="44" cy="26" r="2" fill="#1B1B1F"/>
+    <path d="M48 27 l5 1 -5 1.5 z" fill="#F4B860"/>
+    <!-- Yolk dot -->
+    <circle cx="68" cy="6" r="6" fill="#F4B860" stroke="#FAF7F2" stroke-width="3"/>
+    <!-- Wordmark -->
+    <text x="92" y="32" font-family="'Playfair Display', Georgia, serif" font-weight="700" font-size="32" fill="#1B1B1F">Easy Poultry</text>
+    <text x="92" y="56" font-family="Inter, system-ui, sans-serif" font-weight="600" font-size="11" fill="#3A5A40" letter-spacing="2.4">MARKETPLACE · FARM · AUCTIONS</text>
+  </g>
+
+  <!-- ============== Eyebrow chip ============== -->
+  <g transform="translate(80, 230)">
+    <rect width="220" height="36" rx="18" fill="#DCE6DD" stroke="#B8CCBA" stroke-width="1"/>
+    <text x="20" y="23" font-family="Inter, system-ui, sans-serif" font-weight="600" font-size="12" fill="#3A5A40" letter-spacing="2">SOUTH AFRICA · NOW LIVE</text>
+  </g>
+
+  <!-- ============== Headline ============== -->
+  <g font-family="'Playfair Display', Georgia, serif" font-weight="700" fill="#1B1B1F">
+    <text x="80" y="370" font-size="86" letter-spacing="-2">Where serious</text>
+    <text x="80" y="465" font-size="86" letter-spacing="-2">
+      <tspan fill="#3A5A40" font-style="italic">poultry</tspan> people
+    </text>
+    <text x="80" y="560" font-size="86" letter-spacing="-2">
+      <tspan fill="#E07A5F" font-style="italic">trade</tspan>.
+    </text>
+  </g>
+
+  <!-- ============== Sub copy ============== -->
+  <g font-family="Inter, system-ui, sans-serif" fill="#1B1B1F" opacity="0.7">
+    <text x="80" y="630" font-size="22" font-weight="400">
+      Buy & sell live birds, eggs, feed and equipment.
+    </text>
+    <text x="80" y="660" font-size="22" font-weight="400">
+      Run live auctions. Manage your farm. All in one place.
+    </text>
+  </g>
+
+  <!-- ============== Three benefit pills ============== -->
+  <g transform="translate(80, 720)">
+    <!-- Pill 1: Marketplace -->
+    <g>
+      <rect width="290" height="80" rx="20" fill="#FFFFFF" stroke="#E5E0D6" stroke-width="1"/>
+      <circle cx="40" cy="40" r="20" fill="#DCE6DD"/>
+      <g transform="translate(28,28) scale(1)" stroke="#3A5A40" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="6" width="20" height="14" rx="2"/>
+        <path d="M2 10h20"/>
+        <circle cx="7" cy="15" r="0.6" fill="#3A5A40"/>
+        <circle cx="12" cy="15" r="0.6" fill="#3A5A40"/>
+        <circle cx="17" cy="15" r="0.6" fill="#3A5A40"/>
+      </g>
+      <text x="80" y="38" font-family="'Playfair Display', Georgia, serif" font-weight="700" font-size="20" fill="#1B1B1F">Marketplace</text>
+      <text x="80" y="58" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#1B1B1F" opacity="0.55">4,200+ verified breeders</text>
+    </g>
+    <!-- Pill 2: Auctions -->
+    <g transform="translate(310, 0)">
+      <rect width="290" height="80" rx="20" fill="#FFFFFF" stroke="#E5E0D6" stroke-width="1"/>
+      <circle cx="40" cy="40" r="20" fill="#FCEEEA"/>
+      <g transform="translate(28,28)" stroke="#A84A30" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 14L4 4M9 9l5-5M9 19h14"/>
+        <path d="M19 14l-5 5"/>
+      </g>
+      <text x="80" y="38" font-family="'Playfair Display', Georgia, serif" font-weight="700" font-size="20" fill="#1B1B1F">Live auctions</text>
+      <text x="80" y="58" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#1B1B1F" opacity="0.55">Tuesdays from 19:00 SAST</text>
+    </g>
+    <!-- Pill 3: Farm management -->
+    <g transform="translate(0, 100)">
+      <rect width="600" height="80" rx="20" fill="#FFFFFF" stroke="#E5E0D6" stroke-width="1"/>
+      <circle cx="40" cy="40" r="20" fill="#FEF7E8"/>
+      <g transform="translate(28,28)" stroke="#AE6816" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 11c0-4.4-4-8-9-8s-9 3.6-9 8"/>
+        <ellipse cx="12" cy="15" rx="3.2" ry="3"/>
+      </g>
+      <text x="80" y="38" font-family="'Playfair Display', Georgia, serif" font-weight="700" font-size="20" fill="#1B1B1F">Farm management & incubation tracking</text>
+      <text x="80" y="58" font-family="Inter, system-ui, sans-serif" font-size="13" fill="#1B1B1F" opacity="0.55">Batches · feed · vaccinations · finances</text>
+    </g>
+  </g>
+
+  <!-- ============== CTA bar ============== -->
+  <g transform="translate(80, 945)">
+    <rect width="920" height="80" rx="40" fill="url(#moss)"/>
+    <text x="40" y="49" font-family="Inter, system-ui, sans-serif" font-weight="600" font-size="22" fill="#FAF7F2">Visit easypoultry.co.za — free to list, free to message buyers</text>
+    <g transform="translate(870, 30)">
+      <circle cx="20" cy="20" r="20" fill="#F4B860"/>
+      <path d="M14 20h12M20 14l6 6-6 6" stroke="#1B1B1F" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>
