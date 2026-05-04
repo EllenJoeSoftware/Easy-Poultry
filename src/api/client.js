@@ -108,23 +108,32 @@ function entityProxy(name) {
     name,
     async list(ordStr, lim) {
       if (!db) return applyDemoOrderAndLimit(Array.from(ensureCollection(name).values()), ordStr, lim);
-      const cs = [];
-      const ord = parseOrderBy(ordStr);
-      if (ord) cs.push(fsOrderBy(ord.field, ord.direction));
-      if (lim) cs.push(fsLimit(lim));
-      const q = cs.length ? query(collection(db, name), ...cs) : collection(db, name);
-      const snap = await getDocs(q);
-      return snap.docs.map(normalizeDoc);
+      // Try the indexed query first; fall back to fetch-all + in-memory sort
+      // if Firestore tells us the index is missing.
+      try {
+        const cs = [];
+        const ord = parseOrderBy(ordStr);
+        if (ord) cs.push(fsOrderBy(ord.field, ord.direction));
+        if (lim) cs.push(fsLimit(lim));
+        const q = cs.length ? query(collection(db, name), ...cs) : collection(db, name);
+        const snap = await getDocs(q);
+        return snap.docs.map(normalizeDoc);
+      } catch (err) {
+        if (err?.code === 'failed-precondition') {
+          console.warn(`[${name}.list] Missing Firestore index — falling back to client-side sort. Deploy firestore.indexes.json to fix.`);
+          const snap = await getDocs(collection(db, name));
+          return applyDemoOrderAndLimit(snap.docs.map(normalizeDoc), ordStr, lim);
+        }
+        throw err;
+      }
     },
     async filter(whereObj, ordStr, lim) {
       // Special-case lookups by `id`. Firestore stores the doc key separately
       // from the doc fields, so a where('id','==',x) query never matches.
-      // Pages frequently call .filter({ id: someId }) expecting a single result.
       if (whereObj && whereObj.id != null) {
         const { id, ...rest } = whereObj;
         const single = await this.get(id);
         if (!single) return [];
-        // If extra constraints were passed, post-filter in memory.
         if (Object.keys(rest).length > 0) {
           const matches = Object.entries(rest).every(([k, v]) => v === undefined || single[k] === v);
           return matches ? [single] : [];
@@ -137,16 +146,34 @@ function entityProxy(name) {
         );
         return applyDemoOrderAndLimit(all, ordStr, lim);
       }
-      const cs = [];
-      for (const [f, v] of Object.entries(whereObj || {})) {
-        if (v === undefined) continue;
-        cs.push(where(f, '==', v));
+
+      const validWhere = Object.entries(whereObj || {}).filter(([, v]) => v !== undefined);
+
+      // Try the fully-indexed query first
+      try {
+        const cs = validWhere.map(([f, v]) => where(f, '==', v));
+        const ord = parseOrderBy(ordStr);
+        if (ord) cs.push(fsOrderBy(ord.field, ord.direction));
+        if (lim) cs.push(fsLimit(lim));
+        const snap = await getDocs(query(collection(db, name), ...cs));
+        return snap.docs.map(normalizeDoc);
+      } catch (err) {
+        // Common case: composite index missing for where + orderBy combination.
+        // Fall back to where-only query and sort/limit in memory so the UI
+        // continues to work while the index is being built.
+        if (err?.code === 'failed-precondition') {
+          console.warn(`[${name}.filter] Missing composite Firestore index — falling back to client-side sort. Deploy firestore.indexes.json to fix.`);
+          try {
+            const cs = validWhere.map(([f, v]) => where(f, '==', v));
+            const snap = await getDocs(query(collection(db, name), ...cs));
+            return applyDemoOrderAndLimit(snap.docs.map(normalizeDoc), ordStr, lim);
+          } catch (innerErr) {
+            console.error(`[${name}.filter] Even where-only fallback failed:`, innerErr);
+            throw innerErr;
+          }
+        }
+        throw err;
       }
-      const ord = parseOrderBy(ordStr);
-      if (ord) cs.push(fsOrderBy(ord.field, ord.direction));
-      if (lim) cs.push(fsLimit(lim));
-      const snap = await getDocs(query(collection(db, name), ...cs));
-      return snap.docs.map(normalizeDoc);
     },
     async get(id) {
       if (!db) return ensureCollection(name).get(id) || null;
