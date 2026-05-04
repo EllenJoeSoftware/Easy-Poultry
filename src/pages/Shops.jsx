@@ -239,10 +239,6 @@ function ShopCard({ shop }) {
   const ownerName = profile.display_name;
   const showOwner = ownerName && ownerName !== businessName;
 
-  const logoSrc =
-    profile.profile_photo_url ||
-    `https://ui-avatars.com/api/?name=${encodeURIComponent(businessName)}&background=3A5A40&color=FAF7F2&bold=true&size=256`;
-
   const shopUrl = profile.subdomain
     ? createPageUrl('SellerShop') + `?shop=${profile.subdomain}`
     : null;
@@ -258,7 +254,7 @@ function ShopCard({ shop }) {
       )}
 
       {/* Banner */}
-      <div className="relative h-32 sm:h-36 overflow-hidden bg-moss-gradient">
+      <div className="relative aspect-[16/9] overflow-hidden bg-moss-gradient">
         {profile.cover_image_url ? (
           <img
             src={profile.cover_image_url}
@@ -266,9 +262,25 @@ function ShopCard({ shop }) {
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <div className="absolute inset-0 grain opacity-50" />
+          <>
+            <div className="absolute inset-0 grain opacity-50" />
+            <div className="absolute inset-0 flex items-center justify-center text-cream/30">
+              <Store className="w-12 h-12" strokeWidth={1.5} />
+            </div>
+          </>
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
+
+        {/* Top-left: rating chip (if any) */}
+        {rating > 0 && (
+          <div className="absolute top-3 left-3 z-20 inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-cream/95 backdrop-blur-sm shadow-sm">
+            <Star className="w-3.5 h-3.5 text-yolk-400 fill-yolk-300" />
+            <span className="text-xs font-semibold text-ink">{rating.toFixed(1)}</span>
+            <span className="text-[10px] text-ink/50">({reviewCount})</span>
+          </div>
+        )}
+
+        {/* Top-right: verified badge */}
         {profile.seller_verified && (
           <div className="absolute top-3 right-3 z-20">
             <Badge className="bg-cream/95 text-moss-700 border-0 backdrop-blur-sm gap-1">
@@ -281,22 +293,6 @@ function ShopCard({ shop }) {
 
       {/* Body */}
       <div className="px-5 pt-5 pb-5 flex-1 flex flex-col">
-        {/* Logo lifted onto banner */}
-        <div className="flex items-end gap-3 -mt-12 mb-4">
-          <img
-            src={logoSrc}
-            alt={businessName}
-            className="w-16 h-16 rounded-2xl object-cover border-4 border-white shadow-soft bg-white flex-shrink-0"
-          />
-          {rating > 0 && (
-            <div className="flex items-center gap-1 mb-1">
-              <Star className="w-4 h-4 text-yolk-400 fill-yolk-300" />
-              <span className="text-sm font-semibold text-ink">{rating.toFixed(1)}</span>
-              <span className="text-xs text-ink/50">({reviewCount})</span>
-            </div>
-          )}
-        </div>
-
         <h3 className="font-display text-xl text-ink leading-tight line-clamp-2 group-hover:text-moss-700 transition-colors">
           {businessName}
         </h3>
@@ -355,9 +351,8 @@ function ShopCard({ shop }) {
 function ShopCardSkeleton() {
   return (
     <div className="card-premium overflow-hidden animate-pulse">
-      <div className="h-32 sm:h-36 bg-cream-deep" />
+      <div className="aspect-[16/9] bg-cream-deep" />
       <div className="px-5 pt-5 pb-5 space-y-3">
-        <div className="-mt-12 w-16 h-16 rounded-2xl bg-cream-deep border-4 border-white" />
         <div className="h-5 bg-cream-deep rounded w-3/4" />
         <div className="h-3 bg-cream-deep rounded w-1/2" />
         <div className="h-3 bg-cream-deep rounded w-full" />
