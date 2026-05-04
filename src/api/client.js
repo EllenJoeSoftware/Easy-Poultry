@@ -287,20 +287,46 @@ const authApi = {
   },
 
   /**
-   * Send a password-reset email. Firebase's hosted reset page handles the rest
-   * (or we can override with our own /ResetPassword route via actionCodeSettings).
+   * Send a password-reset email.
+   *
+   * Returns the user to /Login after they pick a new password. The continue-URL
+   * domain MUST be in Firebase Console → Authentication → Settings → Authorized
+   * domains. If it isn't, this throws `auth/unauthorized-continue-uri`.
+   *
+   * For unknown / preview domains we fall back gracefully to the default
+   * Firebase-hosted "reset successful" page so the email still goes out.
    */
   async sendPasswordReset(email) {
     if (!auth) throw new Error('Firebase auth not initialised');
     if (!email) throw new Error('Email is required');
-    await sendPasswordResetEmail(auth, email, {
-      // After clicking the link in the email, return user to the app.
-      url: typeof window !== 'undefined'
-        ? `${window.location.origin}/Login`
-        : 'https://localhost/Login',
-      handleCodeInApp: false,
-    });
-    return { sent: true };
+
+    const origin = typeof window !== 'undefined' ? window.location.origin : null;
+
+    if (origin) {
+      try {
+        await sendPasswordResetEmail(auth, email, {
+          url: `${origin}/Login`,
+          handleCodeInApp: false,
+        });
+        return { sent: true, returnUrl: `${origin}/Login` };
+      } catch (err) {
+        // If the current origin isn't in the Authorized Domains list, fall
+        // back to the no-continue-URL path so the email still gets sent.
+        if (err?.code === 'auth/unauthorized-continue-uri') {
+          console.warn(
+            `[sendPasswordReset] ${origin} is not in Firebase Authorized Domains. ` +
+            `Falling back to default reset page. Add this domain in Firebase Console → ` +
+            `Authentication → Settings → Authorized domains to re-enable redirects.`
+          );
+          await sendPasswordResetEmail(auth, email);
+          return { sent: true, returnUrl: null };
+        }
+        throw err;
+      }
+    }
+
+    await sendPasswordResetEmail(auth, email);
+    return { sent: true, returnUrl: null };
   },
 
   /** Verify the oobCode from the password-reset email link. */
