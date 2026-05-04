@@ -250,6 +250,7 @@ export default function Login() {
               )}
 
               {mode !== 'reset' && (
+              <>
               <Button
                 type="button"
                 variant="outline"
@@ -280,6 +281,7 @@ export default function Login() {
                   <span className="bg-white px-3 text-gray-400 tracking-wider">or with email</span>
                 </div>
               </div>
+              </>
               )}
 
               <form onSubmit={handleSubmit} className="space-y-4">
