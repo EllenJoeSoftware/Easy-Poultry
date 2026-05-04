@@ -1,93 +1,240 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams, Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import {
+  MapPin, Loader2, Phone, MessageCircle, Clock, ShieldCheck,
+  Package, Star, ArrowLeft, ExternalLink,
+} from 'lucide-react';
 import { api } from '@/api/client';
-import { MapPin, Loader2, Phone, MessageCircle, Clock } from 'lucide-react';
-import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import ListingCard from '../components/marketplace/ListingCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import EmptyState from '@/components/shell/EmptyState';
+import { ListingSkeleton } from '@/components/shell/SkeletonCard';
+import { LogoMark } from '@/components/icons/EasyPoultryLogo';
 
 export default function SellerShop() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const subdomain = urlParams.get('shop');
+  const [searchParams] = useSearchParams();
+  const subdomain = searchParams.get('shop');
 
   const { data: sellerProfile, isLoading: profileLoading } = useQuery({
     queryKey: ['seller-profile-subdomain', subdomain],
     queryFn: async () => {
-      const profiles = await api.entities.SellerProfile.filter({ subdomain: subdomain });
+      const profiles = await api.entities.SellerProfile.filter({ subdomain });
       return profiles[0] || null;
     },
-    enabled: !!subdomain
+    enabled: !!subdomain,
   });
 
   const { data: listings = [], isLoading: listingsLoading } = useQuery({
     queryKey: ['seller-shop-listings', sellerProfile?.user_email],
-    queryFn: async () => {
-      return await api.entities.Listing.filter({ 
-        status: 'active',
-        created_by: sellerProfile.user_email 
-      });
-    },
-    enabled: !!sellerProfile?.user_email
+    queryFn: () => api.entities.Listing.filter({
+      status: 'active',
+      created_by: sellerProfile.user_email,
+    }),
+    enabled: !!sellerProfile?.user_email,
   });
 
-  const profilePhoto = sellerProfile?.profile_photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(sellerProfile?.display_name || 'Shop')}&background=7A9D7A&color=fff`;
+  // ---- Resolve the business name with sensible fallbacks ----
+  const businessName =
+    sellerProfile?.business_name ||
+    sellerProfile?.farm_name ||
+    sellerProfile?.shop_name ||
+    sellerProfile?.display_name ||
+    'Shop';
+
+  const ownerName = sellerProfile?.display_name;
+
+  // ---- Update browser tab title to match the configured business name ----
+  useEffect(() => {
+    if (!businessName) return;
+    const previous = document.title;
+    document.title = `${businessName} · Easy Poultry`;
+    return () => { document.title = previous; };
+  }, [businessName]);
+
+  const profilePhoto =
+    sellerProfile?.profile_photo_url ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(businessName)}&background=3A5A40&color=FAF7F2&bold=true&size=256`;
 
   if (profileLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <LogoMark className="w-12 h-12" />
+          <Loader2 className="w-5 h-5 animate-spin text-moss-600" />
+        </div>
       </div>
     );
   }
 
   if (!sellerProfile) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Shop Not Found</h1>
-          <p className="text-gray-600 mb-4">This shop doesn't exist or has been removed.</p>
-          <Link to={createPageUrl('Marketplace')}>
-            <Button className="bg-[#7A9D7A] hover:bg-[#6A8D6A]">Browse Marketplace</Button>
-          </Link>
-        </div>
+      <div className="min-h-screen bg-cream flex items-center justify-center px-4">
+        <EmptyState
+          icon={Package}
+          title="Shop not found"
+          subtitle="This shop doesn't exist, has been removed, or the link is incorrect."
+          action={
+            <Link to={createPageUrl('Marketplace')}>
+              <Button className="btn-cta px-5 py-2.5 text-sm">Browse marketplace</Button>
+            </Link>
+          }
+          className="max-w-md"
+        />
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Shop Header */}
-      <div className="bg-gradient-to-r from-[#7A9D7A] to-[#6A8D6A] text-white py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold">{sellerProfile.display_name}'s Shop</h1>
-        </div>
-      </div>
+  const totalSales = listings.reduce((sum, l) => sum + (l.sold_quantity || 0), 0);
+  const memberSinceYear = sellerProfile.created_date
+    ? new Date(sellerProfile.created_date).getFullYear()
+    : null;
 
-      {/* Two Column Layout */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Products Column (Left - Larger) */}
-          <div className="flex-1 lg:w-2/3">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Products ({listings.length})
-            </h2>
+  return (
+    <div className="min-h-screen bg-cream text-ink">
+      {/* ============ COVER + HERO ============ */}
+      <section className="relative overflow-hidden">
+        {/* Cover band */}
+        <div className="h-48 sm:h-56 lg:h-64 bg-moss-gradient relative overflow-hidden">
+          <div className="absolute inset-0 grain pointer-events-none opacity-50" />
+          {sellerProfile.cover_image_url && (
+            <img
+              src={sellerProfile.cover_image_url}
+              alt=""
+              className="absolute inset-0 w-full h-full object-cover opacity-60"
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent" />
+          {/* Back link */}
+          <div className="absolute top-4 left-4 right-4 max-w-7xl mx-auto">
+            <Link
+              to={createPageUrl('Marketplace')}
+              className="inline-flex items-center gap-1.5 text-xs text-cream/80 hover:text-cream backdrop-blur-sm bg-ink/20 hover:bg-ink/30 px-3 py-1.5 rounded-full transition-all group"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
+              Marketplace
+            </Link>
+          </div>
+        </div>
+
+        {/* Identity block — sits over the cover */}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="-mt-20 sm:-mt-24 flex flex-col sm:flex-row sm:items-end gap-5 sm:gap-7 pb-8"
+          >
+            <img
+              src={profilePhoto}
+              alt={businessName}
+              className="w-32 h-32 sm:w-40 sm:h-40 rounded-3xl object-cover border-4 border-cream shadow-lift bg-white flex-shrink-0"
+            />
+            <div className="flex-1 min-w-0 text-ink sm:text-cream">
+              <p className="text-xs uppercase tracking-[0.18em] font-semibold mb-2 text-cream/80 sm:text-cream/80">
+                Easy Poultry shop
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold leading-none truncate">
+                  {businessName}
+                </h1>
+                {sellerProfile.seller_verified && (
+                  <Badge className="bg-cream text-moss-700 hover:bg-cream gap-1 border-0">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    Verified
+                  </Badge>
+                )}
+              </div>
+              {ownerName && ownerName !== businessName && (
+                <p className="mt-2 text-sm text-cream/85 sm:text-cream/85">
+                  Run by <span className="font-medium">{ownerName}</span>
+                </p>
+              )}
+              {(sellerProfile.city || sellerProfile.province) && (
+                <p className="mt-1 text-sm text-cream/75 inline-flex items-center gap-1.5">
+                  <MapPin className="w-3.5 h-3.5" />
+                  {[sellerProfile.city, sellerProfile.province].filter(Boolean).join(', ')}
+                </p>
+              )}
+            </div>
+
+            {/* Quick actions */}
+            <div className="flex gap-2 sm:flex-shrink-0">
+              {sellerProfile.whatsapp_number && (
+                <a
+                  href={`https://wa.me/${sellerProfile.whatsapp_number.replace(/\D/g, '')}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-[#25D366] hover:bg-[#20BD5C] text-white text-sm font-medium shadow-soft transition-all"
+                >
+                  <MessageCircle className="w-4 h-4" />
+                  WhatsApp
+                </a>
+              )}
+              {sellerProfile.contact_number && (
+                <a
+                  href={`tel:${sellerProfile.contact_number}`}
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-full bg-white hover:bg-cream-deep text-ink border border-border text-sm font-medium shadow-soft transition-all"
+                >
+                  <Phone className="w-4 h-4" />
+                  Call
+                </a>
+              )}
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ============ TWO-COL: PRODUCTS + ABOUT ============ */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20">
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* ---- Products (left, 2 cols) ---- */}
+          <div className="lg:col-span-2">
+            <div className="flex items-end justify-between mb-6">
+              <div>
+                <p className="eyebrow mb-2">From {businessName}</p>
+                <h2 className="font-display text-3xl text-ink">Products</h2>
+              </div>
+              <span className="text-sm text-ink/50">
+                {listingsLoading
+                  ? 'Loading…'
+                  : <><span className="font-semibold text-ink">{listings.length}</span> {listings.length === 1 ? 'listing' : 'listings'}</>}
+              </span>
+            </div>
 
             {listingsLoading ? (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+              <div className="grid sm:grid-cols-2 gap-5">
+                {[...Array(4)].map((_, i) => <ListingSkeleton key={i} />)}
               </div>
             ) : listings.length === 0 ? (
-              <div className="text-center py-12 bg-white rounded-xl">
-                <p className="text-gray-600">This shop has no products available at the moment</p>
-              </div>
+              <EmptyState
+                icon={Package}
+                title="No products available right now"
+                subtitle={`${businessName} doesn't have any active listings at the moment. Check back soon or message them directly.`}
+                action={
+                  sellerProfile.whatsapp_number && (
+                    <a
+                      href={`https://wa.me/${sellerProfile.whatsapp_number.replace(/\D/g, '')}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Button className="btn-cta px-5 py-2.5 text-sm gap-1.5">
+                        <MessageCircle className="w-4 h-4" />
+                        Message on WhatsApp
+                      </Button>
+                    </a>
+                  )
+                }
+              />
             ) : (
-              <div className="grid sm:grid-cols-2 gap-6">
+              <div className="grid sm:grid-cols-2 gap-5">
                 {listings.map((listing) => (
-                  <ListingCard 
-                    key={listing.id} 
-                    listing={listing} 
+                  <ListingCard
+                    key={listing.id}
+                    listing={listing}
                     showSellerContact={true}
                     sellerProfile={sellerProfile}
                     shopUrl={createPageUrl('SellerShop') + `?shop=${subdomain}`}
@@ -97,71 +244,110 @@ export default function SellerShop() {
             )}
           </div>
 
-          {/* Profile Column (Right - Smaller) */}
-          <div className="lg:w-1/3">
-            <div className="bg-white rounded-xl shadow-lg p-6 sticky top-24">
-              <div className="text-center mb-6">
-                <img
-                  src={profilePhoto}
-                  alt={sellerProfile.display_name}
-                  className="w-32 h-32 rounded-full object-cover border-4 border-[#7A9D7A] shadow-lg mx-auto mb-4"
-                />
-                <div className="flex items-center gap-2 justify-center mb-2">
-                  <h3 className="text-2xl font-bold text-gray-900">{sellerProfile.display_name}</h3>
-                  {sellerProfile.seller_verified && (
-                    <Badge className="bg-blue-500 text-white">
-                      <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                      </svg>
-                      Verified
-                    </Badge>
-                  )}
-                </div>
-                {sellerProfile.farm_name && (
-                  <p className="text-lg text-gray-700 font-medium mb-3">{sellerProfile.farm_name}</p>
-                )}
-              </div>
+          {/* ---- About (right, sticky) ---- */}
+          <aside className="lg:sticky lg:top-8 self-start">
+            <div className="card-premium p-6">
+              <h3 className="font-display text-xl text-ink mb-4">About {businessName}</h3>
 
-              {sellerProfile.bio && (
-                <div className="mb-6 pb-6 border-b border-gray-200">
-                  <h4 className="text-sm font-semibold text-gray-900 mb-2">About</h4>
-                  <p className="text-sm text-gray-600">{sellerProfile.bio}</p>
-                </div>
+              {sellerProfile.bio ? (
+                <p className="text-sm text-ink/70 leading-relaxed mb-6">{sellerProfile.bio}</p>
+              ) : (
+                <p className="text-sm text-ink/40 italic mb-6">No bio set yet.</p>
               )}
 
-              <div className="space-y-3">
-                <h4 className="text-sm font-semibold text-gray-900 mb-3">Contact Information</h4>
-                
+              {/* Stats strip */}
+              <div className="grid grid-cols-3 gap-3 py-4 border-y border-border">
+                <div className="text-center">
+                  <p className="font-display text-2xl font-bold text-ink">{listings.length}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-ink/50 mt-1">Live</p>
+                </div>
+                <div className="text-center border-x border-border">
+                  <p className="font-display text-2xl font-bold text-ink">{totalSales}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-ink/50 mt-1">Sold</p>
+                </div>
+                <div className="text-center">
+                  <p className="font-display text-2xl font-bold text-ink">
+                    {memberSinceYear || '—'}
+                  </p>
+                  <p className="text-[10px] uppercase tracking-wider text-ink/50 mt-1">Since</p>
+                </div>
+              </div>
+
+              {/* Contact details */}
+              <div className="mt-5 space-y-3">
+                <h4 className="eyebrow">Contact</h4>
+
                 {(sellerProfile.city || sellerProfile.province) && (
-                  <div className="flex items-start gap-3">
-                    <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-600">{[sellerProfile.city, sellerProfile.province].filter(Boolean).join(', ')}</span>
+                  <div className="flex items-start gap-3 text-sm text-ink/70">
+                    <MapPin className="w-4 h-4 text-moss-600 mt-0.5 flex-shrink-0" />
+                    <span>{[sellerProfile.city, sellerProfile.province].filter(Boolean).join(', ')}</span>
                   </div>
                 )}
-                
+
                 {sellerProfile.contact_number && (
-                  <div className="flex items-start gap-3">
-                    <Phone className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-600">{sellerProfile.contact_number}</span>
-                  </div>
+                  <a
+                    href={`tel:${sellerProfile.contact_number}`}
+                    className="flex items-start gap-3 text-sm text-ink/70 hover:text-moss-700 transition-colors"
+                  >
+                    <Phone className="w-4 h-4 text-moss-600 mt-0.5 flex-shrink-0" />
+                    <span>{sellerProfile.contact_number}</span>
+                  </a>
                 )}
-                
+
                 {sellerProfile.whatsapp_number && (
-                  <div className="flex items-start gap-3">
-                    <MessageCircle className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-600">{sellerProfile.whatsapp_number}</span>
-                  </div>
+                  <a
+                    href={`https://wa.me/${sellerProfile.whatsapp_number.replace(/\D/g, '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-start gap-3 text-sm text-ink/70 hover:text-moss-700 transition-colors group"
+                  >
+                    <MessageCircle className="w-4 h-4 text-moss-600 mt-0.5 flex-shrink-0" />
+                    <span className="inline-flex items-center gap-1">
+                      {sellerProfile.whatsapp_number}
+                      <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-60 transition-opacity" />
+                    </span>
+                  </a>
                 )}
-                
+
                 {sellerProfile.business_hours && (
-                  <div className="flex items-start gap-3">
-                    <Clock className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm text-gray-600">{sellerProfile.business_hours}</span>
+                  <div className="flex items-start gap-3 text-sm text-ink/70">
+                    <Clock className="w-4 h-4 text-moss-600 mt-0.5 flex-shrink-0" />
+                    <span>{sellerProfile.business_hours}</span>
                   </div>
                 )}
               </div>
+
+              {/* Shop URL */}
+              {subdomain && (
+                <div className="mt-6 pt-5 border-t border-border">
+                  <p className="text-[10px] uppercase tracking-wider text-ink/50 font-semibold mb-2">Shop URL</p>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard?.writeText(`${window.location.origin}${createPageUrl('SellerShop')}?shop=${subdomain}`);
+                    }}
+                    className="text-xs text-moss-700 break-all link-underline"
+                  >
+                    {window.location.host}{createPageUrl('SellerShop')}?shop={subdomain}
+                  </button>
+                </div>
+              )}
             </div>
-          </div>
+
+            {/* Trust badge */}
+            {sellerProfile.seller_verified && (
+              <div className="mt-4 card-premium p-5 bg-moss-50/50 border-moss-100">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-moss-600 flex items-center justify-center">
+                    <ShieldCheck className="w-5 h-5 text-cream" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-ink">Verified seller</p>
+                    <p className="text-xs text-ink/55">Identity & address confirmed by Easy Poultry</p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </aside>
         </div>
       </div>
     </div>
