@@ -16,6 +16,7 @@ import {
   connectFirestoreEmulator,
 } from 'firebase/firestore';
 import { getStorage, connectStorageEmulator } from 'firebase/storage';
+import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -33,6 +34,7 @@ let app = null;
 let _auth = null;
 let _db = null;
 let _storage = null;
+let _functions = null;
 let _googleProvider = null;
 
 if (isFirebaseConfigured) {
@@ -46,12 +48,15 @@ if (isFirebaseConfigured) {
   });
 
   _storage = getStorage(app);
+  // Cloud Functions live in europe-west1 (matches functions/index.js region)
+  _functions = getFunctions(app, 'europe-west1');
 
   if (import.meta.env.VITE_USE_FIREBASE_EMULATOR === 'true') {
     try {
       connectAuthEmulator(_auth, 'http://localhost:9099', { disableWarnings: true });
       connectFirestoreEmulator(_db, 'localhost', 8080);
       connectStorageEmulator(_storage, 'localhost', 9199);
+      connectFunctionsEmulator(_functions, 'localhost', 5001);
 
       console.info('[Firebase] connected to local emulator suite');
     } catch (e) {
@@ -71,4 +76,5 @@ export const firebaseApp = app;
 export const auth = _auth;
 export const db = _db;
 export const storage = _storage;
+export const functions = _functions;
 export const googleProvider = _googleProvider;

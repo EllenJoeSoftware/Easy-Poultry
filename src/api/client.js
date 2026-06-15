@@ -56,7 +56,8 @@ import {
   confirmPasswordReset as fbConfirmPasswordReset,
   verifyPasswordResetCode as fbVerifyPasswordResetCode,
 } from 'firebase/auth';
-import { db, storage, auth, googleProvider, isFirebaseConfigured } from '@/lib/firebase';
+import { httpsCallable } from 'firebase/functions';
+import { db, storage, auth, functions as fbFunctions, googleProvider, isFirebaseConfigured } from '@/lib/firebase';
 
 const demoStore = new Map();
 const ensureCollection = (n) => {
@@ -456,13 +457,36 @@ const Core = {
 };
 
 const functions = {
+  /**
+   * Invoke a Firebase Cloud Function by name. Falls back to a safe stub when
+   * the functions instance isn't available (e.g. in demo mode) so the UI
+   * doesn't crash and developers get a console hint.
+   */
   async invoke(name, payload) {
-    console.info(`[functions.invoke('${name}') stub]`, payload);
+    if (fbFunctions) {
+      try {
+        const callable = httpsCallable(fbFunctions, name);
+        const result = await callable(payload || {});
+        // Cloud Functions wrap return values in { data: ... }; preserve that
+        // shape regardless of whether the function returned its own .data.
+        if (result?.data && typeof result.data === 'object' && 'data' in result.data) {
+          return result.data;
+        }
+        return { data: result.data };
+      } catch (err) {
+        console.error(`[functions.invoke('${name}')] failed:`, err);
+        // Re-throw so callers can show toast errors etc.
+        throw err;
+      }
+    }
+
+    // ---- Demo / unconfigured fallback ----
+    console.info(`[functions.invoke('${name}') stub — Cloud Functions not configured]`, payload);
     if (name === 'createYocoCheckout') {
       return {
         data: {
           redirectUrl: null,
-          message: 'Yoco checkout not configured. Add createYocoCheckout Cloud Function and Yoco secret key to enable payments.',
+          message: 'Yoco checkout not configured. Deploy functions/index.js to enable real payments.',
         },
       };
     }

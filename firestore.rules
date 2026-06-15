@@ -135,6 +135,18 @@ service cloud.firestore {
       allow create: if isSignedIn();
     }
 
+    // Orders — buyer + seller can read; only the server (Cloud Function with
+    // admin SDK) writes them. Reject all client writes.
+    match /Order/{id} {
+      allow read: if isSignedIn() && (
+        resource.data.buyer_email  == request.auth.token.email ||
+        resource.data.buyer_uid    == request.auth.uid ||
+        resource.data.seller_email == request.auth.token.email ||
+        isAdmin()
+      );
+      allow write: if false;
+    }
+
     // Inquiries — buyer & seller can both read; both can update (for response threads)
     match /Inquiry/{id} {
       allow read, update: if isSignedIn() && (

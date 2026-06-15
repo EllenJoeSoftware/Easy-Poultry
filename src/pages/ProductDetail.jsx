@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, MapPin, Calendar, Package, DollarSign, Loader2, User, Phone, MessageCircle, Mail, Clock, Download, FileText, ShieldCheck, ExternalLink } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Package, DollarSign, Loader2, User, Phone, MessageCircle, Mail, Clock, Download, FileText, ShieldCheck, ExternalLink, CreditCard, CheckCircle2, XCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import ImageCarousel from '../components/marketplace/ImageCarousel';
@@ -69,12 +69,18 @@ export default function ProductDetail() {
   const urlParams = new URLSearchParams(window.location.search);
   const listingId = urlParams.get('id');
   const shouldOpenContact = urlParams.get('contact') === 'true';
+  const yocoOrderId = urlParams.get('order');
+  const yocoStatus  = urlParams.get('yoco_status');
+
   const [showInquiryForm, setShowInquiryForm] = useState(false);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [inquiryMessage, setInquiryMessage] = useState('');
   const [buyerContact, setBuyerContact] = useState('');
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [orderStatus, setOrderStatus] = useState(null); // 'pending' | 'paid' | 'failed' | 'cancelled' | null
+  const [paidOrder, setPaidOrder] = useState(null);
   const inquiryFormRef = useRef(null);
-  
+
   const queryClient = useQueryClient();
 
   const { data: listing, isLoading } = useQuery({
@@ -217,6 +223,89 @@ export default function ProductDetail() {
     }
   }, [shouldOpenContact, listing, isLoading]);
 
+  // ----- Yoco return-from-checkout handler -----
+  useEffect(() => {
+    if (!yocoOrderId) return;
+    if (yocoStatus === 'cancel') {
+      setOrderStatus('cancelled');
+      toast.info('Payment cancelled. No charge was made.');
+      return;
+    }
+    if (yocoStatus === 'failure') {
+      setOrderStatus('failed');
+      toast.error('Payment failed. Please try again.');
+      return;
+    }
+    if (yocoStatus !== 'success') return;
+
+    setOrderStatus('pending');
+    let cancelled = false;
+    let attempts = 0;
+
+    const poll = async () => {
+      if (cancelled) return;
+      attempts++;
+      try {
+        const order = await api.entities.Order.get(yocoOrderId);
+        if (cancelled) return;
+        if (order?.status === 'paid') {
+          setOrderStatus('paid');
+          setPaidOrder(order);
+          toast.success('Payment received — your file is unlocked.');
+          return;
+        }
+        if (order?.status === 'failed') {
+          setOrderStatus('failed');
+          toast.error('Payment failed. Please try again.');
+          return;
+        }
+      } catch (e) {
+        console.warn('[order poll]', e);
+      }
+      if (attempts < 20) setTimeout(poll, 1500); // poll for ~30s
+      else {
+        setOrderStatus('slow');
+        toast.warning('Payment is taking longer than expected. Refresh in a moment.');
+      }
+    };
+    poll();
+
+    return () => { cancelled = true; };
+  }, [yocoOrderId, yocoStatus]);
+
+  const handlePayAndDownload = async () => {
+    if (!listing) return;
+    setCheckoutLoading(true);
+    try {
+      const me = await api.auth.me().catch(() => null);
+      if (!me) {
+        toast.error('Please sign in to purchase.');
+        api.auth.redirectToLogin(window.location.href);
+        return;
+      }
+      const successUrl = `${window.location.origin}${createPageUrl('ProductDetail')}?id=${listing.id}`;
+      const res = await api.functions.invoke('createYocoCheckout', {
+        amount: Number(listing.price),
+        listingId: listing.id,
+        quantity: 1,
+        successUrl,
+        cancelUrl:  successUrl,
+        failureUrl: successUrl,
+      });
+      const redirectUrl = res?.data?.redirectUrl || res?.redirectUrl;
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
+      } else {
+        toast.error(res?.data?.message || 'Could not start checkout. Yoco may not be configured yet.');
+      }
+    } catch (err) {
+      console.error('[Yoco checkout]', err);
+      toast.error(err?.message || 'Could not start checkout. Try again.');
+    } finally {
+      setCheckoutLoading(false);
+    }
+  };
+
   // Scroll to inquiry form when opened
   useEffect(() => {
     if (showInquiryForm && inquiryFormRef.current) {
@@ -332,34 +421,71 @@ export default function ProductDetail() {
                         </span>
                       )}
                     </p>
-                    {listing.digital_file_url ? (
+                    {/* Three states: paid (show download), pending (poll msg), default (pay button) */}
+                    {orderStatus === 'paid' && paidOrder?.digital_file_url ? (
                       <div className="flex flex-wrap gap-2">
                         <a
-                          href={listing.digital_file_url}
+                          href={paidOrder.digital_file_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          download={listing.digital_file_name || true}
+                          download={paidOrder.digital_file_name || true}
                           className="btn-cta px-5 py-2.5 text-sm gap-1.5"
                         >
                           <Download className="w-4 h-4" />
-                          Download — R{listing.price}
+                          Download your file
                         </a>
-                        <a
-                          href={listing.digital_file_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white border border-border hover:border-moss-300 text-sm font-medium text-ink transition-all"
+                        <span className="inline-flex items-center gap-1.5 px-3 py-2.5 text-sm text-moss-700">
+                          <CheckCircle2 className="w-4 h-4" />
+                          Paid R{paidOrder.amount}
+                        </span>
+                      </div>
+                    ) : orderStatus === 'pending' ? (
+                      <div className="flex items-center gap-2 text-sm text-ink/70">
+                        <Loader2 className="w-4 h-4 animate-spin text-moss-600" />
+                        Confirming your payment with Yoco…
+                      </div>
+                    ) : orderStatus === 'slow' ? (
+                      <div className="flex items-center gap-2 text-sm text-yolk-600">
+                        <Clock className="w-4 h-4" />
+                        Payment confirmation is slow — refresh the page in a moment.
+                      </div>
+                    ) : orderStatus === 'failed' ? (
+                      <div className="flex flex-wrap gap-2">
+                        <span className="inline-flex items-center gap-1.5 text-sm text-terracotta-600">
+                          <XCircle className="w-4 h-4" />
+                          Payment failed
+                        </span>
+                        <button
+                          type="button"
+                          onClick={handlePayAndDownload}
+                          disabled={checkoutLoading}
+                          className="btn-cta px-5 py-2.5 text-sm gap-1.5"
                         >
-                          <ExternalLink className="w-4 h-4" />
-                          Preview
-                        </a>
+                          {checkoutLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CreditCard className="w-4 h-4" />}
+                          Try again
+                        </button>
+                      </div>
+                    ) : listing.digital_file_url ? (
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          onClick={handlePayAndDownload}
+                          disabled={checkoutLoading}
+                          className="btn-cta px-5 py-2.5 text-sm gap-1.5"
+                        >
+                          {checkoutLoading ? (
+                            <><Loader2 className="w-4 h-4 animate-spin" />Starting checkout…</>
+                          ) : (
+                            <><CreditCard className="w-4 h-4" />Pay R{listing.price} & download</>
+                          )}
+                        </button>
                       </div>
                     ) : (
                       <p className="text-sm text-terracotta-600 italic">File not yet uploaded by the seller.</p>
                     )}
                     <p className="text-[11px] text-ink/45 mt-3 inline-flex items-center gap-1">
                       <ShieldCheck className="w-3 h-3" />
-                      Instant access · download as many times as you need
+                      Secured by Yoco · download immediately after payment
                     </p>
                   </div>
                 </div>
