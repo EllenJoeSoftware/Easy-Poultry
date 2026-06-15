@@ -35,6 +35,7 @@ const CATEGORY_PILLS = [
   { value: 'chicks',     label: 'Chicks' },
   { value: 'feed',       label: 'Feed' },
   { value: 'equipment',  label: 'Equipment' },
+  { value: 'guide',      label: 'Guides & eBooks' },
 ];
 
 export default function Marketplace() {

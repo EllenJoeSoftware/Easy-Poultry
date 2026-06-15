@@ -235,6 +235,22 @@ export const PigeonIcon = ({ className = '', ...rest }) => (
 );
 
 /* ============================================================
+   GUIDE / DIGITAL — for ebooks, courses, templates (PDFs)
+   ============================================================ */
+export const GuideIcon = ({ className = '', ...rest }) => (
+  <svg {...baseProps} className={className} {...rest}>
+    {/* document outline */}
+    <path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+    {/* folded corner */}
+    <path d="M14 3v5h5" />
+    {/* lines of text */}
+    <path d="M7 13h10M7 16h10M7 19h6" />
+    {/* small star ('premium content') */}
+    <path d="M9 8l.6 1.3L11 10l-1.4.7L9 12l-.6-1.3L7 10l1.4-.7z" fill="currentColor" stroke="none" />
+  </svg>
+);
+
+/* ============================================================
    CATEGORY MAP — convenience export for the marketplace
    ============================================================ */
 export const CATEGORY_ICONS = {
@@ -256,11 +272,16 @@ export const CATEGORY_ICONS = {
   supplements: FeedIcon,
   incubators: EquipmentIcon,
   equipment: EquipmentIcon,
+  // digital products
+  ebook: GuideIcon,
+  guide: GuideIcon,
+  course: GuideIcon,
+  template: GuideIcon,
   other: ChickenIcon,
 };
 
 export default {
   ChickenIcon, DuckIcon, TurkeyIcon, QuailIcon,
   EggIcon, ChickIcon, FeedIcon, EquipmentIcon,
-  GooseIcon, PigeonIcon, CATEGORY_ICONS,
+  GooseIcon, PigeonIcon, GuideIcon, CATEGORY_ICONS,
 };

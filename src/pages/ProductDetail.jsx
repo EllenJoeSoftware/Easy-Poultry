@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, MapPin, Calendar, Package, DollarSign, Loader2, User, Phone, MessageCircle, Mail, Clock } from 'lucide-react';
+import { ArrowLeft, MapPin, Calendar, Package, DollarSign, Loader2, User, Phone, MessageCircle, Mail, Clock, Download, FileText, ShieldCheck, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import ImageCarousel from '../components/marketplace/ImageCarousel';
@@ -309,16 +309,75 @@ export default function ProductDetail() {
           <div className="lg:col-span-2 space-y-6">
             <ImageCarousel images={listing.images} />
 
+            {/* ----- DIGITAL DOWNLOAD PANEL ----- */}
+            {listing.product_type === 'digital' && (
+              <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-terracotta-50 to-yolk-50 border border-terracotta-100">
+                <div className="flex items-start gap-4">
+                  <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center flex-shrink-0 shadow-sm text-terracotta-600">
+                    <FileText className="w-7 h-7" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-display text-xl text-ink">Digital download</h3>
+                      <Badge className="bg-terracotta-400 text-white border-0 text-[10px]">PDF / file</Badge>
+                    </div>
+                    <p className="text-sm text-ink/65 mb-4">
+                      {listing.digital_file_name || 'Your file'}
+                      {listing.digital_file_size > 0 && (
+                        <span className="text-ink/45">
+                          {' · '}
+                          {listing.digital_file_size < 1024 * 1024
+                            ? `${(listing.digital_file_size / 1024).toFixed(0)} KB`
+                            : `${(listing.digital_file_size / (1024 * 1024)).toFixed(1)} MB`}
+                        </span>
+                      )}
+                    </p>
+                    {listing.digital_file_url ? (
+                      <div className="flex flex-wrap gap-2">
+                        <a
+                          href={listing.digital_file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          download={listing.digital_file_name || true}
+                          className="btn-cta px-5 py-2.5 text-sm gap-1.5"
+                        >
+                          <Download className="w-4 h-4" />
+                          Download — R{listing.price}
+                        </a>
+                        <a
+                          href={listing.digital_file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full bg-white border border-border hover:border-moss-300 text-sm font-medium text-ink transition-all"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          Preview
+                        </a>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-terracotta-600 italic">File not yet uploaded by the seller.</p>
+                    )}
+                    <p className="text-[11px] text-ink/45 mt-3 inline-flex items-center gap-1">
+                      <ShieldCheck className="w-3 h-3" />
+                      Instant access · download as many times as you need
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            )}
+
             <Card className="p-6 border-0 shadow-lg">
               <div className="mb-4">
                 <Badge className="bg-[#7A9D7A]/10 text-[#7A9D7A] border-0 mb-3">
-                  {categoryLabels[listing.category]}
+                  {categoryLabels[listing.category] || listing.category}
                 </Badge>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
                   {listing.title}
                 </h1>
                 {listing.breed && (
-                  <p className="text-lg text-gray-600">{listing.breed}</p>
+                  <p className="text-lg text-gray-600">
+                    {listing.product_type === 'digital' ? `by ${listing.breed}` : listing.breed}
+                  </p>
                 )}
               </div>
 
@@ -327,47 +386,58 @@ export default function ProductDetail() {
                   <span className="text-4xl font-bold text-[#E07A5F]">
                     R{listing.price}
                   </span>
-                  {listing.price_type === 'batch' && listing.stock_quantity > 1 && (
-                    <span className="text-sm text-gray-600 ml-2">for entire batch</span>
-                  )}
-                  {listing.price_type === 'per_item' && (
-                    <span className="text-sm text-gray-600 ml-2">per item</span>
+                  {listing.product_type === 'digital' ? (
+                    <span className="text-sm text-gray-600 ml-2">per download</span>
+                  ) : (
+                    <>
+                      {listing.price_type === 'batch' && listing.stock_quantity > 1 && (
+                        <span className="text-sm text-gray-600 ml-2">for entire batch</span>
+                      )}
+                      {listing.price_type === 'per_item' && (
+                        <span className="text-sm text-gray-600 ml-2">per item</span>
+                      )}
+                    </>
                   )}
                 </div>
-                {listing.stock_quantity > 0 && (
+                {listing.product_type !== 'digital' && listing.stock_quantity > 0 && (
                   <span className="ml-4 text-gray-600">
                     {listing.stock_quantity} available
                   </span>
                 )}
               </div>
 
-              <div className="grid sm:grid-cols-2 gap-4 mb-6">
-                {listing.age && (
-                  <div className="flex items-center gap-3">
-                    <Calendar className="w-5 h-5 text-gray-400" />
-                    <div>
-                      <p className="text-xs text-gray-500">Age</p>
-                      <p className="font-medium text-gray-900">{listing.age}</p>
+              {/* Physical product metadata only */}
+              {listing.product_type !== 'digital' && (
+                <div className="grid sm:grid-cols-2 gap-4 mb-6">
+                  {listing.age && (
+                    <div className="flex items-center gap-3">
+                      <Calendar className="w-5 h-5 text-gray-400" />
+                      <div>
+                        <p className="text-xs text-gray-500">Age</p>
+                        <p className="font-medium text-gray-900">{listing.age}</p>
+                      </div>
                     </div>
-                  </div>
-                )}
-                {listing.gender && listing.gender !== 'n/a' && (
-                  <div className="flex items-center gap-3">
-                    <Package className="w-5 h-5 text-gray-400" />
-                    <div>
-                      <p className="text-xs text-gray-500">Gender</p>
-                      <p className="font-medium text-gray-900 capitalize">{listing.gender}</p>
+                  )}
+                  {listing.gender && listing.gender !== 'n/a' && (
+                    <div className="flex items-center gap-3">
+                      <Package className="w-5 h-5 text-gray-400" />
+                      <div>
+                        <p className="text-xs text-gray-500">Gender</p>
+                        <p className="font-medium text-gray-900 capitalize">{listing.gender}</p>
+                      </div>
                     </div>
-                  </div>
-                )}
-                <div className="flex items-center gap-3">
-                  <MapPin className="w-5 h-5 text-gray-400" />
-                  <div>
-                    <p className="text-xs text-gray-500">Location</p>
-                    <p className="font-medium text-gray-900">{listing.city}, {listing.province}</p>
-                  </div>
+                  )}
+                  {(listing.city || listing.province) && (
+                    <div className="flex items-center gap-3">
+                      <MapPin className="w-5 h-5 text-gray-400" />
+                      <div>
+                        <p className="text-xs text-gray-500">Location</p>
+                        <p className="font-medium text-gray-900">{listing.city}, {listing.province}</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
               {listing.description && (
                 <div>

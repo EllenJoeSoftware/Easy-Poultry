@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Eye, Heart, ShoppingCart, Share2, Check } from 'lucide-react';
+import { MapPin, Eye, Heart, ShoppingCart, Share2, Check, Download, FileText } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -123,8 +123,14 @@ export default function ListingCard({
         {/* gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-ink/40 via-transparent to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
 
-        {/* Top row: category badge + verified */}
+        {/* Top row: category + digital + featured badges */}
         <div className="absolute top-3 left-3 flex items-center gap-2 z-20">
+          {listing.product_type === 'digital' && (
+            <Badge className="bg-terracotta-400 text-white border-0 shadow-sm font-medium gap-1">
+              <FileText className="w-3 h-3" />
+              Digital
+            </Badge>
+          )}
           <Badge className="bg-white/95 text-ink backdrop-blur-sm border-0 shadow-sm font-medium">
             {categoryLabels[listing.category] || listing.category}
           </Badge>
@@ -236,6 +242,16 @@ export default function ListingCard({
               <ShoppingCart className="w-4 h-4" />
               {sellerProfile.contact_number}
             </button>
+          ) : listing.product_type === 'digital' ? (
+            <button
+              type="button"
+              onClick={handleBuyNow}
+              onMouseDown={stop}
+              className="btn-accent px-4 py-2 text-sm gap-1.5"
+            >
+              <Download className="w-4 h-4" />
+              Get download
+            </button>
           ) : (
             <button
               type="button"
@@ -261,14 +277,25 @@ export default function ListingCard({
         )}
 
         <div className="flex items-center gap-2 text-xs text-ink/50 mb-4">
-          <MapPin className="w-3.5 h-3.5" />
-          <span className="truncate">
-            {listing.city}{listing.city && listing.province && ', '}{listing.province}
-          </span>
-          {listing.age && (
+          {listing.product_type === 'digital' ? (
             <>
-              <span className="opacity-40">·</span>
-              <span>{listing.age}</span>
+              <FileText className="w-3.5 h-3.5 text-terracotta-500" />
+              <span className="truncate">
+                Instant download · {((listing.digital_file_type || '').split('/')[1] || 'file').toUpperCase()}
+              </span>
+            </>
+          ) : (
+            <>
+              <MapPin className="w-3.5 h-3.5" />
+              <span className="truncate">
+                {listing.city}{listing.city && listing.province && ', '}{listing.province}
+              </span>
+              {listing.age && (
+                <>
+                  <span className="opacity-40">·</span>
+                  <span>{listing.age}</span>
+                </>
+              )}
             </>
           )}
         </div>
@@ -279,18 +306,31 @@ export default function ListingCard({
               <span className="font-display text-2xl font-bold text-ink leading-none">
                 R{formatPrice(listing.price)}
               </span>
-              {listing.price_type === 'batch' && listing.stock_quantity > 1 && (
-                <span className="text-xs text-ink/40">/batch</span>
-              )}
-              {listing.price_type === 'per_item' && (
-                <span className="text-xs text-ink/40">/each</span>
+              {listing.product_type === 'digital' ? (
+                <span className="text-xs text-ink/40">/download</span>
+              ) : (
+                <>
+                  {listing.price_type === 'batch' && listing.stock_quantity > 1 && (
+                    <span className="text-xs text-ink/40">/batch</span>
+                  )}
+                  {listing.price_type === 'per_item' && (
+                    <span className="text-xs text-ink/40">/each</span>
+                  )}
+                </>
               )}
             </div>
-            {listing.stock_quantity > 0 && (
-              <span className="text-xs text-moss-600 mt-1 inline-flex items-center gap-1">
-                <Check className="w-3 h-3" />
-                {listing.stock_quantity} available
+            {listing.product_type === 'digital' ? (
+              <span className="text-xs text-terracotta-600 mt-1 inline-flex items-center gap-1">
+                <Download className="w-3 h-3" />
+                Instant access
               </span>
+            ) : (
+              listing.stock_quantity > 0 && (
+                <span className="text-xs text-moss-600 mt-1 inline-flex items-center gap-1">
+                  <Check className="w-3 h-3" />
+                  {listing.stock_quantity} available
+                </span>
+              )
             )}
           </div>
         </div>

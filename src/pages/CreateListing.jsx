@@ -7,12 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card } from '@/components/ui/card';
-import { Upload, X, Loader2, ImagePlus, Sparkles, Eye, MapPin } from 'lucide-react';
+import { Upload, X, Loader2, ImagePlus, Sparkles, Eye, MapPin, FileText, Package as PackageIcon, Download, Egg } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import PageShell from '@/components/shell/PageShell';
-import { CATEGORY_ICONS } from '@/components/icons/PoultryIcons';
+import { CATEGORY_ICONS, GuideIcon } from '@/components/icons/PoultryIcons';
 
 export default function CreateListing() {
   const navigate = useNavigate();
@@ -30,8 +30,15 @@ export default function CreateListing() {
     price_type: 'per_item',
     currency: 'USD',
     description: '',
-    images: []
+    images: [],
+    // ----- Digital product fields -----
+    product_type: 'physical', // 'physical' | 'digital'
+    digital_file_url: '',
+    digital_file_name: '',
+    digital_file_size: 0,
+    digital_file_type: '',
   });
+  const [uploadingFile, setUploadingFile] = useState(false);
 
   const { data: sellerTiers = [] } = useQuery({
     queryKey: ['seller-tiers'],
@@ -137,29 +144,73 @@ export default function CreateListing() {
     }));
   };
 
+  const handleDigitalFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Max 50MB for a digital file
+    if (file.size > 50 * 1024 * 1024) {
+      toast.error('File too large. Maximum 50MB.');
+      return;
+    }
+
+    setUploadingFile(true);
+    try {
+      const { file_url } = await api.integrations.Core.UploadFile({ file });
+      setFormData((prev) => ({
+        ...prev,
+        digital_file_url: file_url,
+        digital_file_name: file.name,
+        digital_file_size: file.size,
+        digital_file_type: file.type || 'application/octet-stream',
+      }));
+      toast.success('File uploaded');
+    } catch (error) {
+      toast.error('Failed to upload file');
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
+  const removeDigitalFile = () => {
+    setFormData((prev) => ({
+      ...prev,
+      digital_file_url: '',
+      digital_file_name: '',
+      digital_file_size: 0,
+      digital_file_type: '',
+    }));
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
+    const isDigital = formData.product_type === 'digital';
+
     if (!formData.title || !formData.category || !formData.price) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+    if (isDigital && !formData.digital_file_url) {
+      toast.error('Please upload your digital file before publishing');
       return;
     }
 
     createListingMutation.mutate({
       ...formData,
       price: parseFloat(formData.price),
-      stock_quantity: parseInt(formData.stock_quantity),
+      stock_quantity: isDigital ? 9999 : parseInt(formData.stock_quantity),
       currency: 'ZAR',
-      province: user?.province,
-      city: user?.city,
-      exact_location: user?.exact_location,
+      province: isDigital ? null : user?.province,
+      city: isDigital ? null : user?.city,
+      exact_location: isDigital ? null : user?.exact_location,
       status: 'active',
       view_count: 0,
-      inquiry_count: 0
+      inquiry_count: 0,
     });
   };
 
-  const categories = [
+  const physicalCategories = [
     { value: 'chickens', label: 'Chickens' },
     { value: 'ducks', label: 'Ducks' },
     { value: 'geese', label: 'Geese' },
@@ -178,8 +229,24 @@ export default function CreateListing() {
     { value: 'supplements', label: 'Supplements' },
     { value: 'incubators', label: 'Incubators' },
     { value: 'equipment', label: 'Equipment' },
-    { value: 'other', label: 'Other' }
+    { value: 'other', label: 'Other' },
   ];
+  const digitalCategories = [
+    { value: 'ebook',    label: 'eBook' },
+    { value: 'guide',    label: 'Guide / how-to' },
+    { value: 'course',   label: 'Online course' },
+    { value: 'template', label: 'Template / worksheet' },
+    { value: 'other',    label: 'Other digital' },
+  ];
+  const isDigital = formData.product_type === 'digital';
+  const categories = isDigital ? digitalCategories : physicalCategories;
+
+  const formatBytes = (b) => {
+    if (!b) return '';
+    if (b < 1024) return `${b} B`;
+    if (b < 1024 * 1024) return `${(b / 1024).toFixed(1)} KB`;
+    return `${(b / (1024 * 1024)).toFixed(1)} MB`;
+  };
 
   if (!user) {
     return (
@@ -199,7 +266,11 @@ export default function CreateListing() {
     if (formData.price) score += 20;
     if (formData.images.length > 0) score += 20;
     if (formData.description?.length > 30) score += 10;
-    if (formData.breed) score += 10;
+    if (formData.product_type === 'digital') {
+      if (formData.digital_file_url) score += 10;
+    } else {
+      if (formData.breed) score += 10;
+    }
     return score;
   })();
 
@@ -217,14 +288,141 @@ export default function CreateListing() {
       <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-8">
         {/* ============ FORM (left, 2 cols) ============ */}
         <div className="lg:col-span-2 space-y-6">
+          {/* PRODUCT TYPE TOGGLE */}
+          <Card className="card-premium p-6 lg:p-7 border-0 shadow-none">
+            <div className="mb-4">
+              <h2 className="font-display text-xl text-ink">What are you selling?</h2>
+              <p className="text-sm text-ink/55 mt-1">Pick the type — the rest of the form adapts to match.</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, product_type: 'physical', category: '' })}
+                className={`relative p-5 rounded-2xl text-left border-2 transition-all ${
+                  formData.product_type === 'physical'
+                    ? 'border-moss-600 bg-moss-50/60 shadow-soft'
+                    : 'border-border bg-white hover:border-moss-200'
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
+                  formData.product_type === 'physical' ? 'bg-moss-600 text-cream' : 'bg-cream-deep text-ink/60'
+                }`}>
+                  <Egg className="w-5 h-5" strokeWidth={1.75} />
+                </div>
+                <p className="font-display text-lg text-ink">Physical product</p>
+                <p className="text-xs text-ink/55 mt-1">Live birds, eggs, feed, equipment</p>
+                {formData.product_type === 'physical' && (
+                  <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-moss-600 flex items-center justify-center">
+                    <svg className="w-3 h-3 text-cream" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6.5l2.5 2.5L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => setFormData({ ...formData, product_type: 'digital', category: '' })}
+                className={`relative p-5 rounded-2xl text-left border-2 transition-all ${
+                  formData.product_type === 'digital'
+                    ? 'border-terracotta-400 bg-terracotta-50/60 shadow-soft'
+                    : 'border-border bg-white hover:border-terracotta-200'
+                }`}
+              >
+                <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
+                  formData.product_type === 'digital' ? 'bg-terracotta-400 text-white' : 'bg-cream-deep text-ink/60'
+                }`}>
+                  <GuideIcon className="w-5 h-5" strokeWidth={1.75} />
+                </div>
+                <p className="font-display text-lg text-ink">Digital product</p>
+                <p className="text-xs text-ink/55 mt-1">eBooks, guides, courses, templates (PDF)</p>
+                {formData.product_type === 'digital' && (
+                  <div className="absolute top-3 right-3 w-5 h-5 rounded-full bg-terracotta-400 flex items-center justify-center">
+                    <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
+                      <path d="M2 6.5l2.5 2.5L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                )}
+              </button>
+            </div>
+          </Card>
+
+          {/* DIGITAL FILE — only when digital */}
+          {isDigital && (
+            <Card className="card-premium p-6 lg:p-7 border-0 shadow-none">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <h2 className="font-display text-xl text-ink">Your file</h2>
+                  <p className="text-sm text-ink/55 mt-1">Upload the file buyers will download. PDF recommended. Max 50 MB.</p>
+                </div>
+                {formData.digital_file_url && (
+                  <button
+                    type="button"
+                    onClick={removeDigitalFile}
+                    className="text-xs text-terracotta-600 hover:underline"
+                  >
+                    Replace file
+                  </button>
+                )}
+              </div>
+
+              {formData.digital_file_url ? (
+                <div className="flex items-center gap-4 p-4 rounded-2xl bg-moss-50 border border-moss-100">
+                  <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                    <FileText className="w-7 h-7 text-moss-700" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-ink truncate">{formData.digital_file_name}</p>
+                    <p className="text-xs text-ink/55 mt-0.5">
+                      {formData.digital_file_type || 'file'} · {formatBytes(formData.digital_file_size)}
+                    </p>
+                  </div>
+                  <a
+                    href={formData.digital_file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-moss-700 hover:underline flex items-center gap-1"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                    Preview
+                  </a>
+                </div>
+              ) : (
+                <label className="block aspect-[5/1] rounded-2xl border-2 border-dashed border-border hover:border-terracotta-300 cursor-pointer bg-cream/50 hover:bg-terracotta-50/40 transition-all">
+                  <div className="h-full flex flex-col items-center justify-center text-ink/50 hover:text-terracotta-600 transition-colors">
+                    {uploadingFile ? (
+                      <Loader2 className="w-7 h-7 animate-spin" />
+                    ) : (
+                      <>
+                        <Upload className="w-7 h-7 mb-1.5" strokeWidth={1.5} />
+                        <span className="text-sm font-medium">Click to upload PDF, EPUB, ZIP…</span>
+                        <span className="text-xs mt-1">Maximum 50 MB</span>
+                      </>
+                    )}
+                  </div>
+                  <input
+                    type="file"
+                    accept=".pdf,.epub,.zip,.docx,.xlsx,.mp4,.mp3,application/pdf,application/zip"
+                    onChange={handleDigitalFileUpload}
+                    className="hidden"
+                    disabled={uploadingFile}
+                  />
+                </label>
+              )}
+            </Card>
+          )}
+
           {/* PHOTOS */}
           <Card className="card-premium p-6 lg:p-7 border-0 shadow-none">
             <div className="flex items-center justify-between mb-5">
               <div>
-                <h2 className="font-display text-xl text-ink">Photos</h2>
-                <p className="text-sm text-ink/55 mt-1">First image is the cover. Drag to reorder later.</p>
+                <h2 className="font-display text-xl text-ink">{isDigital ? 'Cover image' : 'Photos'}</h2>
+                <p className="text-sm text-ink/55 mt-1">
+                  {isDigital
+                    ? 'Add at least one preview image. This is what buyers see in the marketplace.'
+                    : 'First image is the cover. Drag to reorder later.'}
+                </p>
               </div>
-              <span className="text-xs text-ink/50">{formData.images.length}/10</span>
+              <span className="text-xs text-ink/50">{formData.images.length}/{isDigital ? 4 : 10}</span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -303,53 +501,69 @@ export default function CreateListing() {
                   </SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label htmlFor="breed">Breed</Label>
-                <Input
-                  id="breed"
-                  value={formData.breed}
-                  onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
-                  placeholder="e.g., Boschveld, Koekoek, Potchefstroom Koekoek…"
-                  className="mt-1.5"
-                />
-              </div>
+              {!isDigital && (
+                <div>
+                  <Label htmlFor="breed">Breed</Label>
+                  <Input
+                    id="breed"
+                    value={formData.breed}
+                    onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
+                    placeholder="e.g., Boschveld, Koekoek, Potchefstroom Koekoek…"
+                    className="mt-1.5"
+                  />
+                </div>
+              )}
+              {isDigital && (
+                <div>
+                  <Label htmlFor="author">Author</Label>
+                  <Input
+                    id="author"
+                    value={formData.breed}
+                    onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
+                    placeholder="Author name or shop name"
+                    className="mt-1.5"
+                  />
+                </div>
+              )}
             </div>
 
-            <div className="grid sm:grid-cols-3 gap-4">
-              <div>
-                <Label htmlFor="age">Age</Label>
-                <Input
-                  id="age"
-                  value={formData.age}
-                  onChange={(e) => setFormData({ ...formData, age: e.target.value })}
-                  placeholder="e.g., 6 months"
-                  className="mt-1.5"
-                />
+            {!isDigital && (
+              <div className="grid sm:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="age">Age</Label>
+                  <Input
+                    id="age"
+                    value={formData.age}
+                    onChange={(e) => setFormData({ ...formData, age: e.target.value })}
+                    placeholder="e.g., 6 months"
+                    className="mt-1.5"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="gender">Gender</Label>
+                  <Select value={formData.gender} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
+                    <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="mixed">Mixed</SelectItem>
+                      <SelectItem value="n/a">N/A</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="stock">Stock</Label>
+                  <Input
+                    id="stock"
+                    type="number"
+                    min="1"
+                    value={formData.stock_quantity}
+                    onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
+                    className="mt-1.5"
+                  />
+                </div>
               </div>
-              <div>
-                <Label htmlFor="gender">Gender</Label>
-                <Select value={formData.gender} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
-                  <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="mixed">Mixed</SelectItem>
-                    <SelectItem value="n/a">N/A</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="stock">Stock</Label>
-                <Input
-                  id="stock"
-                  type="number"
-                  min="1"
-                  value={formData.stock_quantity}
-                  onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
-                  className="mt-1.5"
-                />
-              </div>
-            </div>
+            )}
 
             <div className="grid sm:grid-cols-3 gap-4">
               <div className="sm:col-span-2">
@@ -371,11 +585,17 @@ export default function CreateListing() {
               </div>
               <div>
                 <Label htmlFor="price_type">Pricing</Label>
-                <Select value={formData.price_type} onValueChange={(value) => setFormData({ ...formData, price_type: value })}>
-                  <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                <Select value={isDigital ? 'per_item' : formData.price_type} onValueChange={(value) => setFormData({ ...formData, price_type: value })}>
+                  <SelectTrigger className="mt-1.5" disabled={isDigital}><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="per_item">Per item</SelectItem>
-                    <SelectItem value="batch">Whole batch</SelectItem>
+                    {isDigital ? (
+                      <SelectItem value="per_item">Per download</SelectItem>
+                    ) : (
+                      <>
+                        <SelectItem value="per_item">Per item</SelectItem>
+                        <SelectItem value="batch">Whole batch</SelectItem>
+                      </>
+                    )}
                   </SelectContent>
                 </Select>
               </div>
@@ -433,32 +653,62 @@ export default function CreateListing() {
                   <p className="mt-2 text-xs">Photos appear here</p>
                 </div>
               )}
-              {formData.category && (
-                <span className="absolute top-3 left-3 chip">
-                  {categories.find(c => c.value === formData.category)?.label}
-                </span>
-              )}
+              <div className="absolute top-3 left-3 flex items-center gap-2">
+                {isDigital && (
+                  <span className="chip chip-accent">
+                    <GuideIcon className="w-3 h-3" />
+                    Digital
+                  </span>
+                )}
+                {formData.category && (
+                  <span className="chip">
+                    {categories.find(c => c.value === formData.category)?.label}
+                  </span>
+                )}
+              </div>
             </div>
             <div className="p-5">
               <h3 className="font-display text-lg text-ink leading-snug line-clamp-2">
                 {formData.title || <span className="text-ink/30">Your listing title</span>}
               </h3>
-              {formData.breed && <p className="text-sm text-ink/60 mt-1">{formData.breed}</p>}
-              <div className="flex items-center gap-2 text-xs text-ink/50 mt-3">
-                <MapPin className="w-3.5 h-3.5" />
-                {user.city || 'Your city'}{user.province && ', '}{user.province || ''}
-              </div>
+              {formData.breed && (
+                <p className="text-sm text-ink/60 mt-1">
+                  {isDigital ? `by ${formData.breed}` : formData.breed}
+                </p>
+              )}
+              {!isDigital ? (
+                <div className="flex items-center gap-2 text-xs text-ink/50 mt-3">
+                  <MapPin className="w-3.5 h-3.5" />
+                  {user.city || 'Your city'}{user.province && ', '}{user.province || ''}
+                </div>
+              ) : formData.digital_file_url ? (
+                <div className="flex items-center gap-2 text-xs text-ink/55 mt-3">
+                  <FileText className="w-3.5 h-3.5 text-terracotta-500" />
+                  {(formData.digital_file_type?.split('/')[1] || 'file').toUpperCase()} · {formatBytes(formData.digital_file_size)}
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-xs text-ink/40 mt-3 italic">
+                  <FileText className="w-3.5 h-3.5" />
+                  No file uploaded yet
+                </div>
+              )}
               <div className="mt-4 pt-4 border-t border-border flex items-baseline justify-between">
                 <div>
                   <span className="font-display text-2xl font-bold text-ink">
                     R{formData.price ? Number(formData.price).toLocaleString('en-ZA') : '0'}
                   </span>
                   <span className="text-xs text-ink/40 ml-1">
-                    /{formData.price_type === 'batch' ? 'batch' : 'each'}
+                    /{isDigital ? 'download' : (formData.price_type === 'batch' ? 'batch' : 'each')}
                   </span>
                 </div>
-                {formData.stock_quantity > 0 && (
+                {!isDigital && formData.stock_quantity > 0 && (
                   <span className="text-xs text-moss-600">{formData.stock_quantity} available</span>
+                )}
+                {isDigital && formData.digital_file_url && (
+                  <span className="text-xs text-terracotta-600 inline-flex items-center gap-1">
+                    <Download className="w-3 h-3" />
+                    Instant
+                  </span>
                 )}
               </div>
             </div>

@@ -53,6 +53,7 @@ export default function Home() {
     { name: 'Chicks',    value: 'chicks',     tint: 'bg-cream-deep',    border: 'border-yolk-100' },
     { name: 'Feed',      value: 'feed',       tint: 'bg-moss-50',       border: 'border-moss-100' },
     { name: 'Equipment', value: 'equipment',  tint: 'bg-terracotta-50', border: 'border-terracotta-100' },
+    { name: 'Guides & eBooks', value: 'guide', tint: 'bg-terracotta-50', border: 'border-terracotta-100' },
   ];
 
   return (
