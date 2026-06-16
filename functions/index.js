@@ -25,7 +25,7 @@ const db = getFirestore();
 const YOCO_SECRET_KEY     = defineSecret('YOCO_SECRET_KEY');
 const YOCO_WEBHOOK_SECRET = defineSecret('YOCO_WEBHOOK_SECRET');
 
-const YOCO_API = 'https://payments.yoco.com/api/checkouts';
+const YOCO_API = 'https://payments.yoco.com/api/checkouts/';
 
 // Origins allowed to call our callable functions. Add new ones (Vercel
 // preview URLs, custom domains) here when needed.
@@ -245,9 +245,10 @@ export const yocoWebhook = onRequest(
     }
 
     // ---- Handle event -----------------------------------------------
+    // Yoco uses both `type` and `eventType` field names depending on the event
     const event = req.body;
-    const type = event?.type;
-    const payload = event?.payload || {};
+    const type = event?.type || event?.eventType || '';
+    const payload = event?.payload || event?.data || {};
     const orderId =
       payload?.metadata?.order_id ||
       payload?.metadata?.orderId ||
@@ -261,7 +262,7 @@ export const yocoWebhook = onRequest(
 
     const orderRef = db.collection('Order').doc(orderId);
 
-    if (type === 'payment.succeeded') {
+    if (type.includes('succeeded') || type.includes('completed')) {
       await orderRef.set({
         status: 'paid',
         paid_date: FieldValue.serverTimestamp(),
@@ -294,7 +295,7 @@ export const yocoWebhook = onRequest(
       } catch (e) {
         console.error('[yocoWebhook] stock update failed', e);
       }
-    } else if (type === 'payment.failed') {
+    } else if (type.includes('failed') || type.includes('cancelled') || type.includes('refunded')) {
       await orderRef.set({
         status: 'failed',
         yoco_payload: payload,
@@ -337,7 +338,7 @@ export const verifyYocoCheckout = onCall(
     if (order.status === 'paid') return { data: { status: 'paid' } };
     if (!order.yoco_checkout_id) throw new HttpsError('failed-precondition', 'No Yoco checkout id on order');
 
-    const r = await fetch(`${YOCO_API}/${order.yoco_checkout_id}`, {
+    const r = await fetch(`${YOCO_API}${encodeURIComponent(order.yoco_checkout_id)}`, {
       headers: { Authorization: `Bearer ${YOCO_SECRET_KEY.value()}` },
     });
     const data = await r.json();
@@ -346,8 +347,9 @@ export const verifyYocoCheckout = onCall(
       throw new HttpsError('internal', data.errorMessage || 'Yoco lookup failed');
     }
 
-    // Yoco statuses: created | cancelled | failed | successful
-    if (data.status === 'successful') {
+    // Yoco statuses: created | completed | succeeded | cancelled | failed
+    const ok = ['completed', 'succeeded', 'successful'].includes(data.status);
+    if (ok) {
       await orderRef.set({
         status: 'paid',
         paid_date: FieldValue.serverTimestamp(),
