@@ -27,6 +27,18 @@ const YOCO_WEBHOOK_SECRET = defineSecret('YOCO_WEBHOOK_SECRET');
 
 const YOCO_API = 'https://payments.yoco.com/api/checkouts';
 
+// Origins allowed to call our callable functions. Add new ones (Vercel
+// preview URLs, custom domains) here when needed.
+const ALLOWED_ORIGINS = [
+  'https://www.easypoultry.co.za',
+  'https://easypoultry.co.za',
+  'https://easy-poultry.web.app',
+  'https://easy-poultry.firebaseapp.com',
+  'http://localhost:5173',
+  'http://localhost:4173',
+  /\.vercel\.app$/,
+];
+
 /* ============================================================
    createYocoCheckout — callable from the frontend
    Payload:
@@ -42,7 +54,12 @@ const YOCO_API = 'https://payments.yoco.com/api/checkouts';
      { data: { redirectUrl, orderId } }
    ============================================================ */
 export const createYocoCheckout = onCall(
-  { secrets: [YOCO_SECRET_KEY], cors: true, region: 'europe-west1' },
+  {
+    secrets: [YOCO_SECRET_KEY],
+    cors: ALLOWED_ORIGINS,
+    region: 'europe-west1',
+    invoker: 'public',
+  },
   async (request) => {
     const auth = request.auth;
     if (!auth) throw new HttpsError('unauthenticated', 'Sign in to checkout.');
@@ -267,7 +284,7 @@ export const yocoWebhook = onRequest(
    getSellerProfile — used by ProductDetail to enrich seller info
    ============================================================ */
 export const getSellerProfile = onCall(
-  { cors: true, region: 'europe-west1' },
+  { cors: ALLOWED_ORIGINS, region: 'europe-west1', invoker: 'public' },
   async (request) => {
     const { created_by_id } = request.data || {};
     if (!created_by_id) return { data: { profile: null } };
