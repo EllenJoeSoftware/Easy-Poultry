@@ -33,10 +33,7 @@ export default function CreateListing() {
     images: [],
     // ----- Digital product fields -----
     product_type: 'physical', // 'physical' | 'digital'
-    digital_file_url: '',
-    digital_file_name: '',
-    digital_file_size: 0,
-    digital_file_type: '',
+    digital_files: [],        // [{ url, name, size, type }]
   });
   const [uploadingFile, setUploadingFile] = useState(false);
 
@@ -145,40 +142,49 @@ export default function CreateListing() {
   };
 
   const handleDigitalFileUpload = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
 
-    // Max 50MB for a digital file
-    if (file.size > 50 * 1024 * 1024) {
-      toast.error('File too large. Maximum 50MB.');
+    const oversized = files.find((f) => f.size > 50 * 1024 * 1024);
+    if (oversized) {
+      toast.error(`"${oversized.name}" is over 50MB. Maximum file size is 50MB.`);
+      return;
+    }
+    if ((formData.digital_files?.length || 0) + files.length > 20) {
+      toast.error('Maximum 20 files per listing.');
       return;
     }
 
     setUploadingFile(true);
     try {
-      const { file_url } = await api.integrations.Core.UploadFile({ file });
+      const uploaded = [];
+      for (const file of files) {
+        const { file_url } = await api.integrations.Core.UploadFile({ file });
+        uploaded.push({
+          url: file_url,
+          name: file.name,
+          size: file.size,
+          type: file.type || 'application/octet-stream',
+        });
+      }
       setFormData((prev) => ({
         ...prev,
-        digital_file_url: file_url,
-        digital_file_name: file.name,
-        digital_file_size: file.size,
-        digital_file_type: file.type || 'application/octet-stream',
+        digital_files: [...(prev.digital_files || []), ...uploaded],
       }));
-      toast.success('File uploaded');
+      toast.success(`${uploaded.length} file${uploaded.length === 1 ? '' : 's'} uploaded`);
     } catch (error) {
-      toast.error('Failed to upload file');
+      toast.error('Failed to upload file(s)');
     } finally {
       setUploadingFile(false);
+      // Reset the input so the same file can be re-selected
+      e.target.value = '';
     }
   };
 
-  const removeDigitalFile = () => {
+  const removeDigitalFile = (index) => {
     setFormData((prev) => ({
       ...prev,
-      digital_file_url: '',
-      digital_file_name: '',
-      digital_file_size: 0,
-      digital_file_type: '',
+      digital_files: prev.digital_files.filter((_, i) => i !== index),
     }));
   };
 
@@ -191,8 +197,8 @@ export default function CreateListing() {
       toast.error('Please fill in all required fields');
       return;
     }
-    if (isDigital && !formData.digital_file_url) {
-      toast.error('Please upload your digital file before publishing');
+    if (isDigital && (!formData.digital_files || formData.digital_files.length === 0)) {
+      toast.error('Please upload at least one file before publishing');
       return;
     }
 
@@ -267,7 +273,7 @@ export default function CreateListing() {
     if (formData.images.length > 0) score += 20;
     if (formData.description?.length > 30) score += 10;
     if (formData.product_type === 'digital') {
-      if (formData.digital_file_url) score += 10;
+      if (formData.digital_files?.length > 0) score += 10;
     } else {
       if (formData.breed) score += 10;
     }
@@ -346,61 +352,71 @@ export default function CreateListing() {
             </div>
           </Card>
 
-          {/* DIGITAL FILE — only when digital */}
+          {/* DIGITAL FILES — only when digital */}
           {isDigital && (
             <Card className="card-premium p-6 lg:p-7 border-0 shadow-none">
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h2 className="font-display text-xl text-ink">Your file</h2>
-                  <p className="text-sm text-ink/55 mt-1">Upload the file buyers will download. PDF recommended. Max 50 MB.</p>
+                  <h2 className="font-display text-xl text-ink">Your files</h2>
+                  <p className="text-sm text-ink/55 mt-1">Buyers download all files after payment. Max 20 files, 50 MB each.</p>
                 </div>
-                {formData.digital_file_url && (
-                  <button
-                    type="button"
-                    onClick={removeDigitalFile}
-                    className="text-xs text-terracotta-600 hover:underline"
-                  >
-                    Replace file
-                  </button>
-                )}
+                <span className="text-xs text-ink/50">{formData.digital_files?.length || 0}/20</span>
               </div>
 
-              {formData.digital_file_url ? (
-                <div className="flex items-center gap-4 p-4 rounded-2xl bg-moss-50 border border-moss-100">
-                  <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
-                    <FileText className="w-7 h-7 text-moss-700" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-ink truncate">{formData.digital_file_name}</p>
-                    <p className="text-xs text-ink/55 mt-0.5">
-                      {formData.digital_file_type || 'file'} · {formatBytes(formData.digital_file_size)}
-                    </p>
-                  </div>
-                  <a
-                    href={formData.digital_file_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-moss-700 hover:underline flex items-center gap-1"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
-                    Preview
-                  </a>
+              {/* List of uploaded files */}
+              {formData.digital_files?.length > 0 && (
+                <div className="space-y-2 mb-3">
+                  {formData.digital_files.map((file, idx) => (
+                    <div key={idx} className="flex items-center gap-3 p-3 rounded-xl bg-moss-50 border border-moss-100 group">
+                      <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center flex-shrink-0 shadow-sm">
+                        <FileText className="w-5 h-5 text-moss-700" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-ink truncate text-sm">{file.name}</p>
+                        <p className="text-[11px] text-ink/55 mt-0.5">
+                          {(file.type?.split('/')[1] || 'file').toUpperCase()} · {formatBytes(file.size)}
+                        </p>
+                      </div>
+                      <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-moss-700 hover:underline px-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        Preview
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => removeDigitalFile(idx)}
+                        className="w-7 h-7 rounded-full hover:bg-terracotta-100 flex items-center justify-center text-terracotta-600 transition-colors"
+                        aria-label="Remove file"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ) : (
-                <label className="block aspect-[5/1] rounded-2xl border-2 border-dashed border-border hover:border-terracotta-300 cursor-pointer bg-cream/50 hover:bg-terracotta-50/40 transition-all">
+              )}
+
+              {/* Upload dropzone */}
+              {(formData.digital_files?.length || 0) < 20 && (
+                <label className="block aspect-[6/1] rounded-2xl border-2 border-dashed border-border hover:border-terracotta-300 cursor-pointer bg-cream/50 hover:bg-terracotta-50/40 transition-all">
                   <div className="h-full flex flex-col items-center justify-center text-ink/50 hover:text-terracotta-600 transition-colors">
                     {uploadingFile ? (
-                      <Loader2 className="w-7 h-7 animate-spin" />
+                      <Loader2 className="w-6 h-6 animate-spin" />
                     ) : (
                       <>
-                        <Upload className="w-7 h-7 mb-1.5" strokeWidth={1.5} />
-                        <span className="text-sm font-medium">Click to upload PDF, EPUB, ZIP…</span>
-                        <span className="text-xs mt-1">Maximum 50 MB</span>
+                        <Upload className="w-6 h-6 mb-1" strokeWidth={1.5} />
+                        <span className="text-sm font-medium">
+                          {formData.digital_files?.length > 0 ? 'Add more files' : 'Click to upload PDF, EPUB, ZIP…'}
+                        </span>
+                        <span className="text-[11px] mt-1">Select multiple — max 50 MB each</span>
                       </>
                     )}
                   </div>
                   <input
                     type="file"
+                    multiple
                     accept=".pdf,.epub,.zip,.docx,.xlsx,.mp4,.mp3,application/pdf,application/zip"
                     onChange={handleDigitalFileUpload}
                     className="hidden"
@@ -704,10 +720,10 @@ export default function CreateListing() {
                 {!isDigital && formData.stock_quantity > 0 && (
                   <span className="text-xs text-moss-600">{formData.stock_quantity} available</span>
                 )}
-                {isDigital && formData.digital_file_url && (
+                {isDigital && formData.digital_files?.length > 0 && (
                   <span className="text-xs text-terracotta-600 inline-flex items-center gap-1">
                     <Download className="w-3 h-3" />
-                    Instant
+                    {formData.digital_files.length} file{formData.digital_files.length === 1 ? '' : 's'}
                   </span>
                 )}
               </div>

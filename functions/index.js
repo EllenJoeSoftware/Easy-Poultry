@@ -102,8 +102,13 @@ export const createYocoCheckout = onCall(
       listing_title:  listing.title || '',
       listing_image:  listing.images?.[0] || null,
       product_type:   listing.product_type || 'physical',
-      digital_file_url: listing.digital_file_url || null,
-      digital_file_name: listing.digital_file_name || null,
+      // Snapshot the digital files at checkout time so buyer's purchase is
+      // locked to what they actually paid for (seller can't swap later).
+      digital_files:  Array.isArray(listing.digital_files) ? listing.digital_files : (
+        listing.digital_file_url
+          ? [{ url: listing.digital_file_url, name: listing.digital_file_name, size: listing.digital_file_size, type: listing.digital_file_type }]
+          : []
+      ),
       amount,
       currency:       'ZAR',
       quantity,

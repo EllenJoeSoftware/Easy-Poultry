@@ -412,34 +412,41 @@ export default function ProductDetail() {
                       <h3 className="font-display text-xl text-ink">Digital download</h3>
                       <Badge className="bg-terracotta-400 text-white border-0 text-[10px]">PDF / file</Badge>
                     </div>
-                    <p className="text-sm text-ink/65 mb-4">
-                      {listing.digital_file_name || 'Your file'}
-                      {listing.digital_file_size > 0 && (
-                        <span className="text-ink/45">
-                          {' · '}
-                          {listing.digital_file_size < 1024 * 1024
-                            ? `${(listing.digital_file_size / 1024).toFixed(0)} KB`
-                            : `${(listing.digital_file_size / (1024 * 1024)).toFixed(1)} MB`}
-                        </span>
-                      )}
-                    </p>
-                    {/* Three states: paid (show download), pending (poll msg), default (pay button) */}
-                    {orderStatus === 'paid' && paidOrder?.digital_file_url ? (
-                      <div className="flex flex-wrap gap-2">
-                        <a
-                          href={paidOrder.digital_file_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          download={paidOrder.digital_file_name || true}
-                          className="btn-cta px-5 py-2.5 text-sm gap-1.5"
-                        >
-                          <Download className="w-4 h-4" />
-                          Download your file
-                        </a>
-                        <span className="inline-flex items-center gap-1.5 px-3 py-2.5 text-sm text-moss-700">
+                    {(() => {
+                      const files = listing.digital_files?.length
+                        ? listing.digital_files
+                        : (listing.digital_file_url ? [{ url: listing.digital_file_url, name: listing.digital_file_name, size: listing.digital_file_size, type: listing.digital_file_type }] : []);
+                      const totalBytes = files.reduce((s, f) => s + (f.size || 0), 0);
+                      const fmt = (b) => !b ? '' : b < 1024 * 1024 ? `${(b / 1024).toFixed(0)} KB` : `${(b / (1024 * 1024)).toFixed(1)} MB`;
+                      return (
+                        <p className="text-sm text-ink/65 mb-4">
+                          {files.length} file{files.length === 1 ? '' : 's'}
+                          {totalBytes > 0 && <span className="text-ink/45"> · {fmt(totalBytes)}</span>}
+                        </p>
+                      );
+                    })()}
+                    {/* Three states: paid (show downloads), pending (poll msg), default (pay button) */}
+                    {orderStatus === 'paid' && (paidOrder?.digital_files?.length || paidOrder?.digital_file_url) ? (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-moss-700 font-medium">
                           <CheckCircle2 className="w-4 h-4" />
-                          Paid R{paidOrder.amount}
-                        </span>
+                          Paid R{paidOrder.amount} · {paidOrder.digital_files?.length || 1} file{(paidOrder.digital_files?.length || 1) === 1 ? '' : 's'} unlocked
+                        </div>
+                        <div className="grid sm:grid-cols-2 gap-2 mt-2">
+                          {(paidOrder.digital_files?.length ? paidOrder.digital_files : [{ url: paidOrder.digital_file_url, name: paidOrder.digital_file_name }]).map((f, i) => (
+                            <a
+                              key={i}
+                              href={f.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              download={f.name || true}
+                              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white hover:bg-moss-50 border border-moss-100 text-sm text-ink hover:text-moss-700 transition-all min-w-0"
+                            >
+                              <Download className="w-4 h-4 text-moss-600 flex-shrink-0" />
+                              <span className="truncate">{f.name || `File ${i + 1}`}</span>
+                            </a>
+                          ))}
+                        </div>
                       </div>
                     ) : orderStatus === 'pending' ? (
                       <div className="flex items-center gap-2 text-sm text-ink/70">
@@ -467,7 +474,7 @@ export default function ProductDetail() {
                           Try again
                         </button>
                       </div>
-                    ) : listing.digital_file_url ? (
+                    ) : (listing.digital_files?.length || listing.digital_file_url) ? (
                       <div className="flex flex-wrap gap-2">
                         <button
                           type="button"
