@@ -426,14 +426,32 @@ export default function ProductDetail() {
                       );
                     })()}
                     {/* Three states: paid (show downloads), pending (poll msg), default (pay button) */}
-                    {orderStatus === 'paid' && (paidOrder?.digital_files?.length || paidOrder?.digital_file_url) ? (
+                    {orderStatus === 'paid' ? (() => {
+                      // Resolve files: order snapshot → legacy single-file → live listing fallback
+                      const files = paidOrder?.digital_files?.length
+                        ? paidOrder.digital_files
+                        : paidOrder?.digital_file_url
+                          ? [{ url: paidOrder.digital_file_url, name: paidOrder.digital_file_name }]
+                          : listing.digital_files?.length
+                            ? listing.digital_files
+                            : listing.digital_file_url
+                              ? [{ url: listing.digital_file_url, name: listing.digital_file_name }]
+                              : [];
+                      if (!files.length) {
+                        return (
+                          <p className="text-sm text-terracotta-600">
+                            Payment confirmed but no files attached to this listing. Please contact the seller.
+                          </p>
+                        );
+                      }
+                      return (
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 text-sm text-moss-700 font-medium">
                           <CheckCircle2 className="w-4 h-4" />
-                          Paid R{paidOrder.amount} · {paidOrder.digital_files?.length || 1} file{(paidOrder.digital_files?.length || 1) === 1 ? '' : 's'} unlocked
+                          Paid R{paidOrder?.amount || listing.price} · {files.length} file{files.length === 1 ? '' : 's'} unlocked
                         </div>
                         <div className="grid sm:grid-cols-2 gap-2 mt-2">
-                          {(paidOrder.digital_files?.length ? paidOrder.digital_files : [{ url: paidOrder.digital_file_url, name: paidOrder.digital_file_name }]).map((f, i) => (
+                          {files.map((f, i) => (
                             <a
                               key={i}
                               href={f.url}
@@ -448,7 +466,8 @@ export default function ProductDetail() {
                           ))}
                         </div>
                       </div>
-                    ) : orderStatus === 'pending' ? (
+                      );
+                    })() : orderStatus === 'pending' ? (
                       <div className="flex items-center gap-2 text-sm text-ink/70">
                         <Loader2 className="w-4 h-4 animate-spin text-moss-600" />
                         Confirming your payment with Yoco…
