@@ -3,7 +3,7 @@
   "description": "Firebase Cloud Functions for Easy Poultry — Yoco payment integration",
   "type": "module",
   "engines": {
-    "node": "20"
+    "node": "22"
   },
   "main": "index.js",
   "scripts": {
@@ -15,8 +15,9 @@
     "logs": "firebase functions:log"
   },
   "dependencies": {
-    "firebase-admin": "^12.6.0",
-    "firebase-functions": "^6.0.1"
+    "easy-poultry": "file:..",
+    "firebase-admin": "^13.0.0",
+    "firebase-functions": "^6.1.0"
   },
   "private": true
 }
