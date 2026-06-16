@@ -197,21 +197,49 @@ export const yocoWebhook = onRequest(
       return;
     }
 
+    // Reject events older than 3 minutes — guards against replay attacks
+    const tsSeconds = Number(timestamp);
+    if (!Number.isFinite(tsSeconds) || Math.abs(Date.now() / 1000 - tsSeconds) > 180) {
+      console.warn('[yocoWebhook] timestamp out of tolerance', timestamp);
+      res.status(401).send('Stale timestamp');
+      return;
+    }
+
+    // Yoco secret comes as 'whsec_<base64>' — strip the prefix before decoding
+    let secret = YOCO_WEBHOOK_SECRET.value() || '';
+    if (secret.startsWith('whsec_')) secret = secret.slice(6);
+    const secretBytes = Buffer.from(secret, 'base64');
+
     const rawBody = req.rawBody?.toString('utf8') || JSON.stringify(req.body);
     const signedContent = `${webhookId}.${timestamp}.${rawBody}`;
     const expectedSig = crypto
-      .createHmac('sha256', Buffer.from(YOCO_WEBHOOK_SECRET.value(), 'base64'))
+      .createHmac('sha256', secretBytes)
       .update(signedContent)
       .digest('base64');
 
-    const received = signatureHeader.split(' ').map(s => s.split(',')[1] || s.split('=')[1]).filter(Boolean);
-    const isValid = received.some((s) => {
-      try { return crypto.timingSafeEqual(Buffer.from(s), Buffer.from(expectedSig)); }
-      catch { return false; }
+    // Header format: "v1,<base64sig> v1,<base64sig2>"
+    const received = signatureHeader
+      .split(' ')
+      .filter(Boolean)
+      .map((part) => {
+        const idx = part.indexOf(',');
+        return idx >= 0 ? part.slice(idx + 1) : part;
+      });
+
+    const isValid = received.some((sig) => {
+      try {
+        const a = Buffer.from(sig, 'utf8');
+        const b = Buffer.from(expectedSig, 'utf8');
+        return a.length === b.length && crypto.timingSafeEqual(a, b);
+      } catch { return false; }
     });
 
     if (!isValid) {
-      console.warn('[yocoWebhook] invalid signature');
+      console.warn('[yocoWebhook] invalid signature', {
+        receivedFirst: received[0]?.slice(0, 8),
+        expectedFirst: expectedSig.slice(0, 8),
+        bodyLen: rawBody.length,
+      });
       res.status(401).send('Invalid signature');
       return;
     }
@@ -277,6 +305,80 @@ export const yocoWebhook = onRequest(
     }
 
     res.status(200).send('OK');
+  }
+);
+
+/* ============================================================
+   verifyYocoCheckout — frontend calls this after user returns from Yoco.
+   Reads the checkout status from Yoco's API and updates the Order doc.
+   Eliminates the need for a separate webhook registration.
+   ============================================================ */
+export const verifyYocoCheckout = onCall(
+  {
+    secrets: [YOCO_SECRET_KEY],
+    cors: ALLOWED_ORIGINS,
+    region: 'europe-west1',
+    invoker: 'public',
+  },
+  async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in.');
+    const { orderId } = request.data || {};
+    if (!orderId) throw new HttpsError('invalid-argument', 'orderId required');
+
+    const orderRef = db.collection('Order').doc(orderId);
+    const snap = await orderRef.get();
+    if (!snap.exists) throw new HttpsError('not-found', 'Order not found');
+    const order = snap.data();
+
+    // Owner check
+    if (order.buyer_uid !== request.auth.uid) {
+      throw new HttpsError('permission-denied', 'Not your order');
+    }
+    if (order.status === 'paid') return { data: { status: 'paid' } };
+    if (!order.yoco_checkout_id) throw new HttpsError('failed-precondition', 'No Yoco checkout id on order');
+
+    const r = await fetch(`${YOCO_API}/${order.yoco_checkout_id}`, {
+      headers: { Authorization: `Bearer ${YOCO_SECRET_KEY.value()}` },
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      console.error('[verifyYocoCheckout] Yoco GET failed', data);
+      throw new HttpsError('internal', data.errorMessage || 'Yoco lookup failed');
+    }
+
+    // Yoco statuses: created | cancelled | failed | successful
+    if (data.status === 'successful') {
+      await orderRef.set({
+        status: 'paid',
+        paid_date: FieldValue.serverTimestamp(),
+        yoco_payload: data,
+        updated_date: FieldValue.serverTimestamp(),
+      }, { merge: true });
+
+      // Decrement stock for physical products
+      if (order.product_type !== 'digital' && order.listing_id && order.quantity) {
+        try {
+          const lref = db.collection('Listing').doc(order.listing_id);
+          const lsnap = await lref.get();
+          if (lsnap.exists) {
+            const l = lsnap.data();
+            const newStock = Math.max(0, (l.stock_quantity || 0) - order.quantity);
+            await lref.update({
+              stock_quantity: newStock,
+              sold_quantity: (l.sold_quantity || 0) + order.quantity,
+              status: newStock === 0 ? 'sold' : 'active',
+              updated_date: FieldValue.serverTimestamp(),
+            });
+          }
+        } catch (e) { console.error('[verifyYocoCheckout] stock update failed', e); }
+      }
+      return { data: { status: 'paid' } };
+    }
+    if (data.status === 'cancelled' || data.status === 'failed') {
+      await orderRef.set({ status: data.status, yoco_payload: data, updated_date: FieldValue.serverTimestamp() }, { merge: true });
+      return { data: { status: data.status } };
+    }
+    return { data: { status: 'pending' } };
   }
 );
 

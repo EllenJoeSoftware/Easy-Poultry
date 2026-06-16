@@ -246,6 +246,8 @@ export default function ProductDetail() {
       if (cancelled) return;
       attempts++;
       try {
+        // Ask the backend to verify with Yoco directly (no webhook needed)
+        await api.functions.invoke('verifyYocoCheckout', { orderId: yocoOrderId });
         const order = await api.entities.Order.get(yocoOrderId);
         if (cancelled) return;
         if (order?.status === 'paid') {
@@ -254,15 +256,15 @@ export default function ProductDetail() {
           toast.success('Payment received — your file is unlocked.');
           return;
         }
-        if (order?.status === 'failed') {
-          setOrderStatus('failed');
-          toast.error('Payment failed. Please try again.');
+        if (order?.status === 'failed' || order?.status === 'cancelled') {
+          setOrderStatus(order.status);
+          toast.error(order.status === 'cancelled' ? 'Payment cancelled.' : 'Payment failed. Please try again.');
           return;
         }
       } catch (e) {
         console.warn('[order poll]', e);
       }
-      if (attempts < 20) setTimeout(poll, 1500); // poll for ~30s
+      if (attempts < 10) setTimeout(poll, 2000); // poll for ~20s
       else {
         setOrderStatus('slow');
         toast.warning('Payment is taking longer than expected. Refresh in a moment.');
