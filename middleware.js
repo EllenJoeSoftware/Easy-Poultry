@@ -18,22 +18,24 @@ const SITE_URL = 'https://www.easypoultry.co.za';
 const DEFAULT_IMAGE = `${SITE_URL}/favicon.svg`;
 
 export const config = {
-  matcher: ['/ProductDetail/:path*', '/SellerShop/:path*'],
+  // Match everything except static assets — case-insensitive path check happens inside
+  matcher: ['/((?!api|_next|assets|favicon|robots|sitemap).*)'],
 };
 
 export default async function middleware(req) {
   const ua = req.headers.get('user-agent') || '';
   const isBot = BOT_REGEX.test(ua);
-  if (!isBot) return; // let humans hit the SPA normally
+  if (!isBot) return;
 
   const url = new URL(req.url);
+  const path = url.pathname.toLowerCase();
   try {
-    if (url.pathname.startsWith('/ProductDetail')) {
+    if (path.startsWith('/productdetail')) {
       const id = url.searchParams.get('id');
       if (!id) return;
       const html = await renderListingHTML(id);
       if (html) return new Response(html, { headers: htmlHeaders() });
-    } else if (url.pathname.startsWith('/SellerShop')) {
+    } else if (path.startsWith('/sellershop')) {
       const sub = url.searchParams.get('shop');
       if (!sub) return;
       const html = await renderShopHTML(sub);
@@ -41,7 +43,6 @@ export default async function middleware(req) {
     }
   } catch (e) {
     console.error('[og-middleware] error', e);
-    // fall through to default rewrite
   }
 }
 

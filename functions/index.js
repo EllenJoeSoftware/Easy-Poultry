@@ -390,6 +390,83 @@ export const verifyYocoCheckout = onCall(
 );
 
 /* ============================================================
+   PAYOUTS — sellers withdraw earned money to their bank
+   Platform fee: 5% (must match PLATFORM_FEE_PCT on the frontend)
+   ============================================================ */
+const PLATFORM_FEE_PCT = 0.05;
+
+async function isAdmin(uid) {
+  if (!uid) return false;
+  try {
+    const snap = await db.collection('User').doc(uid).get();
+    return snap.exists && snap.data()?.role === 'admin';
+  } catch { return false; }
+}
+
+export const requestPayout = onCall(
+  { cors: ALLOWED_ORIGINS, region: 'europe-west1', invoker: 'public' },
+  async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in.');
+    const sellerEmail = request.auth.token.email;
+    const { amount, bank_name, account_name, account_number, branch_code } = request.data || {};
+    if (!amount || amount < 50) throw new HttpsError('invalid-argument', 'Minimum payout R50');
+    if (!bank_name || !account_name || !account_number) {
+      throw new HttpsError('invalid-argument', 'Bank details required');
+    }
+
+    // Recompute available balance server-side — never trust client
+    const [paidOrders, payouts] = await Promise.all([
+      db.collection('Order').where('seller_email', '==', sellerEmail).where('status', '==', 'paid').get(),
+      db.collection('PayoutRequest').where('seller_email', '==', sellerEmail).get(),
+    ]);
+    const gross = paidOrders.docs.reduce((s, d) => s + (d.data().amount || 0), 0);
+    const fees  = gross * PLATFORM_FEE_PCT;
+    const lockedOrPaid = payouts.docs
+      .filter((d) => ['requested', 'approved', 'paid'].includes(d.data().status))
+      .reduce((s, d) => s + (d.data().amount || 0), 0);
+    const available = Math.max(0, gross - fees - lockedOrPaid);
+
+    if (amount > available + 0.01) {
+      throw new HttpsError('failed-precondition', `Only R${available.toFixed(2)} available`);
+    }
+
+    const ref = db.collection('PayoutRequest').doc();
+    await ref.set({
+      seller_email: sellerEmail,
+      seller_uid:   request.auth.uid,
+      amount, bank_name, account_name, account_number, branch_code: branch_code || '',
+      status: 'requested',
+      admin_notes: '',
+      created_date: FieldValue.serverTimestamp(),
+      updated_date: FieldValue.serverTimestamp(),
+    });
+    return { data: { id: ref.id } };
+  }
+);
+
+const adminPayoutAction = (newStatus) => onCall(
+  { cors: ALLOWED_ORIGINS, region: 'europe-west1', invoker: 'public' },
+  async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'Sign in.');
+    if (!(await isAdmin(request.auth.uid))) throw new HttpsError('permission-denied', 'Admins only');
+    const { payoutId, notes = '' } = request.data || {};
+    if (!payoutId) throw new HttpsError('invalid-argument', 'payoutId required');
+
+    await db.collection('PayoutRequest').doc(payoutId).set({
+      status: newStatus,
+      admin_notes: notes,
+      [`${newStatus}_date`]: FieldValue.serverTimestamp(),
+      updated_date: FieldValue.serverTimestamp(),
+    }, { merge: true });
+    return { data: { id: payoutId, status: newStatus } };
+  }
+);
+
+export const approvePayout  = adminPayoutAction('approved');
+export const rejectPayout   = adminPayoutAction('rejected');
+export const markPayoutPaid = adminPayoutAction('paid');
+
+/* ============================================================
    getSellerProfile — used by ProductDetail to enrich seller info
    ============================================================ */
 export const getSellerProfile = onCall(

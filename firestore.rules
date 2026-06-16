@@ -147,6 +147,16 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Payouts — sellers can read their own; admin can read all. Writes only
+    // via Cloud Functions (requestPayout, approvePayout, markPayoutPaid).
+    match /PayoutRequest/{id} {
+      allow read: if isSignedIn() && (
+        resource.data.seller_email == request.auth.token.email ||
+        isAdmin()
+      );
+      allow write: if false;
+    }
+
     // Inquiries — buyer & seller can both read; both can update (for response threads)
     match /Inquiry/{id} {
       allow read, update: if isSignedIn() && (

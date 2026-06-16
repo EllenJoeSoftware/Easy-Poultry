@@ -47,11 +47,14 @@ export default function Layout({ children, currentPageName }) {
 
   const userNavigation = user ? [
     { name: 'Dashboard',   path: createPageUrl('Dashboard'),    icon: LayoutGrid },
+    { name: 'My orders',   path: createPageUrl('MyOrders'),     icon: Package },
     { name: 'Messages',    path: createPageUrl('Messages'),     icon: MessageCircle },
     ...(isSeller ? [{ name: 'CRM',          path: createPageUrl('CRM'),           icon: Users }] : []),
     ...(isSeller ? [{ name: 'My Listings',  path: createPageUrl('MyListings'),    icon: Package }] : []),
     ...(isSeller ? [{ name: 'Farm',         path: createPageUrl('FarmDashboard'), icon: Bird }] : []),
     ...(isSeller ? [{ name: 'Finances',     path: createPageUrl('SellerFinances'),icon: ArrowUpRight }] : []),
+    ...(isSeller ? [{ name: 'Payouts',      path: createPageUrl('Payouts'),       icon: ArrowUpRight }] : []),
+    ...(user.role === 'admin' ? [{ name: 'Admin payouts', path: createPageUrl('AdminPayouts'), icon: Shield }] : []),
     ...(isSeller ? [{ name: 'Reviews',      path: createPageUrl('SellerReviews'), icon: Star }] : []),
     ...(user.role === 'admin' ? [{ name: 'Admin', path: createPageUrl('Admin'), icon: Shield }] : []),
     { name: 'Profile',     path: createPageUrl('ProfileSettings'), icon: Settings },

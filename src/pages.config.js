@@ -38,6 +38,9 @@ import SellerListings from './pages/SellerListings';
 import SellerReviews from './pages/SellerReviews';
 import SellerShop from './pages/SellerShop';
 import Shops from './pages/Shops';
+import MyOrders from './pages/MyOrders';
+import Payouts from './pages/Payouts';
+import AdminPayouts from './pages/AdminPayouts';
 import SubmitEntry from './pages/SubmitEntry';
 import TermsOfService from './pages/TermsOfService';
 import VaccinationManagement from './pages/VaccinationManagement';
@@ -86,6 +89,9 @@ export const PAGES = {
     "SellerReviews": SellerReviews,
     "SellerShop": SellerShop,
     "Shops": Shops,
+    "MyOrders": MyOrders,
+    "Payouts": Payouts,
+    "AdminPayouts": AdminPayouts,
     "SubmitEntry": SubmitEntry,
     "TermsOfService": TermsOfService,
     "VaccinationManagement": VaccinationManagement,
