@@ -56,17 +56,25 @@ export default function IncubationManagement() {
       const expectedHatchDate = moment(data.incubation_start_date)
         .add(data.incubation_days, 'days')
         .format('YYYY-MM-DD');
-      
       return api.entities.EggIncubation.create({
         ...data,
-        expected_hatch_date: expectedHatchDate
+        expected_hatch_date: expectedHatchDate,
+        status: 'active',
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['incubations']);
       toast.success('Incubation batch created successfully');
       resetForm();
-    }
+    },
+    onError: (e) => {
+      console.error('[incubation.create]', e);
+      toast.error(
+        e?.code === 'permission-denied'
+          ? 'Permission denied — check Firestore rules for EggIncubation'
+          : (e?.message || 'Could not save incubation')
+      );
+    },
   });
 
   const updateMutation = useMutation({
@@ -75,7 +83,11 @@ export default function IncubationManagement() {
       queryClient.invalidateQueries(['incubations']);
       toast.success('Incubation batch updated');
       resetForm();
-    }
+    },
+    onError: (e) => {
+      console.error('[incubation.update]', e);
+      toast.error(e?.message || 'Update failed');
+    },
   });
 
   const resetForm = () => {
