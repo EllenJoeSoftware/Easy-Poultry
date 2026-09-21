@@ -41,6 +41,8 @@ import Shops from './pages/Shops';
 import MyOrders from './pages/MyOrders';
 import Payouts from './pages/Payouts';
 import AdminPayouts from './pages/AdminPayouts';
+import Support from './pages/Support';
+import AppMarketing from './pages/AppMarketing';
 import SubmitEntry from './pages/SubmitEntry';
 import TermsOfService from './pages/TermsOfService';
 import VaccinationManagement from './pages/VaccinationManagement';
@@ -92,6 +94,8 @@ export const PAGES = {
     "MyOrders": MyOrders,
     "Payouts": Payouts,
     "AdminPayouts": AdminPayouts,
+    "Support": Support,
+    "AppMarketing": AppMarketing,
     "SubmitEntry": SubmitEntry,
     "TermsOfService": TermsOfService,
     "VaccinationManagement": VaccinationManagement,
