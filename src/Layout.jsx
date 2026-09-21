@@ -305,8 +305,8 @@ export default function Layout({ children, currentPageName }) {
               <div>
                 <h3 className="text-xs uppercase tracking-[0.18em] text-cream/60 font-semibold mb-4">Support</h3>
                 <ul className="space-y-3 text-sm text-cream/80">
-                  <li><a href="#" className="link-underline">Help centre</a></li>
-                  <li><a href="#" className="link-underline">Safety & trust</a></li>
+                  <li><Link to={createPageUrl('Support')} className="link-underline">Help & contact</Link></li>
+                  <li><Link to={createPageUrl('AppMarketing')} className="link-underline">Get the app</Link></li>
                   <li><Link to={createPageUrl('TermsOfService')} className="link-underline">Terms</Link></li>
                   <li><Link to={createPageUrl('PrivacyPolicy')} className="link-underline">Privacy</Link></li>
                 </ul>
