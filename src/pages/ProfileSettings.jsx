@@ -729,6 +729,10 @@ export default function ProfileSettings() {
           </div>
         </form>
 
+        {/* ============ Password change ============ */}
+        <PasswordCard />
+
+
         {showTierUpgrade && (
           <TierUpgradeModal
             isOpen={showTierUpgrade}
@@ -746,6 +750,71 @@ export default function ProfileSettings() {
           />
         )}
       </div>
+    </div>
+  );
+}
+
+function PasswordCard() {
+  const [current, setCurrent] = React.useState('');
+  const [next, setNext] = React.useState('');
+  const [confirm, setConfirm] = React.useState('');
+  const [busy, setBusy] = React.useState(false);
+  const [show, setShow] = React.useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    if (next !== confirm) return toast.error('New passwords do not match');
+    if (next.length < 6) return toast.error('New password must be at least 6 characters');
+    setBusy(true);
+    try {
+      await api.auth.changePassword(current, next);
+      toast.success('Password updated');
+      setCurrent(''); setNext(''); setConfirm('');
+    } catch (err) {
+      const code = err?.code || '';
+      toast.error(
+        code.includes('wrong-password') || code.includes('invalid-credential')
+          ? 'Current password is incorrect'
+          : code.includes('weak-password')
+            ? 'New password is too weak (minimum 6 characters)'
+            : code.includes('requires-recent-login')
+              ? 'Please sign out and back in, then try again'
+              : (err?.message || 'Could not update password')
+      );
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+      <Card className="p-6 border-0 shadow-lg">
+        <div className="mb-5">
+          <h3 className="text-lg font-semibold text-gray-900">Change password</h3>
+          <p className="text-sm text-gray-500 mt-0.5">You'll stay signed in on this device after the change.</p>
+        </div>
+        <form onSubmit={submit} className="space-y-4 max-w-md">
+          <div>
+            <Label htmlFor="cur_pw">Current password</Label>
+            <Input id="cur_pw" type={show ? 'text' : 'password'} value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" required className="mt-1.5" />
+          </div>
+          <div>
+            <Label htmlFor="new_pw">New password</Label>
+            <Input id="new_pw" type={show ? 'text' : 'password'} value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" minLength={6} required className="mt-1.5" />
+          </div>
+          <div>
+            <Label htmlFor="cfm_pw">Confirm new password</Label>
+            <Input id="cfm_pw" type={show ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" minLength={6} required className="mt-1.5" />
+          </div>
+          <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
+            <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} className="rounded" />
+            Show passwords
+          </label>
+          <div className="flex gap-2 pt-2">
+            <Button type="submit" disabled={busy || !current || !next || !confirm} className="bg-[#7A9D7A] hover:bg-[#6A8D6A] h-11 px-6">
+              {busy ? 'Updating…' : 'Update password'}
+            </Button>
+          </div>
+        </form>
+      </Card>
     </div>
   );
 }

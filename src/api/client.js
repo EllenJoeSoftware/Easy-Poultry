@@ -55,6 +55,9 @@ import {
   sendPasswordResetEmail,
   confirmPasswordReset as fbConfirmPasswordReset,
   verifyPasswordResetCode as fbVerifyPasswordResetCode,
+  updatePassword as fbUpdatePassword,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from 'firebase/auth';
 import { httpsCallable } from 'firebase/functions';
 import { db, storage, auth, functions as fbFunctions, googleProvider, isFirebaseConfigured } from '@/lib/firebase';
@@ -312,6 +315,22 @@ const authApi = {
     if (!auth || !googleProvider) throw new Error('Firebase auth not initialised');
     const cred = await signInWithPopup(auth, googleProvider);
     return fetchOrCreateUserDoc(cred.user);
+  },
+
+  /**
+   * Change password. Firebase requires recent authentication — we reauth with
+   * the current password first, then update to the new one.
+   */
+  async changePassword(currentPassword, newPassword) {
+    if (!auth || !auth.currentUser) throw new Error('Not signed in');
+    if (!currentPassword) throw new Error('Enter your current password');
+    if (!newPassword || newPassword.length < 6) throw new Error('New password must be at least 6 characters');
+    const email = auth.currentUser.email;
+    if (!email) throw new Error('Your account has no email — password change not supported');
+    const cred = EmailAuthProvider.credential(email, currentPassword);
+    await reauthenticateWithCredential(auth.currentUser, cred);
+    await fbUpdatePassword(auth.currentUser, newPassword);
+    return { changed: true };
   },
 
   /**
