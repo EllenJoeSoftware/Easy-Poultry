@@ -100,12 +100,6 @@ export default function PrivacyPolicy() {
               the platform's support channels.
             </p>
 
-            <div className="mt-8 p-6 bg-[#7A9D7A]/10 rounded-lg">
-              <p className="text-sm text-gray-700">
-                <strong>Note:</strong> This is a template privacy policy. Platform operators should customize this 
-                document to reflect their actual data practices and comply with applicable privacy laws.
-              </p>
-            </div>
           </div>
         </Card>
       </div>
