@@ -18,6 +18,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
+import { fetchForUserAndFarms, farmStamp } from '@/lib/farm';
 import moment from 'moment';
 
 export default function BatchManagement() {
@@ -79,7 +80,7 @@ export default function BatchManagement() {
 
   const { data: batches = [], isLoading } = useQuery({
     queryKey: ['batches'],
-    queryFn: () => api.entities.PoultryBatch.filter({ created_by: user?.email }, '-created_date'),
+    queryFn: () => fetchForUserAndFarms(api.entities.PoultryBatch, user, 'created_date'),
     enabled: !!user
   });
 
@@ -99,6 +100,7 @@ export default function BatchManagement() {
         : null;
 
       await api.entities.PoultryBatch.create({
+        ...(await farmStamp(user)),
         batch_number: batchNumber,
         batch_name: data.batch_name,
         bird_type: data.bird_type,
@@ -182,6 +184,7 @@ export default function BatchManagement() {
       const productionRate = (eggsCollected / batch.current_quantity) * 100;
 
       await api.entities.EggProduction.create({
+        ...(await farmStamp(user)),
         batch_id: batch.id,
         batch_name: batch.batch_name,
         production_date: data.production_date,
@@ -222,6 +225,7 @@ export default function BatchManagement() {
       const count = parseInt(data.count);
 
       await api.entities.BatchExpense.create({
+        ...(await farmStamp(user)),
         batch_id: batch.id,
         batch_name: batch.batch_name,
         expense_type: 'mortality_loss',

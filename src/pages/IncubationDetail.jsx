@@ -322,6 +322,45 @@ export default function IncubationDetail() {
       <div className="grid lg:grid-cols-3 gap-5">
         {/* Candling guide */}
         <aside className="space-y-5">
+          {(incubation.egg_sources?.length > 0 || incubation.tray_placement?.length > 0 || incubation.incubator_layout) && (
+            <div className="card-premium p-5">
+              <p className="eyebrow mb-1">Setting</p>
+              <h3 className="font-display text-lg text-ink mb-3">Egg sources &amp; trays</h3>
+              {incubation.egg_sources?.length > 0 && (
+                <ul className="divide-y divide-border mb-3">
+                  {incubation.egg_sources.map((src, i) => (
+                    <li key={i} className="py-2 flex items-center justify-between gap-3 text-sm">
+                      <div className="min-w-0">
+                        {src.batch_id
+                          ? <Link to={createPageUrl('BatchDetail') + `?id=${src.batch_id}`} className="font-medium text-ink hover:text-moss-700 truncate block">{src.batch_name || 'Batch'}</Link>
+                          : <p className="font-medium text-ink truncate">{src.batch_name || 'Batch'}</p>}
+                        {src.breed && <p className="text-xs text-ink/55">{src.breed}</p>}
+                      </div>
+                      <span className="chip chip-yolk !py-0.5 !px-2 text-[11px] flex-shrink-0">{src.egg_count} eggs</span>
+                    </li>
+                  ))}
+                  <li className="py-2 flex items-center justify-between text-sm"><span className="font-semibold text-ink">Total set</span><span className="font-display font-bold text-ink">{incubation.egg_count}</span></li>
+                </ul>
+              )}
+              {incubation.incubator_layout && (
+                <p className="text-xs text-ink/55 mb-2">
+                  Layout: {incubation.incubator_layout.rows} rows × {incubation.incubator_layout.columns_per_row} columns · {incubation.incubator_layout.trays_per_column} trays/column · {incubation.incubator_layout.eggs_per_tray} eggs/tray
+                  {incubation.incubator_layout.setting_trays ? ` · ${incubation.incubator_layout.setting_trays} setting trays` : ''}
+                </p>
+              )}
+              {incubation.tray_placement?.length > 0 && (
+                <div className="grid grid-cols-2 gap-2">
+                  {incubation.tray_placement.map((t, i) => (
+                    <div key={i} className="rounded-xl bg-cream p-2.5">
+                      <p className="text-[10px] uppercase tracking-wider text-ink/50">{t.zone || 'Tray'} · Row {t.row} · Col {t.column}</p>
+                      <p className="font-display font-bold text-ink text-sm mt-0.5">Tray {t.tray} <span className="text-ink/55 font-normal">· {t.eggs} eggs</span></p>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {(incubation.source_batch_name && !incubation.egg_sources?.length) && <p className="text-sm text-ink/70">From batch: <span className="font-medium text-ink">{incubation.source_batch_name}</span></p>}
+            </div>
+          )}
           {nextCandling && (
             <div className="rounded-2xl bg-yolk-50 border border-yolk-200 p-4 flex items-start gap-3">
               <div className="w-9 h-9 rounded-xl bg-white border border-yolk-200 flex items-center justify-center text-yolk-600 flex-shrink-0"><Eye className="w-4 h-4" /></div>

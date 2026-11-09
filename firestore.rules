@@ -15,6 +15,19 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/User/$(request.auth.uid)).data.role == 'admin';
     }
 
+    // Farm-scoped docs: owner of the farm (Farm.owner_email / created_by) or any signed-in
+    // user when the doc carries a farm_id (team members are resolved client-side via FarmMember).
+    function farmOwner(farmId) {
+      return isSignedIn() && exists(/databases/$(database)/documents/Farm/$(farmId)) && (
+        get(/databases/$(database)/documents/Farm/$(farmId)).data.owner_email == request.auth.token.email ||
+        get(/databases/$(database)/documents/Farm/$(farmId)).data.created_by == request.auth.token.email
+      );
+    }
+    function canAccessFarmDoc(data) {
+      return isOwner(data.created_by) || isAdmin()
+        || (data.farm_id != null && (farmOwner(data.farm_id) || isSignedIn()));
+    }
+
     // User profile docs — keyed by Firebase UID
     match /User/{uid} {
       allow read: if isSignedIn();
@@ -76,38 +89,44 @@ service cloud.firestore {
 
     // Owner-private collections — only owner can read/write
     match /PoultryBatch/{id} {
-      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+      allow read, update, delete: if canAccessFarmDoc(resource.data);
       allow create: if isSignedIn();
     }
 
     match /BatchExpense/{id} {
-      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+      allow read, update, delete: if canAccessFarmDoc(resource.data);
       allow create: if isSignedIn();
     }
 
     match /FeedPurchase/{id} {
-      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+      allow read, update, delete: if canAccessFarmDoc(resource.data);
       allow create: if isSignedIn();
     }
 
     match /FeedUsage/{id} {
-      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+      allow read, update, delete: if canAccessFarmDoc(resource.data);
       allow create: if isSignedIn();
     }
 
     match /VaccinationEvent/{id} {
-      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+      allow read, update, delete: if canAccessFarmDoc(resource.data);
       allow create: if isSignedIn();
     }
 
     match /EggIncubation/{id} {
-      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+      allow read, update, delete: if canAccessFarmDoc(resource.data);
       allow create: if isSignedIn();
     }
 
     match /IncubationLog/{id} {
-      allow read, write: if isOwner(resource.data.created_by) || isAdmin();
+      allow read, update, delete: if canAccessFarmDoc(resource.data);
       allow create: if isSignedIn();
+    }
+
+    match /Farm/{id} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update, delete: if isOwner(resource.data.created_by) || isOwner(resource.data.owner_email) || isAdmin();
     }
 
     match /BankingInfo/{id} {

@@ -14,6 +14,7 @@ import EmptyState from '@/components/shell/EmptyState';
 import StatCard from '@/components/shell/StatCard';
 import { toast } from 'sonner';
 import { createPageUrl } from '../utils';
+import { fetchForUserAndFarms, farmStamp } from '@/lib/farm';
 import moment from 'moment';
 
 const listVariants = { show: { transition: { staggerChildren: 0.05 } } };
@@ -77,13 +78,13 @@ export default function FeedManagement() {
 
   const { data: feedTypes = [] } = useQuery({
     queryKey: ['feed-types'],
-    queryFn: () => api.entities.FeedType.filter({ created_by: user?.email }),
+    queryFn: () => fetchForUserAndFarms(api.entities.FeedType, user, 'name'),
     enabled: !!user
   });
 
   const { data: suppliers = [] } = useQuery({
     queryKey: ['suppliers'],
-    queryFn: () => api.entities.FeedSupplier.filter({ created_by: user?.email }),
+    queryFn: () => fetchForUserAndFarms(api.entities.FeedSupplier, user, 'name'),
     enabled: !!user
   });
 
@@ -101,7 +102,7 @@ export default function FeedManagement() {
         ];
         
         for (const feed of defaults) {
-          await api.entities.FeedType.create(feed);
+          await api.entities.FeedType.create({ ...feed, ...(await farmStamp(user)) });
         }
         queryClient.invalidateQueries(['feed-types']);
       }
@@ -111,13 +112,13 @@ export default function FeedManagement() {
 
   const { data: batches = [] } = useQuery({
     queryKey: ['batches-feed'],
-    queryFn: () => api.entities.PoultryBatch.filter({ created_by: user?.email, status: 'active' }),
+    queryFn: () => fetchForUserAndFarms(api.entities.PoultryBatch, user, 'created_date', { status: 'active' }),
     enabled: !!user
   });
 
   const { data: purchases = [] } = useQuery({
     queryKey: ['feed-purchases'],
-    queryFn: () => api.entities.FeedPurchase.filter({ created_by: user?.email }, '-purchase_date', 20),
+    queryFn: () => fetchForUserAndFarms(api.entities.FeedPurchase, user, 'purchase_date', null, 20),
     enabled: !!user
   });
 
@@ -130,6 +131,7 @@ export default function FeedManagement() {
       
       await api.entities.FeedPurchase.create({
         ...data,
+        ...(await farmStamp(user)),
         feed_name: feed.name,
         supplier_name: supplier.name,
         quantity_kg: quantity,
@@ -152,7 +154,7 @@ export default function FeedManagement() {
   });
 
   const createFeedTypeMutation = useMutation({
-    mutationFn: (data) => api.entities.FeedType.create(data),
+    mutationFn: async (data) => api.entities.FeedType.create({ ...data, ...(await farmStamp(user)) }),
     onError: (e) => toast.error(e?.message || 'Something went wrong'),
     onSuccess: () => {
       queryClient.invalidateQueries(['feed-types']);
@@ -162,7 +164,7 @@ export default function FeedManagement() {
   });
 
   const createSupplierMutation = useMutation({
-    mutationFn: (data) => api.entities.FeedSupplier.create(data),
+    mutationFn: async (data) => api.entities.FeedSupplier.create({ ...data, ...(await farmStamp(user)) }),
     onError: (e) => toast.error(e?.message || 'Something went wrong'),
     onSuccess: () => {
       queryClient.invalidateQueries(['suppliers']);
@@ -180,6 +182,7 @@ export default function FeedManagement() {
 
       await api.entities.FeedUsage.create({
         ...data,
+        ...(await farmStamp(user)),
         feed_name: feed.name,
         batch_name: batch.batch_name,
         quantity_kg: quantity,

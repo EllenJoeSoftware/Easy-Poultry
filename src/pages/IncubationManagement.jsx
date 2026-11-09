@@ -9,7 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { Loader2, Plus, Thermometer, Droplets, RotateCw, Calendar, TrendingUp, Egg, MoreHorizontal, Eye, Edit, CheckCircle2, Sparkles } from 'lucide-react';
+import { Loader2, Plus, Thermometer, Droplets, RotateCw, Calendar, TrendingUp, Egg, MoreHorizontal, Eye, Edit, CheckCircle2, Sparkles, LayoutGrid } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import PageShell from '@/components/shell/PageShell';
@@ -17,6 +17,7 @@ import EmptyState from '@/components/shell/EmptyState';
 import StatCard from '@/components/shell/StatCard';
 import { StatSkeleton } from '@/components/shell/SkeletonCard';
 import { createPageUrl } from '../utils';
+import { fetchForUserAndFarms, farmStamp } from '@/lib/farm';
 import { toast } from 'sonner';
 import moment from 'moment';
 
@@ -52,8 +53,8 @@ export default function IncubationManagement() {
   }, []);
 
   const { data: incubations = [], isLoading } = useQuery({
-    queryKey: ['incubations'],
-    queryFn: () => api.entities.EggIncubation.filter({ created_by: user?.email }, '-incubation_start_date'),
+    queryKey: ['incubations', user?.email],
+    queryFn: () => fetchForUserAndFarms(api.entities.EggIncubation, user, 'incubation_start_date'),
     enabled: !!user
   });
 
@@ -91,7 +92,7 @@ export default function IncubationManagement() {
   };
 
   const createMutation = useMutation({
-    mutationFn: (data) => api.entities.EggIncubation.create({ ...normalize(data), status: 'active' }),
+    mutationFn: async (data) => api.entities.EggIncubation.create({ ...normalize(data), ...(await farmStamp(user)), status: 'active' }),
     onSuccess: () => {
       queryClient.invalidateQueries(['incubations']);
       toast.success('Incubation batch created successfully');
@@ -246,6 +247,23 @@ export default function IncubationManagement() {
           <div className="rounded-xl bg-cream p-2.5 text-center"><Droplets className="w-3.5 h-3.5 text-moss-700 mx-auto mb-1" /><p className="font-display font-bold text-sm text-ink leading-none">{incubation.humidity_percent}%</p></div>
           <div className="rounded-xl bg-cream p-2.5 text-center"><RotateCw className="w-3.5 h-3.5 text-ink/50 mx-auto mb-1" /><p className="font-display font-bold text-sm text-ink leading-none">{incubation.turned_times_per_day}x/day</p></div>
         </div>
+
+        {(incubation.egg_sources?.length > 0 || incubation.tray_placement?.length > 0) && (
+          <div className="mt-4 space-y-2">
+            {incubation.egg_sources?.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {incubation.egg_sources.map((src, i) => (
+                  <span key={i} className="chip !py-0.5 !px-2 text-[10px]" title={src.breed}>{src.batch_name || 'Batch'} · {src.egg_count}</span>
+                ))}
+              </div>
+            )}
+            {incubation.tray_placement?.length > 0 && (
+              <p className="text-[11px] text-ink/55 inline-flex items-center gap-1"><LayoutGrid className="w-3 h-3" />
+                {incubation.tray_placement.map(t => `R${t.row}C${t.column} T${t.tray} (${t.eggs})`).join(' · ')}
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="mt-auto pt-4 flex gap-2">
           <Link to={createPageUrl('IncubationDetail') + `?id=${incubation.id}`} className="btn-ghost flex-1 justify-center border border-border bg-white py-2 text-sm">Details</Link>

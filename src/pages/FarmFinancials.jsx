@@ -10,6 +10,7 @@ import EmptyState from '@/components/shell/EmptyState';
 import StatCard from '@/components/shell/StatCard';
 import { StatSkeleton } from '@/components/shell/SkeletonCard';
 import { createPageUrl } from '../utils';
+import { fetchForUserAndFarms, farmStamp } from '@/lib/farm';
 
 const C = { moss: '#174D35', leaf: '#287A4C', fresh: '#83AA62', yolk: '#E5A23C', terracotta: '#C8673D', ink: '#16201B' };
 const R = (n) => `R${Math.round(n || 0).toLocaleString()}`;
@@ -33,17 +34,17 @@ export default function FarmFinancials() {
 
   const { data: batches = [], isLoading: lb } = useQuery({
     queryKey: ['batches-finance', user?.email],
-    queryFn: () => api.entities.PoultryBatch.filter({ created_by: user?.email }),
+    queryFn: () => fetchForUserAndFarms(api.entities.PoultryBatch, user, 'created_date'),
     enabled: !!user,
   });
   const { data: eggProduction = [], isLoading: le } = useQuery({
     queryKey: ['egg-production-finance', user?.email],
-    queryFn: () => api.entities.EggProduction.filter({ created_by: user?.email }),
+    queryFn: () => fetchForUserAndFarms(api.entities.EggProduction, user, 'production_date'),
     enabled: !!user,
   });
   const { data: expenses = [] } = useQuery({
     queryKey: ['batch-expenses-finance', user?.email],
-    queryFn: () => api.entities.BatchExpense.filter({ created_by: user?.email }),
+    queryFn: () => fetchForUserAndFarms(api.entities.BatchExpense, user, 'expense_date'),
     enabled: !!user,
   });
   const isLoading = lb || le;

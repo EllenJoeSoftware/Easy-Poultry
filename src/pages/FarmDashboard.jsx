@@ -24,6 +24,7 @@ import EmptyState from '@/components/shell/EmptyState';
 import { ListingSkeleton } from '@/components/shell/SkeletonCard';
 import { LogoMark } from '@/components/icons/EasyPoultryLogo';
 import { createPageUrl } from '../utils';
+import { fetchForUserAndFarms, farmStamp } from '@/lib/farm';
 
 const businessNameOf = (s) =>
   s?.business_name || s?.farm_name || s?.shop_name || s?.display_name || 'Your farm';
@@ -67,19 +68,19 @@ export default function FarmDashboard() {
   // ---- Farm operational data -----------------------------------------
   const { data: batches = [] } = useQuery({
     queryKey: ['farm-batches', user?.email],
-    queryFn: () => api.entities.PoultryBatch.filter({ created_by: user.email }),
+    queryFn: () => fetchForUserAndFarms(api.entities.PoultryBatch, user, 'created_date'),
     enabled: !!user?.email,
   });
 
   const { data: alerts = [] } = useQuery({
     queryKey: ['farm-alerts', user?.email],
-    queryFn: () => api.entities.FarmAlert.filter({ created_by: user.email, is_resolved: false }),
+    queryFn: () => fetchForUserAndFarms(api.entities.FarmAlert, user, 'created_date', { is_resolved: false }),
     enabled: !!user?.email,
   });
 
   const { data: feedTypes = [] } = useQuery({
     queryKey: ['feed-types', user?.email],
-    queryFn: () => api.entities.FeedType.filter({ created_by: user.email }),
+    queryFn: () => fetchForUserAndFarms(api.entities.FeedType, user, 'name'),
     enabled: !!user?.email,
   });
 
@@ -87,7 +88,7 @@ export default function FarmDashboard() {
     queryKey: ['egg-production-recent', user?.email],
     queryFn: async () => {
       const last7Days = moment().subtract(7, 'days').format('YYYY-MM-DD');
-      const all = await api.entities.EggProduction.filter({ created_by: user.email }, '-production_date');
+      const all = await fetchForUserAndFarms(api.entities.EggProduction, user, 'production_date');
       return all.filter(e => e.production_date >= last7Days);
     },
     enabled: !!user?.email,

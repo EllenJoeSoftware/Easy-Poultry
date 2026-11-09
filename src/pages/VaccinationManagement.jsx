@@ -15,6 +15,7 @@ import EmptyState from '@/components/shell/EmptyState';
 import StatCard from '@/components/shell/StatCard';
 import { toast } from 'sonner';
 import { createPageUrl } from '../utils';
+import { fetchForUserAndFarms, farmStamp } from '@/lib/farm';
 import moment from 'moment';
 
 const listVariants = { show: { transition: { staggerChildren: 0.05 } } };
@@ -50,19 +51,19 @@ export default function VaccinationManagement() {
 
   const { data: batches = [] } = useQuery({
     queryKey: ['batches-vac'],
-    queryFn: () => api.entities.PoultryBatch.filter({ created_by: user?.email, status: 'active' }),
+    queryFn: () => fetchForUserAndFarms(api.entities.PoultryBatch, user, 'created_date', { status: 'active' }),
     enabled: !!user
   });
 
   const { data: vaccines = [] } = useQuery({
     queryKey: ['vaccines'],
-    queryFn: () => api.entities.VaccineType.filter({ created_by: user?.email }),
+    queryFn: () => fetchForUserAndFarms(api.entities.VaccineType, user, 'name'),
     enabled: !!user
   });
 
   const { data: events = [] } = useQuery({
     queryKey: ['vaccination-events'],
-    queryFn: () => api.entities.VaccinationEvent.filter({ created_by: user?.email }, '-vaccination_date'),
+    queryFn: () => fetchForUserAndFarms(api.entities.VaccinationEvent, user, 'vaccination_date'),
     enabled: !!user
   });
 
@@ -74,6 +75,7 @@ export default function VaccinationManagement() {
       
       await api.entities.VaccinationEvent.create({
         ...data,
+        ...(await farmStamp(user)),
         batch_name: batch.batch_name,
         vaccine_name: vaccine.name,
         batch_age_days: batchAgeDays,
