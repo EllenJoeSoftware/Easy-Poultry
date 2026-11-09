@@ -5,7 +5,7 @@
 /* ============================================================
    Easy Poultry — Premium Design System
    Palette: Moss · Terracotta · Cream · Ink · Yolk · Sage
-   Type: Playfair Display (display/headings) + Inter (body/UI)
+   Type: Manrope (display/headings) + Inter (body/UI)
    ============================================================ */
 
 @layer base {
@@ -19,63 +19,82 @@
     /* Sage #A3B18A   → 84 19% 62%    (muted accent) */
     /* Forest Deep #2D3142 → 224 19% 22%  (secondary anchor) */
 
-    --background: 36 35% 97%;
-    --foreground: 240 8% 11%;
+    /* Agritech palette — Primary #174D35 · Secondary #287A4C · Accent #83AA62
+       Background #F4F6F1 · Highlight #E5A23C */
+    --background: 96 22% 95%;
+    --foreground: 150 10% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 240 8% 11%;
+    --card-foreground: 150 10% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 8% 11%;
+    --popover-foreground: 150 10% 10%;
 
-    --primary: 124 23% 29%;
-    --primary-foreground: 36 35% 97%;
+    --primary: 153 54% 20%;
+    --primary-foreground: 100 23% 97%;
 
-    --secondary: 224 19% 22%;
-    --secondary-foreground: 36 35% 97%;
+    --secondary: 146 51% 32%;
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 36 25% 92%;
-    --muted-foreground: 240 5% 38%;
+    --muted: 100 18% 91%;
+    --muted-foreground: 150 6% 38%;
 
-    --accent: 14 67% 63%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 37 77% 57%;
+    --accent-foreground: 150 10% 10%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 36 14% 87%;
-    --input: 36 14% 87%;
-    --ring: 124 23% 29%;
+    --border: 100 12% 86%;
+    --input: 100 12% 86%;
+    --ring: 153 54% 20%;
 
-    --chart-1: 124 23% 29%;
-    --chart-2: 14 67% 63%;
-    --chart-3: 36 87% 67%;
-    --chart-4: 84 19% 62%;
-    --chart-5: 224 19% 22%;
+    --chart-1: 153 54% 20%;
+    --chart-2: 97 32% 51%;
+    --chart-3: 37 77% 57%;
+    --chart-4: 14 67% 63%;
+    --chart-5: 150 6% 38%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 240 8% 11%;
-    --sidebar-primary: 124 23% 29%;
-    --sidebar-primary-foreground: 36 35% 97%;
-    --sidebar-accent: 36 25% 92%;
-    --sidebar-accent-foreground: 240 8% 11%;
-    --sidebar-border: 36 14% 87%;
-    --sidebar-ring: 124 23% 29%;
+    --sidebar-background: 153 54% 14%;
+    --sidebar-foreground: 100 23% 95%;
+    --sidebar-primary: 97 32% 51%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 153 40% 22%;
+    --sidebar-accent-foreground: 100 23% 95%;
+    --sidebar-border: 153 30% 24%;
+    --sidebar-ring: 97 32% 51%;
 
-    /* Premium signal colors (used directly via arbitrary values) */
-    --moss-50:  #F2F6F2;
-    --moss-100: #DCE6DD;
-    --moss-200: #B8CCBA;
-    --moss-300: #94B197;
-    --moss-400: #6F9374;
-    --moss-500: #4F7458;
-    --moss-600: #3A5A40;
-    --moss-700: #2C4632;
-    --moss-800: #1F3324;
-    --moss-900: #112016;
+    /* Brand scales — class names unchanged so every component re-themes automatically */
+    /* moss = deep agricultural green (primary) */
+    --moss-50:  #EEF5F1;
+    --moss-100: #D4E6DB;
+    --moss-200: #A9CDB8;
+    --moss-300: #7DB395;
+    --moss-400: #4F9272;
+    --moss-500: #2E6F50;
+    --moss-600: #174D35;
+    --moss-700: #123E2B;
+    --moss-800: #0D2E20;
+    --moss-900: #081E15;
 
+    /* fresh = natural fresh green (accent #83AA62) */
+    --fresh-50:  #F2F7EC;
+    --fresh-100: #E1EDD5;
+    --fresh-200: #C6DBB0;
+    --fresh-300: #A8C78A;
+    --fresh-400: #92B873;
+    --fresh-500: #83AA62;
+    --fresh-600: #678B4C;
+    --fresh-700: #4F6D3A;
+
+    /* leaf = secondary green #287A4C */
+    --leaf-400: #3E9A66;
+    --leaf-500: #287A4C;
+    --leaf-600: #1F6039;
+
+    /* terracotta kept for sale/alert signals */
     --terracotta-50:  #FCEEEA;
     --terracotta-100: #F8D9CF;
     --terracotta-200: #F1B59E;
@@ -87,18 +106,19 @@
     --terracotta-800: #5F2618;
     --terracotta-900: #3D170E;
 
-    --yolk-50:  #FEF7E8;
-    --yolk-100: #FCEAC0;
-    --yolk-200: #F9D688;
-    --yolk-300: #F4B860;
-    --yolk-400: #ED9F3A;
-    --yolk-500: #D7841E;
-    --yolk-600: #AE6816;
+    /* yolk = warm amber accent */
+    --yolk-50:  #FDF6E7;
+    --yolk-100: #FAE8C1;
+    --yolk-200: #F4D28A;
+    --yolk-300: #EEBB5C;
+    --yolk-400: #E5A23C;
+    --yolk-500: #C8861F;
+    --yolk-600: #9F6A17;
 
-    --cream:  #FAF7F2;
-    --cream-deep: #F2EBDC;
-    --ink:    #1B1B1F;
-    --ink-soft: #2D3142;
+    --cream:  #F4F6F1;
+    --cream-deep: #E7EBE1;
+    --ink:    #16201B;
+    --ink-soft: #243830;
     --sage:   #A3B18A;
   }
 
@@ -148,7 +168,7 @@
     font-feature-settings: 'cv02','cv03','cv04','cv11';
   }
   h1, h2, h3, h4, .font-display {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Manrope', 'Inter', system-ui, sans-serif;
     letter-spacing: -0.015em;
   }
   ::selection {
@@ -296,7 +316,7 @@
 
   /* Display heading — magazine size */
   .h-display {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Manrope', 'Inter', system-ui, sans-serif;
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1.05;
@@ -304,7 +324,7 @@
 
   /* Stat number */
   .stat-num {
-    font-family: 'Playfair Display', Georgia, serif;
+    font-family: 'Manrope', 'Inter', system-ui, sans-serif;
     font-weight: 600;
     letter-spacing: -0.02em;
   }

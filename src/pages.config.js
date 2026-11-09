@@ -41,6 +41,7 @@ import Shops from './pages/Shops';
 import MyOrders from './pages/MyOrders';
 import Payouts from './pages/Payouts';
 import AdminPayouts from './pages/AdminPayouts';
+import FarmTeam from './pages/FarmTeam';
 import Support from './pages/Support';
 import AppMarketing from './pages/AppMarketing';
 import SubmitEntry from './pages/SubmitEntry';
@@ -94,6 +95,7 @@ export const PAGES = {
     "MyOrders": MyOrders,
     "Payouts": Payouts,
     "AdminPayouts": AdminPayouts,
+    "FarmTeam": FarmTeam,
     "Support": Support,
     "AppMarketing": AppMarketing,
     "SubmitEntry": SubmitEntry,

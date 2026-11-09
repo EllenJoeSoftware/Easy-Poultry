@@ -135,6 +135,23 @@ service cloud.firestore {
       allow create: if isSignedIn();
     }
 
+    // Farm team members — owner manages; members can see their own record
+    match /FarmMember/{id} {
+      allow read: if isSignedIn() && (
+        resource.data.farm_owner_email == request.auth.token.email ||
+        resource.data.member_email     == request.auth.token.email ||
+        isAdmin()
+      );
+      allow create: if isSignedIn() && request.resource.data.farm_owner_email == request.auth.token.email;
+      allow update, delete: if isSignedIn() && (resource.data.farm_owner_email == request.auth.token.email || isAdmin());
+    }
+
+    // Support requests — anyone can submit; only admins read
+    match /SupportRequest/{id} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
     // Orders — buyer + seller can read; only the server (Cloud Function with
     // admin SDK) writes them. Reject all client writes.
     match /Order/{id} {

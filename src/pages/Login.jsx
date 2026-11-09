@@ -153,8 +153,7 @@ export default function Login() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="text-4xl lg:text-5xl font-bold leading-tight mb-6"
-              style={{ fontFamily: 'Playfair Display, serif' }}
-            >
+                         >
               The complete poultry platform.
             </motion.h1>
             <motion.p

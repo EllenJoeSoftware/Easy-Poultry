@@ -11,6 +11,7 @@ import { useAuth } from '@/lib/AuthContext';
 import CliffieChat from './components/chat/CliffieChat';
 import NotificationBell from './components/notifications/NotificationBell';
 import { LogoMark } from './components/icons/EasyPoultryLogo';
+import AppShell, { APP_PAGES } from './components/shell/AppShell';
 
 export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -38,11 +39,24 @@ export default function Layout({ children, currentPageName }) {
     return <div>{children}</div>;
   }
 
+  // Logged-in application modules get the SaaS sidebar shell
+  if (user && APP_PAGES.has(currentPageName)) {
+    return (
+      <AppShell currentPageName={currentPageName}>
+        {children}
+        <CliffieChat />
+      </AppShell>
+    );
+  }
+
   const navigation = [
-    { name: 'Marketplace', path: createPageUrl('Marketplace'), icon: LayoutGrid },
-    { name: 'Auctions',    path: createPageUrl('Auctions'),    icon: Gavel },
-    { name: 'Competitions',path: createPageUrl('Competitions'),icon: Trophy },
-    { name: 'Shops',       path: createPageUrl('Shops'),       icon: Store },
+    { name: 'Marketplace',     path: createPageUrl('Marketplace'),  icon: LayoutGrid },
+    { name: 'Live Auctions',   path: createPageUrl('Auctions'),     icon: Gavel },
+    { name: 'Competitions',    path: createPageUrl('Competitions'), icon: Trophy },
+    { name: 'Shops',           path: createPageUrl('Shops'),        icon: Store },
+    { name: 'Learning Centre', path: createPageUrl('Marketplace') + '?category=guide', icon: Package },
+    { name: 'Farm Management', path: createPageUrl('FarmDashboard'), icon: Bird },
+    { name: 'Contact',         path: createPageUrl('Support'),      icon: MessageCircle },
   ];
 
   const userNavigation = user ? [
