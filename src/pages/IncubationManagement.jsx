@@ -57,17 +57,41 @@ export default function IncubationManagement() {
     enabled: !!user
   });
 
+  // Coerce form strings to the Firestore schema (numbers, derived dates, no undefined)
+  const normalize = (data, existing) => {
+    const num = (v, d = 0) => { const n = parseFloat(v); return Number.isFinite(n) ? n : d; };
+    const int = (v, d = 0) => { const n = parseInt(v, 10); return Number.isFinite(n) ? n : d; };
+    const egg_count = int(data.egg_count, existing?.egg_count || 0);
+    const incubation_days = int(data.incubation_days, existing?.incubation_days || 21);
+    const incubation_start_date = data.incubation_start_date || existing?.incubation_start_date || moment().format('YYYY-MM-DD');
+    const eggs_hatched = int(data.eggs_hatched, existing?.eggs_hatched || 0);
+    const eggs_infertile = int(data.eggs_infertile, existing?.eggs_infertile || 0);
+    const eggs_dead_in_shell = int(data.eggs_dead_in_shell, existing?.eggs_dead_in_shell || 0);
+    const out = {
+      batch_name: (data.batch_name || '').trim(),
+      breed: data.breed || '',
+      egg_count,
+      incubation_start_date,
+      incubation_days,
+      expected_hatch_date: moment(incubation_start_date).add(incubation_days, 'days').format('YYYY-MM-DD'),
+      temperature_celsius: num(data.temperature_celsius, 37.5),
+      humidity_percent: num(data.humidity_percent, 55),
+      turned_times_per_day: int(data.turned_times_per_day, 3),
+      incubator_type: data.incubator_type || '',
+      notes: data.notes || '',
+      eggs_hatched,
+      eggs_infertile,
+      eggs_dead_in_shell,
+      hatch_rate_percent: egg_count > 0 ? (eggs_hatched / egg_count) * 100 : 0,
+      status: data.status || existing?.status || 'active',
+    };
+    if (data.actual_hatch_date) out.actual_hatch_date = data.actual_hatch_date;
+    else if (out.status === 'completed') out.actual_hatch_date = existing?.actual_hatch_date || moment().format('YYYY-MM-DD');
+    return out;
+  };
+
   const createMutation = useMutation({
-    mutationFn: (data) => {
-      const expectedHatchDate = moment(data.incubation_start_date)
-        .add(data.incubation_days, 'days')
-        .format('YYYY-MM-DD');
-      return api.entities.EggIncubation.create({
-        ...data,
-        expected_hatch_date: expectedHatchDate,
-        status: 'active',
-      });
-    },
+    mutationFn: (data) => api.entities.EggIncubation.create({ ...normalize(data), status: 'active' }),
     onSuccess: () => {
       queryClient.invalidateQueries(['incubations']);
       toast.success('Incubation batch created successfully');
@@ -120,7 +144,7 @@ export default function IncubationManagement() {
     }
 
     if (editingIncubation) {
-      updateMutation.mutate({ id: editingIncubation.id, data: formData });
+      updateMutation.mutate({ id: editingIncubation.id, data: normalize(formData, editingIncubation) });
     } else {
       createMutation.mutate(formData);
     }

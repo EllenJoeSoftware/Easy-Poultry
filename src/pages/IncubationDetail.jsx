@@ -85,13 +85,23 @@ export default function IncubationDetail() {
 
   const createLogMutation = useMutation({
     mutationFn: (data) => {
+      const day_number = parseInt(data.day_number, 10) || 1;
       const logDate = moment(incubation.incubation_start_date)
-        .add(data.day_number - 1, 'days')
+        .add(day_number - 1, 'days')
         .format('YYYY-MM-DD');
 
       return api.entities.IncubationLog.create({
-        ...data,
+        day_number,
+        temperature_celsius: parseFloat(data.temperature_celsius) || 0,
+        humidity_percent: parseFloat(data.humidity_percent) || 0,
+        eggs_turned: !!data.eggs_turned,
+        candling_performed: !!data.candling_performed,
+        candling_results: data.candling_results || '',
+        candling_image_url: data.candling_image_url || '',
+        eggs_removed: parseInt(data.eggs_removed, 10) || 0,
+        notes: data.notes || '',
         incubation_id: incubationId,
+        batch_name: incubation.batch_name || '',
         log_date: logDate
       });
     },
