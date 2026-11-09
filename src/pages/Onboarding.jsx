@@ -121,20 +121,20 @@ export default function Onboarding() {
             alt="Easy Poultry Logo" 
             className="w-16 h-16 object-contain mx-auto mb-4"
           />
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome to Easy Poultry</h1>
-          <p className="text-gray-600">Let's set up your account in {isSeller ? '3' : '2'} quick steps</p>
+          <h1 className="text-3xl font-bold text-ink mb-2">Welcome to Easy Poultry</h1>
+          <p className="text-ink/65">Let's set up your account in {isSeller ? '3' : '2'} quick steps</p>
         </div>
 
         <div className="flex items-center justify-center mb-8">
           {[1, 2, isSeller && 3].filter(Boolean).map((s, i) => (
             <React.Fragment key={s}>
               <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                step >= s ? 'bg-[#7A9D7A] text-white' : 'bg-gray-200 text-gray-500'
+                step >= s ? 'bg-moss-600 text-white' : 'bg-cream-deep text-ink/55'
               }`}>
                 {step > s ? <CheckCircle2 className="w-5 h-5" /> : s}
               </div>
               {i < (isSeller ? 2 : 1) && (
-                <div className={`w-16 h-1 mx-2 ${step > s ? 'bg-[#7A9D7A]' : 'bg-gray-200'}`} />
+                <div className={`w-16 h-1 mx-2 ${step > s ? 'bg-moss-600' : 'bg-cream-deep'}`} />
               )}
             </React.Fragment>
           ))}
@@ -151,8 +151,8 @@ export default function Onboarding() {
                     onClick={() => setFormData({ ...formData, user_type: type })}
                     className={`p-6 rounded-xl border-2 transition-all ${
                       formData.user_type === type
-                        ? 'border-[#7A9D7A] bg-[#7A9D7A]/5 shadow-lg'
-                        : 'border-gray-200 hover:border-gray-300'
+                        ? 'border-moss-600 bg-moss-600/5 shadow-lg'
+                        : 'border-border hover:border-border'
                     }`}
                   >
                     <div className="text-3xl mb-2">
@@ -163,7 +163,7 @@ export default function Onboarding() {
                 ))}
               </div>
             </div>
-            <Button onClick={handleNext} className="w-full bg-[#7A9D7A] hover:bg-[#6A8D6A] h-12">
+            <Button onClick={handleNext} className="w-full btn-cta h-12">
               Continue
             </Button>
           </div>
@@ -173,14 +173,14 @@ export default function Onboarding() {
           <div className="space-y-6">
             <div className="flex items-center justify-center mb-4">
               <div className="relative">
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-4 border-white shadow-lg">
+                <div className="w-24 h-24 rounded-full overflow-hidden bg-cream-deep border-4 border-white shadow-lg">
                   {formData.profile_photo_url ? (
                     <img src={formData.profile_photo_url} alt="Profile" className="w-full h-full object-cover" />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-gray-400 text-2xl">👤</div>
+                    <div className="w-full h-full flex items-center justify-center text-ink/40 text-2xl">👤</div>
                   )}
                 </div>
-                <label className="absolute bottom-0 right-0 w-10 h-10 bg-[#7A9D7A] rounded-full flex items-center justify-center cursor-pointer hover:bg-[#6A8D6A] shadow-lg">
+                <label className="absolute bottom-0 right-0 w-10 h-10 bg-moss-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-moss-700 shadow-lg">
                   <Upload className="w-5 h-5 text-white" />
                   <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploading} />
                 </label>
@@ -253,7 +253,7 @@ export default function Onboarding() {
               <Button onClick={() => setStep(1)} variant="outline" className="flex-1 h-12">
                 Back
               </Button>
-              <Button onClick={isSeller ? handleNext : handleSubmit} className="flex-1 bg-[#7A9D7A] hover:bg-[#6A8D6A] h-12">
+              <Button onClick={isSeller ? handleNext : handleSubmit} className="flex-1 btn-cta h-12">
                 {isSeller ? 'Continue' : 'Complete Setup'}
               </Button>
             </div>
@@ -297,7 +297,7 @@ export default function Onboarding() {
               <Button onClick={() => setStep(2)} variant="outline" className="flex-1 h-12">
                 Back
               </Button>
-              <Button onClick={handleSubmit} disabled={updateProfileMutation.isPending} className="flex-1 bg-[#7A9D7A] hover:bg-[#6A8D6A] h-12">
+              <Button onClick={handleSubmit} disabled={updateProfileMutation.isPending} className="flex-1 btn-cta h-12">
                 {updateProfileMutation.isPending ? 'Setting up...' : 'Complete Setup'}
               </Button>
             </div>

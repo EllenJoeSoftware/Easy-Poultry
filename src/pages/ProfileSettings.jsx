@@ -222,7 +222,7 @@ export default function ProfileSettings() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
@@ -230,14 +230,14 @@ export default function ProfileSettings() {
   const isSeller = formData.user_type === 'seller' || formData.user_type === 'both';
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-[80vh] bg-cream py-8">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Profile Settings</h1>
-            <p className="text-gray-600">Manage your account information</p>
+            <h1 className="text-3xl font-bold text-ink mb-2">Profile Settings</h1>
+            <p className="text-ink/65">Manage your account information</p>
           </div>
-          <Button onClick={handleLogout} variant="outline" className="text-red-600 hover:text-red-700">
+          <Button onClick={handleLogout} variant="outline" className="text-terracotta-600 hover:text-terracotta-700">
             <LogOut className="w-4 h-4 mr-2" />
             Logout
           </Button>
@@ -259,10 +259,10 @@ export default function ProfileSettings() {
             </TabsList>
 
             <TabsContent value="basic">
-              <Card className="p-6 border-0 shadow-lg space-y-6">
+              <Card className="p-6 card-premium space-y-6">
                 <div className="flex items-center gap-6">
                   <div className="relative">
-                    <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100">
+                    <div className="w-24 h-24 rounded-full overflow-hidden bg-cream-deep">
                       {formData.profile_photo_url ? (
                         <img
                           src={formData.profile_photo_url}
@@ -270,12 +270,12 @@ export default function ProfileSettings() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        <div className="w-full h-full flex items-center justify-center text-ink/40">
                           <User className="w-12 h-12" />
                         </div>
                       )}
                     </div>
-                    <label className="absolute bottom-0 right-0 w-8 h-8 bg-[#7A9D7A] rounded-full flex items-center justify-center cursor-pointer hover:bg-[#6A8D6A] shadow-lg">
+                    <label className="absolute bottom-0 right-0 w-8 h-8 bg-moss-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-moss-700 shadow-lg">
                       <Upload className="w-4 h-4 text-white" />
                       <input
                         type="file"
@@ -287,8 +287,8 @@ export default function ProfileSettings() {
                     </label>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 mb-1">Profile Photo</h3>
-                    <p className="text-sm text-gray-600">Upload a profile picture</p>
+                    <h3 className="font-semibold text-ink mb-1">Profile Photo</h3>
+                    <p className="text-sm text-ink/65">Upload a profile picture</p>
                   </div>
                 </div>
 
@@ -302,8 +302,8 @@ export default function ProfileSettings() {
                         onClick={() => setFormData({ ...formData, user_type: type })}
                         className={`p-4 rounded-lg border-2 transition-all ${
                           formData.user_type === type
-                            ? 'border-[#7A9D7A] bg-[#7A9D7A]/5'
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-moss-600 bg-moss-600/5'
+                            : 'border-border hover:border-border'
                         }`}
                       >
                         <p className="font-medium capitalize">{type}</p>
@@ -385,15 +385,15 @@ export default function ProfileSettings() {
 
             {isSeller && (
               <TabsContent value="seller">
-                <Card className="p-6 border-0 shadow-lg mb-6">
+                <Card className="p-6 card-premium mb-6">
                   <div className="flex items-center justify-between mb-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900">Current Tier</h3>
-                      <p className="text-2xl font-bold text-[#7A9D7A] mt-1">
+                      <h3 className="font-display text-lg font-semibold text-ink">Current Tier</h3>
+                      <p className="text-2xl font-bold text-moss-600 mt-1">
                         {(user?.seller_tier || 'basic').charAt(0).toUpperCase() + (user?.seller_tier || 'basic').slice(1)}
                       </p>
                     </div>
-                    <Button onClick={() => setShowTierUpgrade(true)} className="bg-[#7A9D7A] hover:bg-[#6A8D6A]">
+                    <Button onClick={() => setShowTierUpgrade(true)} className="btn-cta">
                       <TrendingUp className="w-4 h-4 mr-2" />
                       Upgrade Tier
                     </Button>
@@ -401,17 +401,17 @@ export default function ProfileSettings() {
                 </Card>
 
                 {/* ============ Shop branding (banner + logo) ============ */}
-                <Card className="p-6 border-0 shadow-lg space-y-6">
+                <Card className="p-6 card-premium space-y-6">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-1">Shop branding</h3>
-                    <p className="text-sm text-gray-500">Your banner and logo appear on your shop page and in the shops directory.</p>
+                    <h3 className="font-display text-lg font-semibold text-ink mb-1">Shop branding</h3>
+                    <p className="text-sm text-ink/55">Your banner and logo appear on your shop page and in the shops directory.</p>
                   </div>
 
                   {/* Banner upload */}
                   <div>
                     <Label>Shop banner</Label>
-                    <p className="text-xs text-gray-500 mb-2">Recommended: <strong>1500×500px</strong> (3:1 ratio). Wider images will be cropped on the shops directory cards. Important text/logos should sit in the center.</p>
-                    <div className="relative aspect-[3/1] rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 hover:border-[#7A9D7A] bg-gradient-to-br from-[#3A5A40]/10 to-[#E07A5F]/10 group transition-colors">
+                    <p className="text-xs text-ink/55 mb-2">Recommended: <strong>1500×500px</strong> (3:1 ratio). Wider images will be cropped on the shops directory cards. Important text/logos should sit in the center.</p>
+                    <div className="relative aspect-[3/1] rounded-2xl overflow-hidden border-2 border-dashed border-border hover:border-moss-600 bg-cream-gradient group transition-colors">
                       {formData.cover_image_url ? (
                         <>
                           <img
@@ -422,13 +422,13 @@ export default function ProfileSettings() {
                           <button
                             type="button"
                             onClick={removeCover}
-                            className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-sm hover:bg-white text-xs font-medium text-red-600 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                            className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-sm hover:bg-white text-xs font-medium text-terracotta-600 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
                           >
                             Remove
                           </button>
                         </>
                       ) : (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-500">
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-ink/55">
                           {uploadingCover ? (
                             <Loader2 className="w-7 h-7 animate-spin" />
                           ) : (
@@ -455,9 +455,9 @@ export default function ProfileSettings() {
                   {/* Logo upload */}
                   <div>
                     <Label>Shop logo</Label>
-                    <p className="text-xs text-gray-500 mb-2">Recommended: square, 256×256px or larger. Shown on your shop page and in the directory.</p>
+                    <p className="text-xs text-ink/55 mb-2">Recommended: square, 256×256px or larger. Shown on your shop page and in the directory.</p>
                     <div className="flex items-center gap-5">
-                      <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-dashed border-gray-200 bg-gradient-to-br from-[#3A5A40]/10 to-[#E07A5F]/10 group">
+                      <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-dashed border-border bg-cream-gradient group">
                         {formData.profile_photo_url ? (
                           <img
                             src={formData.profile_photo_url}
@@ -465,7 +465,7 @@ export default function ProfileSettings() {
                             className="absolute inset-0 w-full h-full object-cover"
                           />
                         ) : (
-                          <div className="absolute inset-0 flex items-center justify-center text-gray-400">
+                          <div className="absolute inset-0 flex items-center justify-center text-ink/40">
                             {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-6 h-6" strokeWidth={1.5} />}
                           </div>
                         )}
@@ -495,7 +495,7 @@ export default function ProfileSettings() {
                           <button
                             type="button"
                             onClick={() => setFormData((p) => ({ ...p, profile_photo_url: '' }))}
-                            className="ml-2 text-xs text-red-600 hover:underline"
+                            className="ml-2 text-xs text-terracotta-600 hover:underline"
                           >
                             Remove
                           </button>
@@ -505,7 +505,7 @@ export default function ProfileSettings() {
                   </div>
                 </Card>
 
-                <Card className="p-6 border-0 shadow-lg space-y-6">
+                <Card className="p-6 card-premium space-y-6">
                   <div>
                     <Label htmlFor="farm_name">Farm/Business Name</Label>
                     <Input
@@ -519,7 +519,7 @@ export default function ProfileSettings() {
                   <div>
                     <Label htmlFor="subdomain">Shop Subdomain (Your Unique Shop URL)</Label>
                     <div className="flex items-center gap-2 mt-2">
-                      <span className="text-sm text-gray-500 whitespace-nowrap">Shop URL: SellerShop?shop=</span>
+                      <span className="text-sm text-ink/55 whitespace-nowrap">Shop URL: SellerShop?shop=</span>
                       <Input
                         id="subdomain"
                         value={sellerInfo.subdomain}
@@ -528,14 +528,14 @@ export default function ProfileSettings() {
                         className="flex-1"
                       />
                     </div>
-                    <p className="text-xs text-gray-500 mt-1">Choose a unique name for your shop URL (letters, numbers, hyphens only)</p>
+                    <p className="text-xs text-ink/55 mt-1">Choose a unique name for your shop URL (letters, numbers, hyphens only)</p>
                     {sellerInfo.subdomain && (
                       <div className="flex items-center gap-2 mt-2">
                         <a 
                           href={`${window.location.origin}${createPageUrl('SellerShop')}?shop=${sellerInfo.subdomain}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-[#7A9D7A] hover:underline"
+                          className="text-xs text-moss-600 hover:underline"
                         >
                           Preview: {window.location.origin}{createPageUrl('SellerShop')}?shop={sellerInfo.subdomain} →
                         </a>
@@ -579,40 +579,40 @@ export default function ProfileSettings() {
                   </div>
 
                   <div className="border-t pt-6">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">Seller Verification</h3>
+                    <h3 className="font-display text-lg font-semibold text-ink mb-4">Seller Verification</h3>
                     
                     {user.seller_verified ? (
-                      <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-green-500 flex items-center justify-center">
+                      <div className="bg-fresh-50 border border-fresh-200 rounded-lg p-4 flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-fresh-500 flex items-center justify-center">
                           <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                           </svg>
                         </div>
                         <div>
                           <p className="font-semibold text-green-900">Verified Seller</p>
-                          <p className="text-sm text-green-700">Your account is verified</p>
+                          <p className="text-sm text-moss-700">Your account is verified</p>
                         </div>
                       </div>
                     ) : user.verification_payment_pending ? (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <div className="bg-yolk-50 border border-yolk-200 rounded-lg p-4">
                         <p className="font-semibold text-yellow-900 mb-1">Payment Under Review</p>
-                        <p className="text-sm text-yellow-700">Your verification payment is being reviewed by admin</p>
+                        <p className="text-sm text-yolk-700">Your verification payment is being reviewed by admin</p>
                       </div>
                     ) : user.verification_submitted ? (
-                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                      <div className="bg-yolk-50 border border-yolk-200 rounded-lg p-4">
                         <p className="font-semibold text-yellow-900 mb-1">Verification Pending</p>
-                        <p className="text-sm text-yellow-700">Your documents are under review by admin</p>
+                        <p className="text-sm text-yolk-700">Your documents are under review by admin</p>
                       </div>
                     ) : (
                       <div className="space-y-4">
-                        <p className="text-gray-600 text-sm">Upload your ID and proof of address, then pay the verification fee to get verified. Verified sellers can show their contact number to buyers.</p>
+                        <p className="text-ink/65 text-sm">Upload your ID and proof of address, then pay the verification fee to get verified. Verified sellers can show their contact number to buyers.</p>
                         
                         <div>
                           <Label>ID Document</Label>
                           <div className="mt-2 flex items-center gap-4">
                             {formData.id_document_url ? (
-                              <div className="flex-1 flex items-center gap-3 bg-gray-50 rounded-lg p-3">
-                                <span className="text-sm text-gray-700">Document uploaded</span>
+                              <div className="flex-1 flex items-center gap-3 bg-cream rounded-lg p-3">
+                                <span className="text-sm text-ink/75">Document uploaded</span>
                                 <Button
                                   type="button"
                                   variant="ghost"
@@ -624,9 +624,9 @@ export default function ProfileSettings() {
                               </div>
                             ) : (
                               <label className="flex-1 cursor-pointer">
-                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-[#7A9D7A] transition-colors text-center">
-                                  <Upload className="w-6 h-6 text-gray-400 mx-auto mb-2" />
-                                  <span className="text-sm text-gray-600">Upload ID</span>
+                                <div className="border-2 border-dashed border-border rounded-lg p-4 hover:border-moss-600 transition-colors text-center">
+                                  <Upload className="w-6 h-6 text-ink/40 mx-auto mb-2" />
+                                  <span className="text-sm text-ink/65">Upload ID</span>
                                 </div>
                                 <input
                                   type="file"
@@ -658,8 +658,8 @@ export default function ProfileSettings() {
                           <Label>Proof of Address</Label>
                           <div className="mt-2 flex items-center gap-4">
                             {formData.proof_of_address_url ? (
-                              <div className="flex-1 flex items-center gap-3 bg-gray-50 rounded-lg p-3">
-                                <span className="text-sm text-gray-700">Document uploaded</span>
+                              <div className="flex-1 flex items-center gap-3 bg-cream rounded-lg p-3">
+                                <span className="text-sm text-ink/75">Document uploaded</span>
                                 <Button
                                   type="button"
                                   variant="ghost"
@@ -671,9 +671,9 @@ export default function ProfileSettings() {
                               </div>
                             ) : (
                               <label className="flex-1 cursor-pointer">
-                                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-[#7A9D7A] transition-colors text-center">
-                                  <Upload className="w-6 h-6 text-gray-400 mx-auto mb-2" />
-                                  <span className="text-sm text-gray-600">Upload Proof of Address</span>
+                                <div className="border-2 border-dashed border-border rounded-lg p-4 hover:border-moss-600 transition-colors text-center">
+                                  <Upload className="w-6 h-6 text-ink/40 mx-auto mb-2" />
+                                  <span className="text-sm text-ink/65">Upload Proof of Address</span>
                                 </div>
                                 <input
                                   type="file"
@@ -705,7 +705,7 @@ export default function ProfileSettings() {
                           <Button
                             type="button"
                             onClick={() => setShowVerificationPayment(true)}
-                            className="bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                            className="btn-cta"
                           >
                             Pay & Submit for Verification
                           </Button>
@@ -722,7 +722,7 @@ export default function ProfileSettings() {
             <Button
               type="submit"
               disabled={updateProfileMutation.isPending}
-              className="bg-[#7A9D7A] hover:bg-[#6A8D6A] px-8 h-11"
+              className="btn-cta px-8 h-11"
             >
               {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
             </Button>
@@ -786,10 +786,10 @@ function PasswordCard() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-      <Card className="p-6 border-0 shadow-lg">
+      <Card className="p-6 card-premium">
         <div className="mb-5">
-          <h3 className="text-lg font-semibold text-gray-900">Change password</h3>
-          <p className="text-sm text-gray-500 mt-0.5">You'll stay signed in on this device after the change.</p>
+          <h3 className="font-display text-lg font-semibold text-ink">Change password</h3>
+          <p className="text-sm text-ink/55 mt-0.5">You'll stay signed in on this device after the change.</p>
         </div>
         <form onSubmit={submit} className="space-y-4 max-w-md">
           <div>
@@ -804,12 +804,12 @@ function PasswordCard() {
             <Label htmlFor="cfm_pw">Confirm new password</Label>
             <Input id="cfm_pw" type={show ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" minLength={6} required className="mt-1.5" />
           </div>
-          <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer">
+          <label className="flex items-center gap-2 text-xs text-ink/65 cursor-pointer">
             <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} className="rounded" />
             Show passwords
           </label>
           <div className="flex gap-2 pt-2">
-            <Button type="submit" disabled={busy || !current || !next || !confirm} className="bg-[#7A9D7A] hover:bg-[#6A8D6A] h-11 px-6">
+            <Button type="submit" disabled={busy || !current || !next || !confirm} className="btn-cta h-11 px-6">
               {busy ? 'Updating…' : 'Update password'}
             </Button>
           </div>

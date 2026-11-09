@@ -31,12 +31,12 @@ const categories = [
 
 export default function FilterPanel({ filters, onChange, onClear, onClose }) {
   return (
-    <Card className="p-6 border-0 shadow-lg">
+    <Card className="p-6 card-premium">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900">Filters</h3>
+        <h3 className="font-display text-lg font-semibold text-ink">Filters</h3>
         <button
           onClick={onClose}
-          className="lg:hidden p-1 hover:bg-gray-100 rounded-full"
+          className="lg:hidden p-1 hover:bg-cream-deep rounded-full"
         >
           <X className="w-5 h-5" />
         </button>
@@ -44,7 +44,7 @@ export default function FilterPanel({ filters, onChange, onClear, onClose }) {
 
       <div className="space-y-6">
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-2 block">Category</Label>
+          <Label className="text-sm font-medium text-ink/75 mb-2 block">Category</Label>
           <Select
             value={filters.category || 'all'}
             onValueChange={(value) => onChange({ ...filters, category: value === 'all' ? '' : value })}
@@ -63,7 +63,7 @@ export default function FilterPanel({ filters, onChange, onClear, onClose }) {
         </div>
 
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-2 block">Price Range</Label>
+          <Label className="text-sm font-medium text-ink/75 mb-2 block">Price Range</Label>
           <div className="flex gap-2 items-center">
             <Input
               type="number"
@@ -72,7 +72,7 @@ export default function FilterPanel({ filters, onChange, onClear, onClose }) {
               onChange={(e) => onChange({ ...filters, minPrice: e.target.value })}
               className="h-10"
             />
-            <span className="text-gray-400">-</span>
+            <span className="text-ink/40">-</span>
             <Input
               type="number"
               placeholder="Max"
@@ -84,7 +84,7 @@ export default function FilterPanel({ filters, onChange, onClear, onClose }) {
         </div>
 
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-2 block">Province/State</Label>
+          <Label className="text-sm font-medium text-ink/75 mb-2 block">Province/State</Label>
           <Select
             value={filters.province || 'all'}
             onValueChange={(value) => onChange({ ...filters, province: value === 'all' ? '' : value })}
@@ -108,7 +108,7 @@ export default function FilterPanel({ filters, onChange, onClear, onClose }) {
         </div>
 
         <div>
-          <Label className="text-sm font-medium text-gray-700 mb-2 block">City/Town</Label>
+          <Label className="text-sm font-medium text-ink/75 mb-2 block">City/Town</Label>
           <Input
             type="text"
             placeholder="Enter city"

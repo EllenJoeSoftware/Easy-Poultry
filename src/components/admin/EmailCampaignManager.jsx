@@ -20,7 +20,7 @@ const EMAIL_TEMPLATES = [
     subject: 'Welcome to Easy Poultry!',
     html: `<!DOCTYPE html>
 <html>
-<head><style>body{font-family:Arial,sans-serif;line-height:1.6;color:#333}.container{max-width:600px;margin:0 auto;padding:20px}.header{background:#7A9D7A;color:white;padding:30px;text-align:center;border-radius:10px 10px 0 0}.content{background:#f9f9f9;padding:30px;border-radius:0 0 10px 10px}.button{display:inline-block;background:#E07A5F;color:white;padding:12px 30px;text-decoration:none;border-radius:5px;margin:20px 0}</style></head>
+<head><style>body{font-family:Arial,sans-serif;line-height:1.6;color:#333}.container{max-width:600px;margin:0 auto;padding:20px}.header{background:#174D35;color:white;padding:30px;text-align:center;border-radius:10px 10px 0 0}.content{background:#f9f9f9;padding:30px;border-radius:0 0 10px 10px}.button{display:inline-block;background:#E5A23C;color:white;padding:12px 30px;text-decoration:none;border-radius:5px;margin:20px 0}</style></head>
 <body><div class="container"><div class="header"><h1>🐔 Welcome to Easy Poultry!</h1></div><div class="content"><p>Dear {{name}},</p><p>Thank you for joining Easy Poultry, South Africa's premier poultry marketplace!</p><p>We're excited to have you on board. Whether you're buying or selling, we're here to help you connect with the poultry community.</p><a href="{{site_url}}" class="button">Explore Marketplace</a><p>Happy trading!<br>The Easy Poultry Team</p></div></div></body>
 </html>`
   },
@@ -29,7 +29,7 @@ const EMAIL_TEMPLATES = [
     subject: 'Check out the latest poultry listings!',
     html: `<!DOCTYPE html>
 <html>
-<head><style>body{font-family:Arial,sans-serif;line-height:1.6;color:#333}.container{max-width:600px;margin:0 auto;padding:20px}.header{background:#E07A5F;color:white;padding:30px;text-align:center;border-radius:10px 10px 0 0}.content{background:#f9f9f9;padding:30px;border-radius:0 0 10px 10px}.button{display:inline-block;background:#7A9D7A;color:white;padding:12px 30px;text-decoration:none;border-radius:5px;margin:20px 0}</style></head>
+<head><style>body{font-family:Arial,sans-serif;line-height:1.6;color:#333}.container{max-width:600px;margin:0 auto;padding:20px}.header{background:#E5A23C;color:white;padding:30px;text-align:center;border-radius:10px 10px 0 0}.content{background:#f9f9f9;padding:30px;border-radius:0 0 10px 10px}.button{display:inline-block;background:#174D35;color:white;padding:12px 30px;text-decoration:none;border-radius:5px;margin:20px 0}</style></head>
 <body><div class="container"><div class="header"><h1>🔔 New Listings Available!</h1></div><div class="content"><p>Hi {{name}},</p><p>We've got fresh listings that might interest you!</p><p>Check out the latest poultry, eggs, and equipment available on Easy Poultry.</p><a href="{{site_url}}/Marketplace" class="button">View New Listings</a><p>Don't miss out on great deals!<br>The Easy Poultry Team</p></div></div></body>
 </html>`
   },
@@ -38,7 +38,7 @@ const EMAIL_TEMPLATES = [
     subject: 'Special Offer Inside! 🎉',
     html: `<!DOCTYPE html>
 <html>
-<head><style>body{font-family:Arial,sans-serif;line-height:1.6;color:#333}.container{max-width:600px;margin:0 auto;padding:20px}.header{background:linear-gradient(135deg,#E07A5F,#7A9D7A);color:white;padding:40px;text-align:center;border-radius:10px 10px 0 0}.content{background:#f9f9f9;padding:30px;border-radius:0 0 10px 10px}.button{display:inline-block;background:#E07A5F;color:white;padding:15px 40px;text-decoration:none;border-radius:5px;margin:20px 0;font-size:18px}</style></head>
+<head><style>body{font-family:Arial,sans-serif;line-height:1.6;color:#333}.container{max-width:600px;margin:0 auto;padding:20px}.header{background:linear-gradient(135deg,#E5A23C,#174D35);color:white;padding:40px;text-align:center;border-radius:10px 10px 0 0}.content{background:#f9f9f9;padding:30px;border-radius:0 0 10px 10px}.button{display:inline-block;background:#E5A23C;color:white;padding:15px 40px;text-decoration:none;border-radius:5px;margin:20px 0;font-size:18px}</style></head>
 <body><div class="container"><div class="header"><h1>🎉 Special Offer!</h1><p style="font-size:24px;margin:0">Limited Time Only</p></div><div class="content"><p>Dear {{name}},</p><p>We have an exclusive offer just for you!</p><p><strong>Your custom promotion message here...</strong></p><a href="{{site_url}}" class="button">Shop Now</a><p>Hurry, this offer won't last forever!<br>The Easy Poultry Team</p></div></div></body>
 </html>`
   }
@@ -289,31 +289,31 @@ export default function EmailCampaignManager() {
       {/* Stats */}
       <div className="grid grid-cols-4 gap-4">
         <Card className="p-4 border-0 shadow">
-          <Mail className="w-6 h-6 text-[#7A9D7A] mb-2" />
+          <Mail className="w-6 h-6 text-moss-600 mb-2" />
           <p className="text-2xl font-bold">{campaigns.length}</p>
-          <p className="text-sm text-gray-600">Total Campaigns</p>
+          <p className="text-sm text-ink/65">Total Campaigns</p>
         </Card>
         <Card className="p-4 border-0 shadow">
-          <Send className="w-6 h-6 text-blue-500 mb-2" />
+          <Send className="w-6 h-6 text-moss-600 mb-2" />
           <p className="text-2xl font-bold">{campaigns.filter(c => c.status === 'sent').length}</p>
-          <p className="text-sm text-gray-600">Sent</p>
+          <p className="text-sm text-ink/65">Sent</p>
         </Card>
         <Card className="p-4 border-0 shadow">
-          <Users className="w-6 h-6 text-[#E07A5F] mb-2" />
+          <Users className="w-6 h-6 text-terracotta-600 mb-2" />
           <p className="text-2xl font-bold">{users.length}</p>
-          <p className="text-sm text-gray-600">Total Users</p>
+          <p className="text-sm text-ink/65">Total Users</p>
         </Card>
         <Card className="p-4 border-0 shadow">
-          <CheckCircle2 className="w-6 h-6 text-green-500 mb-2" />
+          <CheckCircle2 className="w-6 h-6 text-fresh-600 mb-2" />
           <p className="text-2xl font-bold">{campaigns.reduce((sum, c) => sum + (c.sent_count || 0), 0)}</p>
-          <p className="text-sm text-gray-600">Emails Delivered</p>
+          <p className="text-sm text-ink/65">Emails Delivered</p>
         </Card>
       </div>
 
       {/* Actions */}
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-semibold">Email Campaigns</h3>
-        <Button onClick={() => setShowComposer(true)} className="bg-[#7A9D7A] hover:bg-[#6A8D6A]">
+        <Button onClick={() => setShowComposer(true)} className="btn-cta">
           <Plus className="w-4 h-4 mr-2" />
           New Campaign
         </Button>
@@ -323,9 +323,9 @@ export default function EmailCampaignManager() {
       <Card className="border-0 shadow overflow-hidden">
         {campaigns.length === 0 ? (
           <div className="p-12 text-center">
-            <Mail className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <Mail className="w-16 h-16 text-ink/25 mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">No campaigns yet</h3>
-            <p className="text-gray-600">Create your first email campaign</p>
+            <p className="text-ink/65">Create your first email campaign</p>
           </div>
         ) : (
           <>
@@ -335,15 +335,15 @@ export default function EmailCampaignManager() {
                 <div key={campaign.id} className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
-                      <p className="font-medium text-gray-900">{campaign.name}</p>
-                      <p className="text-sm text-gray-500">{campaign.subject}</p>
+                      <p className="font-medium text-ink">{campaign.name}</p>
+                      <p className="text-sm text-ink/55">{campaign.subject}</p>
                       <div className="flex gap-2 mt-2">
                         <Badge variant="outline" className="capitalize text-xs">{campaign.recipient_type}</Badge>
                         <Badge className={`text-xs ${
-                          campaign.status === 'sent' ? 'bg-green-500' :
-                          campaign.status === 'draft' ? 'bg-gray-500' :
-                          campaign.status === 'scheduled' ? 'bg-blue-500' :
-                          campaign.status === 'active' ? 'bg-yellow-500' : 'bg-red-500'
+                          campaign.status === 'sent' ? 'bg-fresh-500' :
+                          campaign.status === 'draft' ? 'bg-cream0' :
+                          campaign.status === 'scheduled' ? 'bg-moss-500' :
+                          campaign.status === 'active' ? 'bg-yolk-500' : 'bg-terracotta-500'
                         }`}>
                           {campaign.status}
                         </Badge>
@@ -363,7 +363,7 @@ export default function EmailCampaignManager() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className={campaign.trigger_active ? 'text-yellow-600' : 'text-green-600'}
+                        className={campaign.trigger_active ? 'text-yolk-600' : 'text-moss-700'}
                         onClick={() => toggleTriggerMutation.mutate(campaign)}
                         disabled={toggleTriggerMutation.isPending}
                       >
@@ -373,7 +373,7 @@ export default function EmailCampaignManager() {
                     ) : (
                       <Button
                         size="sm"
-                        className="bg-green-600 hover:bg-green-700 text-white"
+                        className="bg-moss-600 hover:bg-moss-700 text-white"
                         onClick={() => sendCampaignMutation.mutate(campaign)}
                         disabled={sendCampaignMutation.isPending}
                       >
@@ -385,7 +385,7 @@ export default function EmailCampaignManager() {
                       <Copy className="w-4 h-4 mr-1" />
                       Copy
                     </Button>
-                    <Button variant="outline" size="sm" className="text-red-600" onClick={() => deleteCampaignMutation.mutate(campaign.id)}>
+                    <Button variant="outline" size="sm" className="text-terracotta-600" onClick={() => deleteCampaignMutation.mutate(campaign.id)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -395,31 +395,31 @@ export default function EmailCampaignManager() {
 
             {/* Desktop View */}
             <table className="w-full hidden md:table">
-              <thead className="bg-gray-50 border-b">
+              <thead className="bg-cream border-b">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Campaign</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Recipients</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Stats</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Campaign</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Recipients</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Status</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Stats</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
                 {campaigns.map((campaign) => (
-                  <tr key={campaign.id} className="hover:bg-gray-50">
+                  <tr key={campaign.id} className="hover:bg-cream">
                     <td className="px-6 py-4">
-                      <p className="font-medium text-gray-900">{campaign.name}</p>
-                      <p className="text-sm text-gray-500">{campaign.subject}</p>
+                      <p className="font-medium text-ink">{campaign.name}</p>
+                      <p className="text-sm text-ink/55">{campaign.subject}</p>
                       {campaign.send_type === 'triggered' && (
                         <div className="flex items-center gap-1 mt-1">
-                          <Zap className="w-3 h-3 text-yellow-500" />
-                          <span className="text-xs text-gray-500 capitalize">{campaign.trigger_type?.replace('_', ' ')}</span>
+                          <Zap className="w-3 h-3 text-yolk-500" />
+                          <span className="text-xs text-ink/55 capitalize">{campaign.trigger_type?.replace('_', ' ')}</span>
                         </div>
                       )}
                       {campaign.send_type === 'scheduled' && campaign.scheduled_date && (
                         <div className="flex items-center gap-1 mt-1">
-                          <Calendar className="w-3 h-3 text-blue-500" />
-                          <span className="text-xs text-gray-500">{moment(campaign.scheduled_date).format('MMM D, h:mm A')}</span>
+                          <Calendar className="w-3 h-3 text-moss-600" />
+                          <span className="text-xs text-ink/55">{moment(campaign.scheduled_date).format('MMM D, h:mm A')}</span>
                         </div>
                       )}
                     </td>
@@ -428,15 +428,15 @@ export default function EmailCampaignManager() {
                     </td>
                     <td className="px-6 py-4">
                       <Badge className={
-                        campaign.status === 'sent' ? 'bg-green-500' :
-                        campaign.status === 'draft' ? 'bg-gray-500' :
-                        campaign.status === 'scheduled' ? 'bg-blue-500' :
-                        campaign.status === 'active' ? 'bg-yellow-500' : 'bg-red-500'
+                        campaign.status === 'sent' ? 'bg-fresh-500' :
+                        campaign.status === 'draft' ? 'bg-cream0' :
+                        campaign.status === 'scheduled' ? 'bg-moss-500' :
+                        campaign.status === 'active' ? 'bg-yolk-500' : 'bg-terracotta-500'
                       }>
                         {campaign.status}
                       </Badge>
                     </td>
-                    <td className="px-6 py-4 text-sm text-gray-600">
+                    <td className="px-6 py-4 text-sm text-ink/65">
                       {campaign.status === 'sent' ? (
                         <span>{campaign.sent_count || 0} / {campaign.total_recipients || 0} sent</span>
                       ) : (
@@ -455,7 +455,7 @@ export default function EmailCampaignManager() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className={campaign.trigger_active ? 'text-yellow-600' : 'text-green-600'}
+                            className={campaign.trigger_active ? 'text-yolk-600' : 'text-moss-700'}
                             onClick={() => toggleTriggerMutation.mutate(campaign)}
                             disabled={toggleTriggerMutation.isPending}
                             title={campaign.trigger_active ? 'Deactivate trigger' : 'Activate trigger'}
@@ -467,7 +467,7 @@ export default function EmailCampaignManager() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="text-green-600"
+                            className="text-moss-700"
                             onClick={() => sendCampaignMutation.mutate(campaign)}
                             disabled={sendCampaignMutation.isPending}
                             title={campaign.status === 'sent' ? 'Resend campaign' : 'Send campaign'}
@@ -478,7 +478,7 @@ export default function EmailCampaignManager() {
                         <Button variant="ghost" size="sm" onClick={() => handleDuplicate(campaign)}>
                           <Copy className="w-4 h-4" />
                         </Button>
-                        <Button variant="ghost" size="sm" className="text-red-600" onClick={() => deleteCampaignMutation.mutate(campaign.id)}>
+                        <Button variant="ghost" size="sm" className="text-terracotta-600" onClick={() => deleteCampaignMutation.mutate(campaign.id)}>
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -532,7 +532,7 @@ export default function EmailCampaignManager() {
                   rows={12}
                   className="font-mono text-sm"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-ink/55 mt-1">
                   Use {'{{name}}'}, {'{{email}}'}, {'{{site_url}}'} for personalization
                 </p>
               </div>
@@ -558,16 +558,16 @@ export default function EmailCampaignManager() {
             </TabsContent>
 
             <TabsContent value="templates" className="space-y-4">
-              <p className="text-sm text-gray-600">Select a template to start with:</p>
+              <p className="text-sm text-ink/65">Select a template to start with:</p>
               <div className="grid gap-4">
                 {EMAIL_TEMPLATES.map((template, idx) => (
                   <Card
                     key={idx}
-                    className="p-4 cursor-pointer hover:border-[#7A9D7A] transition-colors"
+                    className="p-4 cursor-pointer hover:border-moss-600 transition-colors"
                     onClick={() => handleTemplateSelect(template)}
                   >
                     <h4 className="font-semibold">{template.name}</h4>
-                    <p className="text-sm text-gray-600">{template.subject}</p>
+                    <p className="text-sm text-ink/65">{template.subject}</p>
                   </Card>
                 ))}
               </div>
@@ -597,7 +597,7 @@ export default function EmailCampaignManager() {
                     onChange={(e) => setFormData({ ...formData, scheduled_date: new Date(e.target.value).toISOString() })}
                     min={new Date().toISOString().slice(0, 16)}
                   />
-                  <p className="text-xs text-gray-500 mt-1">Campaign will be sent automatically at this time</p>
+                  <p className="text-xs text-ink/55 mt-1">Campaign will be sent automatically at this time</p>
                 </div>
               )}
 
@@ -617,8 +617,8 @@ export default function EmailCampaignManager() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="p-4 bg-blue-50 rounded-lg">
-                    <p className="text-sm text-blue-800">
+                  <div className="p-4 bg-moss-50 rounded-lg">
+                    <p className="text-sm text-moss-800">
                       <Zap className="w-4 h-4 inline mr-1" />
                       {formData.trigger_type === 'new_user' && 'Email will be sent to each new user when they register'}
                       {formData.trigger_type === 'new_listing' && 'Email will be sent to all subscribers when a new listing is posted'}
@@ -660,9 +660,9 @@ export default function EmailCampaignManager() {
 
               {formData.recipient_type === 'custom' && (
                 <div className="border rounded-lg p-4 max-h-64 overflow-y-auto">
-                  <p className="text-sm text-gray-600 mb-2">Select recipients:</p>
+                  <p className="text-sm text-ink/65 mb-2">Select recipients:</p>
                   {users.map((user) => (
-                    <label key={user.id} className="flex items-center gap-2 py-1 hover:bg-gray-50 px-2 rounded cursor-pointer">
+                    <label key={user.id} className="flex items-center gap-2 py-1 hover:bg-cream px-2 rounded cursor-pointer">
                       <input
                         type="checkbox"
                         checked={selectedUsers.includes(user.email)}
@@ -676,7 +676,7 @@ export default function EmailCampaignManager() {
                         className="w-4 h-4"
                       />
                       <span className="text-sm">{user.full_name || user.email}</span>
-                      <span className="text-xs text-gray-500">({user.email})</span>
+                      <span className="text-xs text-ink/55">({user.email})</span>
                     </label>
                   ))}
                 </div>
@@ -686,7 +686,7 @@ export default function EmailCampaignManager() {
 
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" onClick={resetForm}>Cancel</Button>
-            <Button onClick={handleSave} className="bg-[#7A9D7A] hover:bg-[#6A8D6A]">
+            <Button onClick={handleSave} className="btn-cta">
               {editingCampaign ? 'Update Campaign' : 'Save as Draft'}
             </Button>
           </div>
@@ -700,7 +700,7 @@ export default function EmailCampaignManager() {
             <DialogTitle>Email Preview</DialogTitle>
           </DialogHeader>
           <div className="border rounded-lg overflow-hidden">
-            <div className="bg-gray-100 p-3 border-b">
+            <div className="bg-cream-deep p-3 border-b">
               <p className="text-sm"><strong>Subject:</strong> {formData.subject}</p>
             </div>
             <iframe

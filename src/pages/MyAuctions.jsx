@@ -63,20 +63,20 @@ export default function MyAuctions() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
 
   const getStatusBadge = (status) => {
     const styles = {
-      draft: 'bg-gray-100 text-gray-700',
-      pending_payment: 'bg-yellow-100 text-yellow-700',
-      awaiting_verification: 'bg-blue-100 text-blue-700',
-      active: 'bg-green-100 text-green-700',
-      ended: 'bg-gray-100 text-gray-700',
-      cancelled: 'bg-red-100 text-red-700',
-      rejected: 'bg-red-100 text-red-700'
+      draft: 'bg-cream-deep text-ink/70',
+      pending_payment: 'bg-yolk-50 text-yolk-700',
+      awaiting_verification: 'bg-moss-100 text-moss-800',
+      active: 'bg-fresh-50 text-moss-700',
+      ended: 'bg-cream-deep text-ink/70',
+      cancelled: 'bg-terracotta-50 text-terracotta-600',
+      rejected: 'bg-terracotta-50 text-terracotta-600'
     };
     const labels = {
       draft: 'Draft',
@@ -99,7 +99,7 @@ export default function MyAuctions() {
     const hasEnded = moment().isAfter(auction.end_time);
 
     return (
-      <Card key={auction.id} className="p-6 border-0 shadow-lg">
+      <Card key={auction.id} className="p-6 card-premium">
         <div className="flex gap-6">
           <img
             src={auction.images?.[0] || 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=200'}
@@ -109,13 +109,13 @@ export default function MyAuctions() {
           <div className="flex-1">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <h3 className="text-xl font-semibold text-gray-900">{auction.title}</h3>
-                {auction.breed && <p className="text-gray-600">{auction.breed}</p>}
+                <h3 className="font-display text-xl font-semibold text-ink">{auction.title}</h3>
+                {auction.breed && <p className="text-ink/65">{auction.breed}</p>}
               </div>
               {getStatusBadge(auction.status)}
             </div>
             
-            <div className="flex items-center gap-6 text-sm text-gray-600 mb-4">
+            <div className="flex items-center gap-6 text-sm text-ink/65 mb-4">
               <span className="flex items-center gap-1">
                 <Eye className="w-4 h-4" />
                 {auction.view_count || 0} views
@@ -124,32 +124,32 @@ export default function MyAuctions() {
                 <Users className="w-4 h-4" />
                 {auction.bid_count || 0} bids
               </span>
-              <span className="font-semibold text-[#E07A5F]">
+              <span className="font-semibold text-terracotta-600">
                 R{(auction.current_bid || auction.starting_bid).toLocaleString()}
               </span>
             </div>
 
             {auction.status === 'active' && !hasEnded && (
-              <p className="text-sm text-gray-500 mb-4">
+              <p className="text-sm text-ink/55 mb-4">
                 Ends: {moment(auction.end_time).format('MMM D, h:mm A')} ({moment(auction.end_time).fromNow()})
               </p>
             )}
 
             {auction.status === 'ended' && auction.winner_email && (
-              <div className="bg-green-50 rounded-lg p-3 mb-4">
-                <p className="text-sm text-gray-600">Winner: <span className="font-semibold">{auction.winner_name}</span></p>
-                <p className="text-sm text-gray-600">Final Price: <span className="font-bold text-green-600">R{auction.final_price?.toLocaleString()}</span></p>
+              <div className="bg-fresh-50 rounded-lg p-3 mb-4">
+                <p className="text-sm text-ink/65">Winner: <span className="font-semibold">{auction.winner_name}</span></p>
+                <p className="text-sm text-ink/65">Final Price: <span className="font-bold text-moss-700">R{auction.final_price?.toLocaleString()}</span></p>
                 {!auction.item_collected && (
                   <div className="flex items-center gap-2 mt-2">
                     <ChatButton sellerEmail={auction.winner_email} variant="outline" className="text-sm h-8" />
-                    <Button size="sm" onClick={() => markCollectedMutation.mutate(auction.id)} className="bg-green-600 hover:bg-green-700 h-8">
+                    <Button size="sm" onClick={() => markCollectedMutation.mutate(auction.id)} className="bg-moss-600 hover:bg-moss-700 h-8">
                       <CheckCircle2 className="w-4 h-4 mr-1" />
                       Mark Collected
                     </Button>
                   </div>
                 )}
                 {auction.item_collected && (
-                  <Badge className="bg-green-100 text-green-700 mt-2">
+                  <Badge className="bg-fresh-50 text-moss-700 mt-2">
                     <CheckCircle2 className="w-3 h-3 mr-1" />
                     Collected
                   </Badge>
@@ -164,7 +164,7 @@ export default function MyAuctions() {
                 </Link>
                 {auction.status === 'pending_payment' && (
                   <Link to={createPageUrl('AuctionPayment') + `?auctionId=${auction.id}`}>
-                    <Button size="sm" className="bg-[#E07A5F] hover:bg-[#D06A4F]">
+                    <Button size="sm" className="bg-terracotta-500 hover:bg-terracotta-600 text-white">
                       Complete Payment
                     </Button>
                   </Link>
@@ -174,7 +174,7 @@ export default function MyAuctions() {
                     variant="outline"
                     size="sm"
                     onClick={() => cancelAuctionMutation.mutate(auction.id)}
-                    className="text-red-600 hover:text-red-700"
+                    className="text-terracotta-600 hover:text-terracotta-700"
                   >
                     <XCircle className="w-4 h-4 mr-1" />
                     Cancel
@@ -189,16 +189,16 @@ export default function MyAuctions() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-[#E07A5F] to-[#D06A4F] text-white py-12">
+    <div className="min-h-[80vh] bg-cream">
+      <div className="bg-terracotta-gradient text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2">My Auctions</h1>
+              <h1 className="font-display text-3xl font-bold mb-2">My Auctions</h1>
               <p className="text-white/90">Manage your auction houses</p>
             </div>
             <Link to={createPageUrl('CreateAuction')}>
-              <Button className="bg-white text-[#E07A5F] hover:bg-gray-100">
+              <Button className="bg-white text-terracotta-600 hover:bg-cream-deep">
                 <Plus className="w-4 h-4 mr-2" />
                 Create Auction
               </Button>
@@ -218,15 +218,15 @@ export default function MyAuctions() {
           <TabsContent value="active">
             {isLoading ? (
               <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 animate-spin text-[#E07A5F]" />
+                <Loader2 className="w-8 h-8 animate-spin text-terracotta-600" />
               </div>
             ) : activeAuctions.length === 0 ? (
-              <Card className="p-12 text-center border-0 shadow-lg">
-                <Gavel className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No active auctions</h3>
-                <p className="text-gray-600 mb-6">Create your first auction to get started</p>
+              <Card className="p-12 text-center card-premium">
+                <Gavel className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                <h3 className="font-display text-xl font-semibold text-ink mb-2">No active auctions</h3>
+                <p className="text-ink/65 mb-6">Create your first auction to get started</p>
                 <Link to={createPageUrl('CreateAuction')}>
-                  <Button className="bg-[#E07A5F] hover:bg-[#D06A4F]">Create Auction</Button>
+                  <Button className="bg-terracotta-500 hover:bg-terracotta-600 text-white">Create Auction</Button>
                 </Link>
               </Card>
             ) : (
@@ -240,9 +240,9 @@ export default function MyAuctions() {
 
           <TabsContent value="pending">
             {pendingAuctions.length === 0 ? (
-              <Card className="p-12 text-center border-0 shadow-lg">
-                <Clock className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No pending auctions</h3>
+              <Card className="p-12 text-center card-premium">
+                <Clock className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                <h3 className="font-display text-xl font-semibold text-ink mb-2">No pending auctions</h3>
               </Card>
             ) : (
               <div className="space-y-4">
@@ -255,9 +255,9 @@ export default function MyAuctions() {
 
           <TabsContent value="ended">
             {endedAuctions.length === 0 ? (
-              <Card className="p-12 text-center border-0 shadow-lg">
-                <CheckCircle2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No ended auctions</h3>
+              <Card className="p-12 text-center card-premium">
+                <CheckCircle2 className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                <h3 className="font-display text-xl font-semibold text-ink mb-2">No ended auctions</h3>
               </Card>
             ) : (
               <div className="space-y-4">

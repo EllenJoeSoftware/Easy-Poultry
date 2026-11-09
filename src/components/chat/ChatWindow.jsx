@@ -93,26 +93,26 @@ export default function ChatWindow({ chat, currentUser, onClose }) {
   };
 
   return (
-    <Card className="flex flex-col h-[500px] border-0 shadow-xl">
+    <Card className="flex flex-col h-full min-h-[520px] border-0 shadow-none bg-transparent">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b bg-[#7A9D7A] text-white rounded-t-lg">
+      <div className="flex items-center justify-between p-4 border-b border-border bg-white">
         <div>
-          <p className="font-semibold">{otherParticipant.split('@')[0]}</p>
-          <p className="text-xs text-white/80">{otherParticipant}</p>
+          <p className="font-display font-semibold text-ink">{otherParticipant.split('@')[0]}</p>
+          <p className="text-xs text-ink/50">{otherParticipant}</p>
         </div>
-        <Button variant="ghost" size="icon" onClick={onClose} className="text-white hover:bg-white/20">
+        <Button variant="ghost" size="icon" onClick={onClose} className="text-ink/50 hover:bg-cream-deep rounded-full">
           <X className="w-5 h-5" />
         </Button>
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-cream">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
-            <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+            <Loader2 className="w-6 h-6 animate-spin text-moss-500" />
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex items-center justify-center h-full text-gray-400">
+          <div className="flex items-center justify-center h-full text-ink/45 text-sm">
             No messages yet. Start the conversation!
           </div>
         ) : (
@@ -122,11 +122,11 @@ export default function ChatWindow({ chat, currentUser, onClose }) {
               <div key={msg.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
                 <div className={`max-w-[70%] rounded-2xl px-4 py-2 ${
                   isOwn 
-                    ? 'bg-[#7A9D7A] text-white rounded-br-md' 
-                    : 'bg-white border rounded-bl-md'
+                    ? 'bg-moss-700 text-cream rounded-br-md shadow-soft' 
+                    : 'bg-white border border-border rounded-bl-md shadow-soft'
                 }`}>
                   <p className="text-sm">{msg.message}</p>
-                  <p className={`text-[10px] mt-1 ${isOwn ? 'text-white/70' : 'text-gray-400'}`}>
+                  <p className={`text-[10px] mt-1 ${isOwn ? 'text-cream/60' : 'text-ink/40'}`}>
                     {moment(msg.created_date).format('h:mm A')}
                   </p>
                 </div>
@@ -138,19 +138,19 @@ export default function ChatWindow({ chat, currentUser, onClose }) {
       </div>
 
       {/* Input */}
-      <form onSubmit={handleSend} className="p-4 border-t bg-white rounded-b-lg">
+      <form onSubmit={handleSend} className="p-3 border-t border-border bg-white">
         <div className="flex gap-2">
           <Input
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type a message..."
-            className="flex-1"
+            className="flex-1 rounded-full bg-cream border-border focus-visible:ring-moss-300"
             disabled={sendMessageMutation.isPending}
           />
           <Button 
             type="submit" 
             disabled={!message.trim() || sendMessageMutation.isPending}
-            className="bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+            className="btn-cta !rounded-full w-10 h-10 !p-0"
           >
             <Send className="w-4 h-4" />
           </Button>

@@ -93,7 +93,7 @@ export default function CompetitionDetail() {
   if (isLoading || !competition) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
@@ -113,14 +113,14 @@ export default function CompetitionDetail() {
 
     if (entry.disqualified) {
       return (
-        <Card className="overflow-hidden border-0 shadow-lg relative">
+        <Card className="overflow-hidden card-premium relative">
           <div className="absolute inset-0 bg-black/60 z-10 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg p-4 text-center max-w-xs">
               <Badge variant="destructive" className="mb-2">Disqualified</Badge>
-              <p className="text-sm text-gray-600">{entry.disqualification_reason || 'This entry has been disqualified'}</p>
+              <p className="text-sm text-ink/65">{entry.disqualification_reason || 'This entry has been disqualified'}</p>
             </div>
           </div>
-          <div className="aspect-square overflow-hidden bg-gray-100 opacity-50">
+          <div className="aspect-square overflow-hidden bg-cream-deep opacity-50">
             <img
               src={entry.images?.[0] || 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400'}
               alt={entry.chicken_name}
@@ -128,16 +128,16 @@ export default function CompetitionDetail() {
             />
           </div>
           <div className="p-4 opacity-50">
-            <h3 className="font-bold text-lg text-gray-900 mb-1">{entry.chicken_name}</h3>
-            <p className="text-sm text-gray-600">{entry.breed}</p>
+            <h3 className="font-bold text-lg text-ink mb-1">{entry.chicken_name}</h3>
+            <p className="text-sm text-ink/65">{entry.breed}</p>
           </div>
         </Card>
       );
     }
 
     return (
-      <Card className="overflow-hidden border-0 shadow-lg">
-        <div className="aspect-square overflow-hidden bg-gray-100">
+      <Card className="overflow-hidden card-premium">
+        <div className="aspect-square overflow-hidden bg-cream-deep">
           <img
             src={entry.images?.[0] || 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400'}
             alt={entry.chicken_name}
@@ -145,20 +145,20 @@ export default function CompetitionDetail() {
           />
         </div>
         <div className="p-4">
-          <h3 className="font-bold text-lg text-gray-900 mb-1">{entry.chicken_name}</h3>
-          <p className="text-sm text-gray-600 mb-2">{entry.breed}</p>
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">{entry.description}</p>
+          <h3 className="font-bold text-lg text-ink mb-1">{entry.chicken_name}</h3>
+          <p className="text-sm text-ink/65 mb-2">{entry.breed}</p>
+          <p className="text-sm text-ink/65 mb-3 line-clamp-2">{entry.description}</p>
           
           <div className="flex items-center gap-2 mb-3">
             <div className="flex items-center gap-1">
-              <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
-              <span className="font-bold text-gray-900">{entry.average_rating?.toFixed(1) || '0.0'}</span>
+              <Star className="w-5 h-5 text-yolk-500 fill-yolk-500" />
+              <span className="font-bold text-ink">{entry.average_rating?.toFixed(1) || '0.0'}</span>
             </div>
-            <span className="text-sm text-gray-600">({entry.vote_count || 0} votes)</span>
+            <span className="text-sm text-ink/65">({entry.vote_count || 0} votes)</span>
           </div>
 
-          <p className="text-xs text-gray-500 mb-3">
-            by <Link to={createPageUrl('SellerListings') + `?email=${entry.owner_email}`} className="text-[#7A9D7A] hover:underline font-medium">{entry.owner_name}</Link>
+          <p className="text-xs text-ink/55 mb-3">
+            by <Link to={createPageUrl('SellerListings') + `?email=${entry.owner_email}`} className="text-moss-600 hover:underline font-medium">{entry.owner_name}</Link>
           </p>
 
           {isActive && user && !userRating && entry.created_by !== user.email && entry.owner_email !== user.email && !entry.disqualified && (
@@ -170,8 +170,8 @@ export default function CompetitionDetail() {
                     onClick={() => setSelectedRating(i + 1)}
                     className={`flex-1 py-2 text-sm font-medium rounded transition-colors ${
                       selectedRating >= i + 1
-                        ? 'bg-[#7A9D7A] text-white'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        ? 'bg-moss-600 text-white'
+                        : 'bg-cream-deep text-ink/65 hover:bg-cream-deep'
                     }`}
                   >
                     {i + 1}
@@ -181,7 +181,7 @@ export default function CompetitionDetail() {
               <Button
                 onClick={() => rateEntryMutation.mutate({ entryId: entry.id, rating: selectedRating })}
                 disabled={selectedRating === 0 || rateEntryMutation.isPending}
-                className="w-full bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                className="w-full btn-cta"
                 size="sm"
               >
                 Submit Rating
@@ -190,7 +190,7 @@ export default function CompetitionDetail() {
           )}
 
           {userRating && (
-            <Badge className="bg-green-500 w-full justify-center">
+            <Badge className="bg-fresh-500 w-full justify-center">
               You rated: {userRating.rating}/{competition.max_rating}
             </Badge>
           )}
@@ -223,8 +223,8 @@ export default function CompetitionDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-[#7A9D7A] to-[#6A8D6A] text-white py-12">
+    <div className="min-h-[80vh] bg-cream">
+      <div className="bg-moss-gradient text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link to={createPageUrl('Competitions')} className="inline-flex items-center text-white/90 hover:text-white mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -248,7 +248,7 @@ export default function CompetitionDetail() {
                 </div>
               </div>
             </div>
-            <Badge className={`${isActive ? 'bg-yellow-500' : isPast ? 'bg-gray-500' : 'bg-blue-500'} text-white text-lg px-4 py-2`}>
+            <Badge className={`${isActive ? 'bg-yolk-500' : isPast ? 'bg-cream0' : 'bg-moss-500'} text-white text-lg px-4 py-2`}>
               {isActive ? 'Active' : isPast ? 'Ended' : 'Upcoming'}
             </Badge>
           </div>
@@ -257,14 +257,14 @@ export default function CompetitionDetail() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {isActive && user && !hasEntered && (
-          <Card className="p-6 mb-8 border-2 border-[#7A9D7A] bg-gradient-to-r from-[#7A9D7A]/5 to-[#6A8D6A]/5">
+          <Card className="p-6 mb-8 border border-moss-200 bg-moss-50/60">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">Enter This Competition!</h3>
-                <p className="text-gray-600">Showcase your best chicken and compete for the top spot.</p>
+                <h3 className="text-xl font-bold text-ink mb-2">Enter This Competition!</h3>
+                <p className="text-ink/65">Showcase your best chicken and compete for the top spot.</p>
               </div>
               <Link to={createPageUrl('SubmitEntry') + `?competition=${competitionId}`}>
-                <Button className="bg-[#7A9D7A] hover:bg-[#6A8D6A]">
+                <Button className="btn-cta">
                   <Plus className="w-5 h-5 mr-2" />
                   Submit Entry
                 </Button>
@@ -274,24 +274,24 @@ export default function CompetitionDetail() {
         )}
 
         {hasEntered && isActive && (
-          <Card className="p-6 mb-8 bg-green-50 border-green-200">
+          <Card className="p-6 mb-8 bg-fresh-50 border-fresh-200">
             <div className="flex items-center gap-3">
-              <Trophy className="w-6 h-6 text-green-600" />
+              <Trophy className="w-6 h-6 text-moss-700" />
               <div>
                 <h3 className="font-bold text-green-900">You've entered this competition!</h3>
-                <p className="text-sm text-green-700">Good luck! Voting is now open.</p>
+                <p className="text-sm text-moss-700">Good luck! Voting is now open.</p>
               </div>
             </div>
           </Card>
         )}
 
         {isUpcoming && (
-          <Card className="p-6 mb-8 bg-blue-50 border-blue-200">
+          <Card className="p-6 mb-8 bg-moss-50 border-moss-200">
             <div className="flex items-center gap-3">
-              <Calendar className="w-6 h-6 text-blue-600" />
+              <Calendar className="w-6 h-6 text-moss-700" />
               <div>
                 <h3 className="font-bold text-blue-900">This competition hasn't started yet</h3>
-                <p className="text-sm text-blue-700">Come back on {moment(competition.start_date).format('MMMM D, YYYY')} to participate!</p>
+                <p className="text-sm text-moss-700">Come back on {moment(competition.start_date).format('MMMM D, YYYY')} to participate!</p>
               </div>
             </div>
           </Card>
@@ -299,13 +299,13 @@ export default function CompetitionDetail() {
 
         {entries.length === 0 ? (
           <Card className="p-12 text-center">
-            <Trophy className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No Entries Yet</h3>
-            <p className="text-gray-600">Be the first to enter this competition!</p>
+            <Trophy className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+            <h3 className="font-display text-xl font-semibold text-ink mb-2">No Entries Yet</h3>
+            <p className="text-ink/65">Be the first to enter this competition!</p>
           </Card>
         ) : (
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Entries ({entries.length})</h2>
+            <h2 className="font-display text-2xl font-bold text-ink mb-6">Entries ({entries.length})</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {entries.map(entry => <EntryCard key={entry.id} entry={entry} />)}
             </div>

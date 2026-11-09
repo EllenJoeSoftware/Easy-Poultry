@@ -23,7 +23,7 @@ function StarRating({ rating, size = 'sm', interactive = false, onRate }) {
           className={interactive ? 'cursor-pointer hover:scale-110 transition-transform' : ''}
         >
           <Star
-            className={`${sizes[size]} ${star <= rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'}`}
+            className={`${sizes[size]} ${star <= rating ? 'text-yolk-400 fill-yolk-400' : 'text-ink/25'}`}
           />
         </button>
       ))}
@@ -46,7 +46,7 @@ export function ReviewSummary({ sellerEmail }) {
     <div className="flex items-center gap-2">
       <StarRating rating={Math.round(avgRating)} size="sm" />
       <span className="text-sm font-medium">{avgRating.toFixed(1)}</span>
-      <span className="text-sm text-gray-500">({reviews.length} reviews)</span>
+      <span className="text-sm text-ink/55">({reviews.length} reviews)</span>
     </div>
   );
 }
@@ -98,11 +98,11 @@ export function ReviewForm({ sellerEmail, listingId, onSuccess }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Your Rating</label>
+        <label className="block text-sm font-medium text-ink/75 mb-2">Your Rating</label>
         <StarRating rating={rating} size="lg" interactive onRate={setRating} />
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Your Review (optional)</label>
+        <label className="block text-sm font-medium text-ink/75 mb-2">Your Review (optional)</label>
         <Textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
@@ -113,7 +113,7 @@ export function ReviewForm({ sellerEmail, listingId, onSuccess }) {
       <Button
         type="submit"
         disabled={rating === 0 || createReviewMutation.isPending}
-        className="bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+        className="btn-cta"
       >
         {createReviewMutation.isPending ? 'Submitting...' : 'Submit Review'}
       </Button>
@@ -145,12 +145,12 @@ export function ReviewList({ sellerEmail, isOwner = false }) {
     }
   });
 
-  if (isLoading) return <div className="text-center py-8 text-gray-500">Loading reviews...</div>;
+  if (isLoading) return <div className="text-center py-8 text-ink/55">Loading reviews...</div>;
 
   if (reviews.length === 0) {
     return (
-      <div className="text-center py-12 text-gray-500">
-        <Star className="w-12 h-12 mx-auto mb-3 text-gray-300" />
+      <div className="text-center py-12 text-ink/55">
+        <Star className="w-12 h-12 mx-auto mb-3 text-ink/25" />
         <p>No reviews yet</p>
       </div>
     );
@@ -160,11 +160,11 @@ export function ReviewList({ sellerEmail, isOwner = false }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg">
+      <div className="flex items-center gap-4 p-4 bg-cream rounded-lg">
         <div className="text-center">
-          <p className="text-4xl font-bold text-gray-900">{avgRating.toFixed(1)}</p>
+          <p className="text-4xl font-bold text-ink">{avgRating.toFixed(1)}</p>
           <StarRating rating={Math.round(avgRating)} size="md" />
-          <p className="text-sm text-gray-500 mt-1">{reviews.length} reviews</p>
+          <p className="text-sm text-ink/55 mt-1">{reviews.length} reviews</p>
         </div>
         <div className="flex-1 space-y-1">
           {[5, 4, 3, 2, 1].map((stars) => {
@@ -173,11 +173,11 @@ export function ReviewList({ sellerEmail, isOwner = false }) {
             return (
               <div key={stars} className="flex items-center gap-2 text-sm">
                 <span className="w-3">{stars}</span>
-                <Star className="w-3 h-3 text-yellow-400 fill-yellow-400" />
-                <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                <Star className="w-3 h-3 text-yolk-400 fill-yolk-400" />
+                <div className="flex-1 h-2 bg-cream-deep rounded-full overflow-hidden">
                   <div className="h-full bg-yellow-400" style={{ width: `${percent}%` }} />
                 </div>
-                <span className="w-8 text-gray-500">{count}</span>
+                <span className="w-8 text-ink/55">{count}</span>
               </div>
             );
           })}
@@ -189,23 +189,23 @@ export function ReviewList({ sellerEmail, isOwner = false }) {
           <Card key={review.id} className="p-4 border-0 shadow">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <p className="font-medium text-gray-900">{review.buyer_name || 'Anonymous'}</p>
+                <p className="font-medium text-ink">{review.buyer_name || 'Anonymous'}</p>
                 <div className="flex items-center gap-2 mt-1">
                   <StarRating rating={review.rating} size="sm" />
-                  <span className="text-xs text-gray-500">{moment(review.created_date).fromNow()}</span>
+                  <span className="text-xs text-ink/55">{moment(review.created_date).fromNow()}</span>
                 </div>
               </div>
             </div>
 
             {review.comment && (
-              <p className="text-gray-600 mt-2">{review.comment}</p>
+              <p className="text-ink/65 mt-2">{review.comment}</p>
             )}
 
             {review.seller_response && (
-              <div className="mt-4 p-3 bg-gray-50 rounded-lg border-l-4 border-[#7A9D7A]">
-                <p className="text-xs font-medium text-gray-500 mb-1">Seller Response</p>
-                <p className="text-sm text-gray-700">{review.seller_response}</p>
-                <p className="text-xs text-gray-400 mt-1">{moment(review.seller_response_date).fromNow()}</p>
+              <div className="mt-4 p-3 bg-cream rounded-lg border-l-4 border-moss-600">
+                <p className="text-xs font-medium text-ink/55 mb-1">Seller Response</p>
+                <p className="text-sm text-ink/75">{review.seller_response}</p>
+                <p className="text-xs text-ink/40 mt-1">{moment(review.seller_response_date).fromNow()}</p>
               </div>
             )}
 
@@ -223,7 +223,7 @@ export function ReviewList({ sellerEmail, isOwner = false }) {
                       size="sm"
                       onClick={() => respondMutation.mutate({ id: review.id, response })}
                       disabled={!response.trim() || respondMutation.isPending}
-                      className="bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                      className="btn-cta"
                     >
                       Submit
                     </Button>
@@ -237,7 +237,7 @@ export function ReviewList({ sellerEmail, isOwner = false }) {
                   size="sm"
                   variant="ghost"
                   onClick={() => setRespondingTo(review.id)}
-                  className="mt-2 text-[#7A9D7A]"
+                  className="mt-2 text-moss-600"
                 >
                   <MessageCircle className="w-4 h-4 mr-1" />
                   Respond

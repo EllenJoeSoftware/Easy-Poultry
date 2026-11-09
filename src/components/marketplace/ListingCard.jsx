@@ -303,7 +303,7 @@ export default function ListingCard({
         <div className="mt-auto pt-4 border-t border-border flex items-baseline justify-between gap-2">
           <div className="min-w-0">
             <div className="flex items-baseline gap-1">
-              <span className="font-display text-2xl font-bold text-ink leading-none">
+              <span className="font-display font-display text-2xl font-bold text-ink leading-none">
                 R{formatPrice(listing.price)}
               </span>
               {listing.product_type === 'digital' ? (

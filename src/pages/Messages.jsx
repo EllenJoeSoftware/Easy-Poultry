@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/api/client';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { MessageCircle, Loader2 } from 'lucide-react';
+import { MessageCircle, Loader2, Search, X, ChevronLeft } from 'lucide-react';
 import moment from 'moment';
+import { api } from '@/api/client';
+import PageShell from '@/components/shell/PageShell';
 import ChatWindow from '../components/chat/ChatWindow';
+
+const initials = (email = '') => email.split('@')[0].slice(0, 2).toUpperCase();
+const hue = (s = '') => [...s].reduce((a, c) => a + c.charCodeAt(0), 0) % 5;
+const AVATAR = ['bg-moss-100 text-moss-800', 'bg-fresh-50 text-moss-700', 'bg-yolk-50 text-yolk-700', 'bg-terracotta-50 text-terracotta-600', 'bg-cream-deep text-ink/70'];
 
 export default function Messages() {
   const [user, setUser] = useState(null);
   const [selectedChat, setSelectedChat] = useState(null);
   const [creatingChat, setCreatingChat] = useState(false);
+  const [search, setSearch] = useState('');
   const queryClient = useQueryClient();
 
   const urlParams = new URLSearchParams(window.location.search);
@@ -19,15 +23,7 @@ export default function Messages() {
   const listingTitle = urlParams.get('listingTitle');
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const currentUser = await api.auth.me();
-        setUser(currentUser);
-      } catch (error) {
-        api.auth.redirectToLogin(window.location.href);
-      }
-    };
-    loadUser();
+    api.auth.me().then(setUser).catch(() => api.auth.redirectToLogin(window.location.href));
   }, []);
 
   const { data: chats = [], isLoading } = useQuery({
@@ -37,7 +33,7 @@ export default function Messages() {
       return allChats.filter(c => c.participants?.includes(user.email));
     },
     enabled: !!user,
-    refetchInterval: 5000
+    refetchInterval: 5000,
   });
 
   // Auto-select chat from URL
@@ -52,45 +48,31 @@ export default function Messages() {
   useEffect(() => {
     const startNewChat = async () => {
       if (!startChatWith || !user || creatingChat || selectedChat) return;
-      
-      // Don't message yourself
       if (startChatWith === user.email) return;
-      
       setCreatingChat(true);
-      
       try {
-        // Check if chat already exists
-        const existingChat = chats.find(c => 
-          c.participants?.includes(startChatWith) && c.participants?.includes(user.email)
-        );
-        
+        const existingChat = chats.find(c => c.participants?.includes(startChatWith) && c.participants?.includes(user.email));
         if (existingChat) {
           setSelectedChat(existingChat);
         } else {
-          // Create new chat
           const newChat = await api.entities.Chat.create({
             participants: [user.email, startChatWith],
             last_message: listingTitle ? `Inquiry about: ${listingTitle}` : null,
             last_message_date: new Date().toISOString(),
             last_message_by: user.email,
-            unread_count: { [startChatWith]: 1 }
+            unread_count: { [startChatWith]: 1 },
           });
-          
-          // Send initial message if listing title provided
           if (listingTitle) {
             await api.entities.ChatMessage.create({
               chat_id: newChat.id,
               sender_email: user.email,
               sender_name: user.full_name,
-              message: `Hi! I'd like to discuss: ${listingTitle}`
+              message: `Hi! I'd like to discuss: ${listingTitle}`,
             });
           }
-          
-          queryClient.invalidateQueries(['chats']);
+          queryClient.invalidateQueries({ queryKey: ['chats'] });
           setSelectedChat(newChat);
         }
-        
-        // Clean URL
         window.history.replaceState({}, '', window.location.pathname);
       } catch (error) {
         console.error('Error creating chat:', error);
@@ -98,120 +80,95 @@ export default function Messages() {
         setCreatingChat(false);
       }
     };
-    
-    if (user && chats !== undefined && !isLoading) {
-      startNewChat();
-    }
+    if (user && chats !== undefined && !isLoading) startNewChat();
   }, [startChatWith, user, chats, isLoading, creatingChat, selectedChat, listingTitle, queryClient]);
 
   if (!user || creatingChat) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
-      </div>
-    );
+    return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-moss-600" /></div>;
   }
 
   const totalUnread = chats.reduce((sum, c) => sum + (c.unread_count?.[user.email] || 0), 0);
+  const visible = chats.filter(c => {
+    if (!search) return true;
+    const other = c.participants?.find(p => p !== user.email) || '';
+    return other.toLowerCase().includes(search.toLowerCase()) || c.last_message?.toLowerCase().includes(search.toLowerCase());
+  });
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-bold text-gray-900">Messages</h1>
-            {totalUnread > 0 && (
-              <Badge className="bg-[#E07A5F]">{totalUnread} unread</Badge>
-            )}
+    <PageShell
+      variant="compact"
+      eyebrow="Inbox"
+      title="Messages"
+      subtitle={totalUnread > 0 ? `${totalUnread} unread message${totalUnread === 1 ? '' : 's'} waiting for you.` : 'Chat with buyers and sellers about listings, auctions and orders.'}
+    >
+      <div className="card-premium overflow-hidden grid lg:grid-cols-[340px_1fr] min-h-[600px]">
+        {/* Conversation list */}
+        <aside className={`border-r border-border flex flex-col ${selectedChat ? 'hidden lg:flex' : 'flex'}`}>
+          <div className="p-3 border-b border-border">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/40" />
+              <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search conversations…"
+                className="w-full bg-cream border border-border rounded-xl pl-9 pr-8 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-moss-300" />
+              {search && <button onClick={() => setSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full hover:bg-cream-deep flex items-center justify-center"><X className="w-3.5 h-3.5 text-ink/50" /></button>}
+            </div>
           </div>
-        </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Chat List */}
-          <div className="lg:col-span-1">
-            <Card className="border-0 shadow-lg overflow-hidden">
-              <div className="p-4 border-b bg-gray-50">
-                <h2 className="font-semibold text-gray-900">Conversations</h2>
-              </div>
-              
-              {isLoading ? (
-                <div className="p-8 flex items-center justify-center">
-                  <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
-                </div>
-              ) : chats.length === 0 ? (
-                <div className="p-8 text-center">
-                  <MessageCircle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p className="text-gray-500">No messages yet</p>
-                  <p className="text-sm text-gray-400">Start a conversation from a listing</p>
-                </div>
-              ) : (
-                <div className="divide-y max-h-[600px] overflow-y-auto">
-                  {chats.map((chat) => {
-                    const otherParticipant = chat.participants?.find(p => p !== user.email) || 'User';
-                    const unread = chat.unread_count?.[user.email] || 0;
-                    const isSelected = selectedChat?.id === chat.id;
-
-                    return (
-                      <button
-                        key={chat.id}
-                        onClick={() => setSelectedChat(chat)}
-                        className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${
-                          isSelected ? 'bg-[#7A9D7A]/10 border-l-4 border-[#7A9D7A]' : ''
-                        }`}
-                      >
-                        <div className="flex items-start justify-between gap-3">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className={`font-medium truncate ${unread > 0 ? 'text-gray-900' : 'text-gray-700'}`}>
-                                {otherParticipant.split('@')[0]}
-                              </p>
-                              {unread > 0 && (
-                                <Badge className="bg-[#E07A5F] text-white text-xs px-1.5 py-0">
-                                  {unread}
-                                </Badge>
-                              )}
-                            </div>
-                            {chat.last_message && (
-                              <p className={`text-sm truncate mt-1 ${unread > 0 ? 'text-gray-700 font-medium' : 'text-gray-500'}`}>
-                                {chat.last_message_by === user.email ? 'You: ' : ''}{chat.last_message}
-                              </p>
-                            )}
-                          </div>
-                          {chat.last_message_date && (
-                            <p className="text-xs text-gray-400 flex-shrink-0">
-                              {moment(chat.last_message_date).fromNow()}
-                            </p>
-                          )}
+          {isLoading ? (
+            <div className="divide-y divide-border">{[...Array(5)].map((_, i) => (
+              <div key={i} className="flex gap-3 p-4 animate-pulse"><div className="w-11 h-11 rounded-full bg-cream-deep" /><div className="flex-1 space-y-2"><div className="h-4 bg-cream-deep rounded w-1/2" /><div className="h-3 bg-cream-deep rounded w-3/4" /></div></div>
+            ))}</div>
+          ) : visible.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-moss-50 border border-moss-100 flex items-center justify-center text-moss-700 mb-4"><MessageCircle className="w-6 h-6" /></div>
+              <p className="font-display text-ink">{search ? 'No matches' : 'No messages yet'}</p>
+              <p className="text-sm text-ink/55 mt-1">{search ? 'Try another name or keyword.' : 'Start a conversation from any listing.'}</p>
+            </div>
+          ) : (
+            <ul className="flex-1 overflow-y-auto divide-y divide-border max-h-[70vh]">
+              {visible.map(chat => {
+                const other = chat.participants?.find(p => p !== user.email) || 'User';
+                const unread = chat.unread_count?.[user.email] || 0;
+                const active = selectedChat?.id === chat.id;
+                return (
+                  <li key={chat.id}>
+                    <button onClick={() => setSelectedChat(chat)}
+                      className={`relative w-full flex gap-3 p-4 text-left transition-colors ${active ? 'bg-moss-50/70' : 'hover:bg-cream/70'}`}>
+                      {active && <span className="absolute left-0 top-0 bottom-0 w-1 bg-moss-600" />}
+                      <div className={`w-11 h-11 rounded-full flex-shrink-0 flex items-center justify-center text-sm font-semibold ${AVATAR[hue(other)]}`}>{initials(other)}</div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className={`truncate ${unread ? 'font-semibold text-ink' : 'font-medium text-ink/80'}`}>{other.split('@')[0]}</p>
+                          {chat.last_message_date && <span className="text-[11px] text-ink/45 whitespace-nowrap">{moment(chat.last_message_date).fromNow(true)}</span>}
                         </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </Card>
-          </div>
+                        <div className="flex items-center justify-between gap-2 mt-0.5">
+                          <p className={`text-sm truncate ${unread ? 'text-ink/80' : 'text-ink/50'}`}>{chat.last_message_by === user.email ? 'You: ' : ''}{chat.last_message || 'No messages yet'}</p>
+                          {unread > 0 && <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-terracotta-500 text-white text-[11px] font-semibold flex items-center justify-center">{unread}</span>}
+                        </div>
+                      </div>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </aside>
 
-          {/* Chat Window */}
-          <div className="lg:col-span-2">
-            {selectedChat ? (
-              <ChatWindow
-                chat={selectedChat}
-                currentUser={user}
-                onClose={() => setSelectedChat(null)}
-              />
-            ) : (
-              <Card className="border-0 shadow-lg h-[500px] flex items-center justify-center">
-                <div className="text-center">
-                  <MessageCircle className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <p className="text-gray-500">Select a conversation to start messaging</p>
-                </div>
-              </Card>
-            )}
-          </div>
-        </div>
+        {/* Chat pane */}
+        <section className={`flex flex-col bg-cream ${selectedChat ? 'flex' : 'hidden lg:flex'}`}>
+          {selectedChat ? (
+            <>
+              <button onClick={() => setSelectedChat(null)} className="lg:hidden flex items-center gap-1 px-4 py-2 text-sm text-moss-700 bg-white border-b border-border"><ChevronLeft className="w-4 h-4" /> All conversations</button>
+              <ChatWindow chat={selectedChat} currentUser={user} onClose={() => setSelectedChat(null)} />
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center p-10 text-center">
+              <div className="w-20 h-20 rounded-2xl bg-white border border-border shadow-soft flex items-center justify-center text-moss-700 mb-5"><MessageCircle className="w-9 h-9" strokeWidth={1.5} /></div>
+              <h3 className="font-display text-xl text-ink">Select a conversation</h3>
+              <p className="text-sm text-ink/55 mt-1 max-w-xs">Pick a chat on the left, or message a seller from any listing page.</p>
+            </div>
+          )}
+        </section>
       </div>
-    </div>
+    </PageShell>
   );
 }

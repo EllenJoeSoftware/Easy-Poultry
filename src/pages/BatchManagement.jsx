@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/api/client';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Bird, Plus, Edit, Trash2, TrendingUp, Loader2, Archive, DollarSign, ArrowLeft } from 'lucide-react';
+import { Bird, Plus, Edit, Trash2, TrendingUp, Loader2, Archive, ArchiveRestore, Egg, HeartCrack, Home, Tag, Wallet, MoreHorizontal } from 'lucide-react';
+import { motion } from 'framer-motion';
+import PageShell from '@/components/shell/PageShell';
+import EmptyState from '@/components/shell/EmptyState';
+import StatCard from '@/components/shell/StatCard';
+import { StatSkeleton } from '@/components/shell/SkeletonCard';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
@@ -24,6 +28,7 @@ export default function BatchManagement() {
   const [showEggForm, setShowEggForm] = useState(false);
   const [showMortalityForm, setShowMortalityForm] = useState(false);
   const [selectedBatch, setSelectedBatch] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [eggFormData, setEggFormData] = useState({
     eggs_collected: '',
     production_date: moment().format('YYYY-MM-DD'),
@@ -112,6 +117,7 @@ export default function BatchManagement() {
         status: 'active'
       });
     },
+    onError: (e) => toast.error(e?.message || 'Something went wrong'),
     onSuccess: () => {
       queryClient.invalidateQueries(['batches']);
       toast.success('Batch created successfully');
@@ -134,6 +140,7 @@ export default function BatchManagement() {
       notes: data.notes,
       images: data.images || []
     }),
+    onError: (e) => toast.error(e?.message || 'Something went wrong'),
     onSuccess: () => {
       queryClient.invalidateQueries(['batches']);
       toast.success('Batch updated');
@@ -143,6 +150,7 @@ export default function BatchManagement() {
 
   const deleteBatchMutation = useMutation({
     mutationFn: (id) => api.entities.PoultryBatch.delete(id),
+    onError: (e) => toast.error(e?.message || 'Something went wrong'),
     onSuccess: () => {
       queryClient.invalidateQueries(['batches']);
       toast.success('Batch deleted');
@@ -151,6 +159,7 @@ export default function BatchManagement() {
 
   const archiveBatchMutation = useMutation({
     mutationFn: (id) => api.entities.PoultryBatch.update(id, { status: 'archived' }),
+    onError: (e) => toast.error(e?.message || 'Something went wrong'),
     onSuccess: () => {
       queryClient.invalidateQueries(['batches']);
       toast.success('Batch archived');
@@ -159,6 +168,7 @@ export default function BatchManagement() {
 
   const unarchiveBatchMutation = useMutation({
     mutationFn: (id) => api.entities.PoultryBatch.update(id, { status: 'active' }),
+    onError: (e) => toast.error(e?.message || 'Something went wrong'),
     onSuccess: () => {
       queryClient.invalidateQueries(['batches']);
       toast.success('Batch unarchived');
@@ -189,6 +199,7 @@ export default function BatchManagement() {
         total_revenue: (batch.total_revenue || 0) + (parseFloat(data.revenue) || 0)
       });
     },
+    onError: (e) => toast.error(e?.message || 'Something went wrong'),
     onSuccess: () => {
       queryClient.invalidateQueries(['batches']);
       toast.success('Egg production recorded');
@@ -225,6 +236,7 @@ export default function BatchManagement() {
         available_quantity: Math.max(0, (batch.available_quantity || batch.current_quantity) - count)
       });
     },
+    onError: (e) => toast.error(e?.message || 'Something went wrong'),
     onSuccess: () => {
       queryClient.invalidateQueries(['batches']);
       toast.success('Mortality recorded');
@@ -339,6 +351,7 @@ export default function BatchManagement() {
         available_quantity: batch.available_quantity - quantity
       });
     },
+    onError: (e) => toast.error(e?.message || 'Something went wrong'),
     onSuccess: () => {
       queryClient.invalidateQueries(['batches']);
       toast.success('Listing created successfully');
@@ -374,179 +387,152 @@ export default function BatchManagement() {
   };
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
-      </div>
-    );
+    return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-moss-600" /></div>;
   }
 
   const activeBatches = batches.filter(b => b.status === 'active');
   const archivedBatches = batches.filter(b => b.status === 'archived');
+  const userTier = sellerTiers.find(t => t.name === (user?.seller_tier || 'basic'));
+  const maxBatches = userTier?.max_batches || 10;
+  const totalBirds = activeBatches.reduce((s, b) => s + (b.current_quantity || 0), 0);
+  const totalAvailable = activeBatches.reduce((s, b) => s + (b.available_quantity || 0), 0);
+  const totalMortality = activeBatches.reduce((s, b) => s + (b.mortality_count || 0), 0);
+  const totalRevenue = batches.reduce((s, b) => s + (b.total_revenue || 0), 0);
+  const birdTypeChip = { layers: 'chip-yolk', broilers: 'chip-accent', mixed: '' };
+
+  const BatchCard = ({ batch, archived }) => {
+    const pct = batch.initial_quantity ? Math.round(((batch.current_quantity || 0) / batch.initial_quantity) * 100) : 0;
+    const maturity = batch.expected_maturity_weeks ? Math.min(100, Math.round(((batch.age_in_weeks || moment().diff(moment(batch.date_acquired), 'weeks')) / batch.expected_maturity_weeks) * 100)) : null;
+    const age = moment().diff(moment(batch.date_acquired), 'weeks');
+    return (
+      <motion.article variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className={`card-premium overflow-hidden flex flex-col ${archived ? 'opacity-80' : ''}`}>
+        <div className="aspect-[16/7] bg-moss-gradient relative overflow-hidden">
+          {batch.images?.[0]
+            ? <img src={batch.images[0]} alt="" className="w-full h-full object-cover" />
+            : <div className="absolute inset-0 grain opacity-50 flex items-center justify-center"><Bird className="w-10 h-10 text-cream/30" /></div>}
+          <div className="absolute top-3 left-3 flex gap-1.5">
+            <span className={`chip ${birdTypeChip[batch.bird_type] || ''} capitalize`}>{batch.bird_type}</span>
+            {archived && <span className="chip bg-ink/70 text-cream border-0">Archived</span>}
+          </div>
+          {batch.housing_location && <span className="absolute bottom-3 left-3 text-[11px] text-cream/85 inline-flex items-center gap-1"><Home className="w-3 h-3" />{batch.housing_location}</span>}
+        </div>
+        <div className="p-5 flex-1 flex flex-col">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="font-display text-lg text-ink leading-snug truncate">{batch.batch_name}</h3>
+              <p className="text-xs text-ink/55 mt-0.5">{batch.breed || 'Breed not set'} · {age} wk old</p>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-8 h-8 rounded-lg inline-flex items-center justify-center text-ink/55 hover:bg-moss-50 hover:text-moss-700 flex-shrink-0" aria-label="Batch actions"><MoreHorizontal className="w-4 h-4" /></button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="rounded-xl w-52">
+                <DropdownMenuItem asChild><Link to={createPageUrl('BatchDetail') + `?id=${batch.id}`} className="gap-2"><TrendingUp className="w-4 h-4" /> View details</Link></DropdownMenuItem>
+                {!archived && <DropdownMenuItem onSelect={() => handleEdit(batch)} className="gap-2"><Edit className="w-4 h-4" /> Edit batch</DropdownMenuItem>}
+                {!archived && batch.bird_type === 'layers' && <DropdownMenuItem onSelect={() => { setSelectedBatch(batch); setShowEggForm(true); }} className="gap-2"><Egg className="w-4 h-4 text-yolk-500" /> Record eggs</DropdownMenuItem>}
+                {!archived && <DropdownMenuItem onSelect={() => { setSelectedBatch(batch); setShowMortalityForm(true); }} className="gap-2"><HeartCrack className="w-4 h-4 text-terracotta-500" /> Record mortality</DropdownMenuItem>}
+                <DropdownMenuSeparator />
+                {archived
+                  ? <DropdownMenuItem onSelect={() => unarchiveBatchMutation.mutate(batch.id)} className="gap-2"><ArchiveRestore className="w-4 h-4" /> Unarchive</DropdownMenuItem>
+                  : <DropdownMenuItem onSelect={() => archiveBatchMutation.mutate(batch.id)} className="gap-2"><Archive className="w-4 h-4" /> Archive</DropdownMenuItem>}
+                <DropdownMenuItem onSelect={() => setDeleteTarget(batch)} className="gap-2 text-terracotta-600 focus:text-terracotta-600"><Trash2 className="w-4 h-4" /> Delete</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            <div className="rounded-xl bg-cream p-2.5 text-center"><p className="stat-num font-display font-bold text-lg text-ink leading-none">{batch.current_quantity ?? 0}</p><p className="text-[10px] uppercase tracking-wider text-ink/50 mt-1">Birds</p></div>
+            <div className="rounded-xl bg-cream p-2.5 text-center"><p className="stat-num font-display font-bold text-lg text-moss-700 leading-none">{batch.available_quantity ?? 0}</p><p className="text-[10px] uppercase tracking-wider text-ink/50 mt-1">For sale</p></div>
+            <div className="rounded-xl bg-cream p-2.5 text-center"><p className={`stat-num font-display font-bold text-lg leading-none ${batch.mortality_count > 0 ? 'text-terracotta-600' : 'text-ink'}`}>{batch.mortality_count || 0}</p><p className="text-[10px] uppercase tracking-wider text-ink/50 mt-1">Lost</p></div>
+          </div>
+
+          <div className="mt-4 space-y-2">
+            <div>
+              <div className="flex justify-between text-[11px] text-ink/55 mb-1"><span>Survival</span><span>{pct}%</span></div>
+              <div className="h-1.5 rounded-full bg-cream-deep overflow-hidden"><div className={`h-full rounded-full ${pct >= 90 ? 'bg-fresh-500' : pct >= 75 ? 'bg-yolk-500' : 'bg-terracotta-500'}`} style={{ width: `${pct}%` }} /></div>
+            </div>
+            {maturity !== null && (
+              <div>
+                <div className="flex justify-between text-[11px] text-ink/55 mb-1"><span>Maturity</span><span>{maturity}% · {batch.expected_maturity_weeks} wk target</span></div>
+                <div className="h-1.5 rounded-full bg-cream-deep overflow-hidden"><div className="h-full rounded-full bg-moss-600" style={{ width: `${maturity}%` }} /></div>
+              </div>
+            )}
+          </div>
+
+          {archived ? (
+            <div className="mt-4 pt-4 border-t border-border text-xs text-ink/60 flex justify-between">
+              <span>Started {batch.initial_quantity} · sold {batch.sold_count || 0}</span>
+              <span className="font-semibold text-ink">R{(batch.total_revenue || 0).toLocaleString()}</span>
+            </div>
+          ) : (
+            <div className="mt-auto pt-4 border-t border-border flex gap-2">
+              <Link to={createPageUrl('BatchDetail') + `?id=${batch.id}`} className="btn-ghost flex-1 justify-center border border-border bg-white py-2 text-sm">Details</Link>
+              {batch.available_quantity > 0 && (
+                <button onClick={() => createListingFromBatch(batch)} className="btn-cta flex-1 justify-center py-2 text-sm gap-1.5"><Tag className="w-4 h-4" /> Sell</button>
+              )}
+            </div>
+          )}
+        </div>
+      </motion.article>
+    );
+  };
+
+  const Grid = ({ items, archived, empty }) => isLoading ? (
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">{[...Array(3)].map((_, i) => <div key={i} className="card-premium h-80 animate-pulse" />)}</div>
+  ) : items.length === 0 ? empty : (
+    <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.05 } } }} className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {items.map(b => <BatchCard key={b.id} batch={b} archived={archived} />)}
+    </motion.div>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-[#7A9D7A] to-[#6A8D6A] text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to={createPageUrl('FarmDashboard')} className="inline-flex items-center text-white/90 hover:text-white mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Farm Dashboard
-          </Link>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Batch Management</h1>
-              <p className="text-white/90">
-                Manage your poultry batches
-                {(() => {
-                  const userTier = sellerTiers.find(t => t.name === (user?.seller_tier || 'basic'));
-                  const maxBatches = userTier?.max_batches || 10;
-                  const activeBatchesCount = batches.filter(b => b.status === 'active').length;
-                  return ` (${activeBatchesCount}/${maxBatches})`;
-                })()}
-              </p>
-            </div>
-            <Button onClick={() => setShowForm(true)} className="bg-white text-[#7A9D7A] hover:bg-gray-50">
-              <Plus className="w-5 h-5 mr-2" />
-              New Batch
-            </Button>
+    <PageShell
+      variant="compact"
+      eyebrow="Farm"
+      title="Batches"
+      subtitle={`${activeBatches.length} of ${maxBatches} active batches on your ${user?.seller_tier || 'basic'} plan. Track flock size, losses, maturity and move birds to the marketplace.`}
+      breadcrumb={[{ label: 'Farm', href: createPageUrl('FarmDashboard') }, { label: 'Batches' }]}
+      action={<Button onClick={() => setShowForm(true)} className="btn-cta px-5 py-2.5 text-sm gap-1.5"><Plus className="w-4 h-4" /> New batch</Button>}
+    >
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {isLoading ? [...Array(4)].map((_, i) => <StatSkeleton key={i} />) : (
+          <>
+            <StatCard icon={Bird} label="Birds on farm" value={totalBirds.toLocaleString()} tint="moss" />
+            <StatCard icon={Tag} label="Available to sell" value={totalAvailable.toLocaleString()} tint="sage" />
+            <StatCard icon={HeartCrack} label="Mortality (active)" value={totalMortality.toLocaleString()} tint="terracotta" />
+            <StatCard icon={Wallet} label="Batch revenue" value={`R${totalRevenue.toLocaleString()}`} tint="yolk" />
+          </>
+        )}
+      </div>
+
+      <Tabs defaultValue="active" className="space-y-6">
+        <TabsList className="bg-white border border-border rounded-full p-1 h-auto inline-flex">
+          <TabsTrigger value="active" className="rounded-full px-4 py-2 data-[state=active]:bg-moss-600 data-[state=active]:text-cream">Active ({activeBatches.length})</TabsTrigger>
+          <TabsTrigger value="archived" className="rounded-full px-4 py-2 data-[state=active]:bg-moss-600 data-[state=active]:text-cream">Archived ({archivedBatches.length})</TabsTrigger>
+        </TabsList>
+        <TabsContent value="active">
+          <Grid items={activeBatches} empty={<EmptyState icon={Bird} title="No active batches" subtitle="Create your first poultry batch to start tracking birds, feed, losses and sales." action={<Button onClick={() => setShowForm(true)} className="btn-cta px-5 py-2.5 text-sm gap-1.5"><Plus className="w-4 h-4" /> Create batch</Button>} />} />
+        </TabsContent>
+        <TabsContent value="archived">
+          <Grid items={archivedBatches} archived empty={<EmptyState icon={Archive} title="No archived batches" subtitle="Finished batches you archive will be kept here with their history." />} />
+        </TabsContent>
+      </Tabs>
+
+      {/* Delete confirm */}
+      <Dialog open={!!deleteTarget} onOpenChange={() => setDeleteTarget(null)}>
+        <DialogContent className="rounded-2xl">
+          <DialogHeader><DialogTitle className="font-display">Delete batch?</DialogTitle></DialogHeader>
+          <p className="text-ink/70"><strong>{deleteTarget?.batch_name}</strong> and its summary will be removed. Expense and production records are kept.</p>
+          <div className="flex gap-3 justify-end mt-2">
+            <Button variant="outline" className="rounded-full" onClick={() => setDeleteTarget(null)}>Cancel</Button>
+            <Button onClick={() => { deleteBatchMutation.mutate(deleteTarget.id); setDeleteTarget(null); }} className="rounded-full bg-terracotta-500 hover:bg-terracotta-600 text-white">Delete</Button>
           </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="active" className="space-y-6">
-          <TabsList className="bg-white border shadow-sm">
-            <TabsTrigger value="active">Active ({activeBatches.length})</TabsTrigger>
-            <TabsTrigger value="archived">Archived ({archivedBatches.length})</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="active">
-            {activeBatches.length === 0 ? (
-              <Card className="p-12 text-center border-0 shadow-lg">
-                <Bird className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No active batches</h3>
-                <p className="text-gray-600 mb-6">Create your first poultry batch to start managing your farm</p>
-                <Button onClick={() => setShowForm(true)} className="bg-[#7A9D7A] hover:bg-[#6A8D6A]">
-                  <Plus className="w-5 h-5 mr-2" />
-                  Create Batch
-                </Button>
-              </Card>
-            ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {activeBatches.map((batch) => (
-                  <Card key={batch.id} className="p-6 border-0 shadow-lg hover:shadow-xl transition-shadow">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-1">{batch.batch_name}</h3>
-                        <Badge className="capitalize">{batch.bird_type}</Badge>
-                      </div>
-                      <Bird className="w-8 h-8 text-[#7A9D7A]" />
-                    </div>
-
-                    <div className="space-y-2 text-sm mb-4">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Birds:</span>
-                        <span className="font-semibold">{batch.current_quantity}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Available:</span>
-                        <span className="font-semibold">{batch.available_quantity}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Age:</span>
-                        <span className="font-semibold">{batch.age_in_weeks} weeks</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Breed:</span>
-                        <span className="font-semibold">{batch.breed}</span>
-                      </div>
-                      {batch.mortality_count > 0 && (
-                        <div className="flex justify-between text-red-600">
-                          <span>Mortality:</span>
-                          <span className="font-semibold">{batch.mortality_count}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="pt-4 border-t space-y-2">
-                      <Link to={createPageUrl('BatchDetail') + `?id=${batch.id}`}>
-                        <Button variant="outline" className="w-full" size="sm">
-                          <TrendingUp className="w-4 h-4 mr-2" />
-                          View Details
-                        </Button>
-                      </Link>
-                      {batch.available_quantity > 0 && (
-                        <Button variant="default" size="sm" className="w-full bg-[#E07A5F] hover:bg-[#D06A4F] mb-2" onClick={() => createListingFromBatch(batch)}>
-                          Create Listing
-                        </Button>
-                      )}
-                      <div className="flex gap-2">
-                        {batch.bird_type === 'layers' && (
-                          <Button variant="outline" size="sm" onClick={() => { setSelectedBatch(batch); setShowEggForm(true); }} className="flex-1">
-                            🥚
-                          </Button>
-                        )}
-                        <Button variant="outline" size="sm" onClick={() => { setSelectedBatch(batch); setShowMortalityForm(true); }} className="flex-1">
-                          ➖
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleEdit(batch)} className="flex-1">
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => archiveBatchMutation.mutate(batch.id)} className="flex-1">
-                          <Archive className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => deleteBatchMutation.mutate(batch.id)} className="flex-1 text-red-600">
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="archived">
-            {archivedBatches.length === 0 ? (
-              <Card className="p-12 text-center border-0 shadow-lg">
-                <Archive className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">No archived batches</h3>
-                <p className="text-gray-600">Archived batches will appear here</p>
-              </Card>
-            ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {archivedBatches.map((batch) => (
-                  <Card key={batch.id} className="p-6 border-0 shadow-lg opacity-75">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-xl font-bold text-gray-900 mb-1">{batch.batch_name}</h3>
-                        <Badge variant="secondary">Archived</Badge>
-                      </div>
-                    </div>
-                    <div className="space-y-2 text-sm">
-                      <p>Initial: {batch.initial_quantity} birds</p>
-                      <p>Sold: {batch.sold_count} birds</p>
-                      <p>Revenue: R{batch.total_revenue || 0}</p>
-                    </div>
-                    <div className="flex gap-2 mt-4">
-                      <Link to={createPageUrl('BatchDetail') + `?id=${batch.id}`} className="flex-1">
-                        <Button variant="outline" className="w-full" size="sm">View History</Button>
-                      </Link>
-                      <Button variant="outline" size="sm" onClick={() => unarchiveBatchMutation.mutate(batch.id)}>
-                        Unarchive
-                      </Button>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
-      </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Form Dialog */}
       <Dialog open={showForm} onOpenChange={(open) => !open && resetForm()}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
             <DialogTitle>{editingBatch ? 'Edit Batch' : 'Create New Batch'}</DialogTitle>
           </DialogHeader>
@@ -659,7 +645,7 @@ export default function BatchManagement() {
                 onChange={handleImageUpload}
                 disabled={uploadingImages || (formData.images?.length >= 10)}
               />
-              {uploadingImages && <p className="text-sm text-gray-500 mt-1">Uploading...</p>}
+              {uploadingImages && <p className="text-sm text-ink/55 mt-1">Uploading...</p>}
               {formData.images?.length > 0 && (
                 <div className="grid grid-cols-5 gap-2 mt-2">
                   {formData.images.map((url, index) => (
@@ -668,7 +654,7 @@ export default function BatchManagement() {
                       <button
                         type="button"
                         onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+                        className="absolute -top-2 -right-2 bg-terracotta-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
                       >
                         ×
                       </button>
@@ -679,8 +665,8 @@ export default function BatchManagement() {
             </div>
 
             <div className="flex justify-end gap-3 pt-4">
-              <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
-              <Button type="submit" className="bg-[#7A9D7A] hover:bg-[#6A8D6A]">
+              <Button type="button" variant="outline" className="rounded-full" onClick={resetForm}>Cancel</Button>
+              <Button type="submit" className="btn-cta px-5">
                 {editingBatch ? 'Update Batch' : 'Create Batch'}
               </Button>
             </div>
@@ -690,7 +676,7 @@ export default function BatchManagement() {
 
       {/* Egg Collection Dialog */}
       <Dialog open={showEggForm} onOpenChange={(open) => { if (!open) { setShowEggForm(false); setSelectedBatch(null); } }}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl">
           <DialogHeader>
             <DialogTitle>Collect Eggs - {selectedBatch?.batch_name}</DialogTitle>
           </DialogHeader>
@@ -757,10 +743,10 @@ export default function BatchManagement() {
             </div>
 
             <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => { setShowEggForm(false); setSelectedBatch(null); }}>
+              <Button type="button" variant="outline" className="rounded-full" onClick={() => { setShowEggForm(false); setSelectedBatch(null); }}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-[#7A9D7A] hover:bg-[#6A8D6A]">Record Collection</Button>
+              <Button type="submit" className="btn-cta px-5">Record Collection</Button>
             </div>
           </form>
         </DialogContent>
@@ -768,7 +754,7 @@ export default function BatchManagement() {
 
       {/* Mortality Dialog */}
       <Dialog open={showMortalityForm} onOpenChange={(open) => { if (!open) { setShowMortalityForm(false); setSelectedBatch(null); } }}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl">
           <DialogHeader>
             <DialogTitle>Record Mortality - {selectedBatch?.batch_name}</DialogTitle>
           </DialogHeader>
@@ -812,10 +798,10 @@ export default function BatchManagement() {
             </div>
 
             <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => { setShowMortalityForm(false); setSelectedBatch(null); }}>
+              <Button type="button" variant="outline" className="rounded-full" onClick={() => { setShowMortalityForm(false); setSelectedBatch(null); }}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-red-600 hover:bg-red-700">Record Mortality</Button>
+              <Button type="submit" className="rounded-full bg-terracotta-500 hover:bg-terracotta-600 text-white">Record Mortality</Button>
             </div>
           </form>
         </DialogContent>
@@ -823,7 +809,7 @@ export default function BatchManagement() {
 
       {/* Create Listing Dialog */}
       <Dialog open={showListingForm} onOpenChange={(open) => { if (!open) { setShowListingForm(false); setSelectedBatch(null); } }}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl">
           <DialogHeader>
             <DialogTitle>Create Listing from {selectedBatch?.batch_name}</DialogTitle>
           </DialogHeader>
@@ -838,7 +824,7 @@ export default function BatchManagement() {
                 placeholder={`Max: ${selectedBatch?.available_quantity}`}
                 required
               />
-              <p className="text-xs text-gray-500 mt-1">Available: {selectedBatch?.available_quantity} birds</p>
+              <p className="text-xs text-ink/55 mt-1">Available: {selectedBatch?.available_quantity} birds</p>
             </div>
 
             <div>
@@ -874,19 +860,19 @@ export default function BatchManagement() {
                     <img key={index} src={url} alt={`Preview ${index + 1}`} className="w-full h-16 object-cover rounded" />
                   ))}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">These images will be used in the listing</p>
+                <p className="text-xs text-ink/55 mt-1">These images will be used in the listing</p>
               </div>
             )}
 
             <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={() => { setShowListingForm(false); setSelectedBatch(null); }}>
+              <Button type="button" variant="outline" className="rounded-full" onClick={() => { setShowListingForm(false); setSelectedBatch(null); }}>
                 Cancel
               </Button>
-              <Button type="submit" className="bg-[#E07A5F] hover:bg-[#D06A4F]">Create Listing</Button>
+              <Button type="submit" className="btn-cta px-5">Create Listing</Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </PageShell>
   );
 }

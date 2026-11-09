@@ -257,7 +257,7 @@ export default function CreateListing() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
@@ -710,7 +710,7 @@ export default function CreateListing() {
               )}
               <div className="mt-4 pt-4 border-t border-border flex items-baseline justify-between">
                 <div>
-                  <span className="font-display text-2xl font-bold text-ink">
+                  <span className="font-display font-display text-2xl font-bold text-ink">
                     R{formData.price ? Number(formData.price).toLocaleString('en-ZA') : '0'}
                   </span>
                   <span className="text-xs text-ink/40 ml-1">

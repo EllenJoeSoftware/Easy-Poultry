@@ -727,7 +727,7 @@ export default function Admin() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
@@ -736,8 +736,8 @@ export default function Admin() {
   const totalViews = listings.reduce((sum, l) => sum + (l.view_count || 0), 0);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-[#7A9D7A] to-[#6A8D6A] text-white py-12">
+    <div className="min-h-[80vh] bg-cream">
+      <div className="bg-moss-gradient text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3 mb-2">
             <Shield className="w-8 h-8" />
@@ -749,36 +749,36 @@ export default function Admin() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid sm:grid-cols-4 gap-6 mb-8">
-          <Card className="p-6 border-0 shadow-lg">
+          <Card className="p-6 card-premium">
             <div className="flex items-center justify-between mb-2">
-              <Users className="w-8 h-8 text-[#7A9D7A]" />
+              <Users className="w-8 h-8 text-moss-600" />
             </div>
-            <p className="text-3xl font-bold text-gray-900 mb-1">{users.length}</p>
-            <p className="text-sm text-gray-600">Total Users</p>
+            <p className="text-3xl font-bold text-ink mb-1">{users.length}</p>
+            <p className="text-sm text-ink/65">Total Users</p>
           </Card>
 
-          <Card className="p-6 border-0 shadow-lg">
+          <Card className="p-6 card-premium">
             <div className="flex items-center justify-between mb-2">
-              <Package className="w-8 h-8 text-[#E07A5F]" />
+              <Package className="w-8 h-8 text-terracotta-600" />
             </div>
-            <p className="text-3xl font-bold text-gray-900 mb-1">{activeListings}</p>
-            <p className="text-sm text-gray-600">Active Listings</p>
+            <p className="text-3xl font-bold text-ink mb-1">{activeListings}</p>
+            <p className="text-sm text-ink/65">Active Listings</p>
           </Card>
 
-          <Card className="p-6 border-0 shadow-lg">
+          <Card className="p-6 card-premium">
             <div className="flex items-center justify-between mb-2">
-              <Eye className="w-8 h-8 text-[#7A9D7A]" />
+              <Eye className="w-8 h-8 text-moss-600" />
             </div>
-            <p className="text-3xl font-bold text-gray-900 mb-1">{totalViews}</p>
-            <p className="text-sm text-gray-600">Total Views</p>
+            <p className="text-3xl font-bold text-ink mb-1">{totalViews}</p>
+            <p className="text-sm text-ink/65">Total Views</p>
           </Card>
 
-          <Card className="p-6 border-0 shadow-lg">
+          <Card className="p-6 card-premium">
             <div className="flex items-center justify-between mb-2">
-              <MessageCircle className="w-8 h-8 text-[#E07A5F]" />
+              <MessageCircle className="w-8 h-8 text-terracotta-600" />
             </div>
-            <p className="text-3xl font-bold text-gray-900 mb-1">{pendingVerifications.length}</p>
-            <p className="text-sm text-gray-600">Pending Verifications</p>
+            <p className="text-3xl font-bold text-ink mb-1">{pendingVerifications.length}</p>
+            <p className="text-sm text-ink/65">Pending Verifications</p>
           </Card>
         </div>
 
@@ -804,7 +804,7 @@ export default function Admin() {
               <Card 
                 key={tile.value}
                 onClick={() => setActiveTab(tile.value)}
-                className="group cursor-pointer overflow-hidden border-0 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="group cursor-pointer overflow-hidden card-premium hover:shadow-lift transition-all duration-300 hover:-translate-y-1"
               >
                 <div className={`bg-gradient-to-br ${tile.color} p-4 text-white`}>
                   <div className="flex items-start justify-between">
@@ -817,8 +817,8 @@ export default function Admin() {
                   </div>
                 </div>
                 <div className="p-4 bg-white">
-                  <h3 className="font-semibold text-gray-900 mb-1">{tile.label}</h3>
-                  <p className="text-xs text-gray-500">{tile.desc}</p>
+                  <h3 className="font-semibold text-ink mb-1">{tile.label}</h3>
+                  <p className="text-xs text-ink/55">{tile.desc}</p>
                 </div>
               </Card>
             ))}
@@ -851,7 +851,7 @@ export default function Admin() {
                 </Button>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
-                    <Label className="text-sm text-gray-600">Sort:</Label>
+                    <Label className="text-sm text-ink/65">Sort:</Label>
                     <Select value={usersSortBy} onValueChange={setUsersSortBy}>
                       <SelectTrigger className="w-40">
                         <SelectValue />
@@ -863,7 +863,7 @@ export default function Admin() {
                     </Select>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Label className="text-sm text-gray-600">Per page:</Label>
+                    <Label className="text-sm text-ink/65">Per page:</Label>
                     <Select value={usersPerPage.toString()} onValueChange={(val) => { setUsersPerPage(parseInt(val)); setUsersPage(1); }}>
                       <SelectTrigger className="w-24">
                         <SelectValue />
@@ -879,23 +879,23 @@ export default function Admin() {
                 </div>
               </div>
 
-              <Card className="border-0 shadow-lg overflow-hidden">
+              <Card className="card-premium overflow-hidden">
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50 border-b">
+                    <thead className="bg-cream border-b">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Verification</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Activation</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Change Type</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">User</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Email</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Type</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Verification</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Activation</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Change Type</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {paginatedUsers.map((u) => (
-                        <tr key={u.id} className="hover:bg-gray-50">
+                        <tr key={u.id} className="hover:bg-cream">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <img
@@ -904,19 +904,19 @@ export default function Admin() {
                                 className="w-10 h-10 rounded-full"
                               />
                               <div>
-                                <p className="font-medium text-gray-900">{u.full_name}</p>
-                                {u.farm_name && <p className="text-xs text-gray-500">{u.farm_name}</p>}
+                                <p className="font-medium text-ink">{u.full_name}</p>
+                                {u.farm_name && <p className="text-xs text-ink/55">{u.farm_name}</p>}
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{u.email}</td>
+                          <td className="px-6 py-4 text-sm text-ink/65">{u.email}</td>
                           <td className="px-6 py-4">
                             <Badge className="capitalize">{u.user_type || 'buyer'}</Badge>
                           </td>
                           <td className="px-6 py-4">
                             <div className="flex flex-col gap-1">
                               {u.seller_verified && (
-                                <Badge className="bg-green-500">Verified</Badge>
+                                <Badge className="bg-fresh-500">Verified</Badge>
                               )}
                               {u.seller_activated ? (
                                 <Badge>Activated</Badge>
@@ -934,7 +934,7 @@ export default function Admin() {
                                   userId: u.id,
                                   approved: false
                                 })}
-                                className="text-red-600 hover:text-red-700"
+                                className="text-terracotta-600 hover:text-terracotta-700"
                               >
                                 Unverify
                               </Button>
@@ -945,7 +945,7 @@ export default function Admin() {
                                   userId: u.id,
                                   approved: true
                                 })}
-                                className="bg-green-600 hover:bg-green-700"
+                                className="bg-moss-600 hover:bg-moss-700"
                               >
                                 Verify
                               </Button>
@@ -984,8 +984,8 @@ export default function Admin() {
                   </table>
                 </div>
 
-                <div className="p-4 border-t bg-gray-50 flex items-center justify-between">
-                  <p className="text-sm text-gray-600">
+                <div className="p-4 border-t bg-cream flex items-center justify-between">
+                  <p className="text-sm text-ink/65">
                     Showing {startIndex + 1} to {Math.min(startIndex + usersPerPage, sortedUsers.length)} of {sortedUsers.length} users
                   </p>
                   <div className="flex items-center gap-2">
@@ -997,7 +997,7 @@ export default function Admin() {
                     >
                       Previous
                     </Button>
-                    <span className="text-sm text-gray-600">
+                    <span className="text-sm text-ink/65">
                       Page {usersPage} of {totalPages}
                     </span>
                     <Button
@@ -1022,12 +1022,12 @@ export default function Admin() {
                 <ArrowLeft className="w-4 h-4" /> Back to Dashboard
               </Button>
             </div>
-            <Card className="border-0 shadow-lg overflow-hidden">
+            <Card className="card-premium overflow-hidden">
               {pendingVerifications.length === 0 ? (
                 <div className="p-12 text-center">
-                  <CheckCircle2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No pending verifications</h3>
-                  <p className="text-gray-600">All verification requests have been processed</p>
+                  <CheckCircle2 className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                  <h3 className="font-display text-xl font-semibold text-ink mb-2">No pending verifications</h3>
+                  <p className="text-ink/65">All verification requests have been processed</p>
                 </div>
               ) : (
                 <div className="divide-y">
@@ -1041,9 +1041,9 @@ export default function Admin() {
                             className="w-12 h-12 rounded-full"
                           />
                           <div>
-                            <p className="font-medium text-gray-900">{seller.full_name}</p>
-                            <p className="text-sm text-gray-600">{seller.email}</p>
-                            {seller.farm_name && <p className="text-sm text-gray-600">{seller.farm_name}</p>}
+                            <p className="font-medium text-ink">{seller.full_name}</p>
+                            <p className="text-sm text-ink/65">{seller.email}</p>
+                            {seller.farm_name && <p className="text-sm text-ink/65">{seller.farm_name}</p>}
                           </div>
                         </div>
                         <Badge variant="secondary">Pending Review</Badge>
@@ -1051,35 +1051,35 @@ export default function Admin() {
 
                       <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
-                          <Label className="text-sm text-gray-600 mb-2 block">ID Document</Label>
+                          <Label className="text-sm text-ink/65 mb-2 block">ID Document</Label>
                           {seller.id_document_url ? (
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => setViewingDocument({ url: seller.id_document_url, title: 'ID Document' })}
-                              className="text-[#7A9D7A]"
+                              className="text-moss-600"
                             >
                               <Eye className="w-4 h-4 mr-2" />
                               View Document
                             </Button>
                           ) : (
-                            <p className="text-sm text-gray-500">Not uploaded</p>
+                            <p className="text-sm text-ink/55">Not uploaded</p>
                           )}
                         </div>
                         <div>
-                          <Label className="text-sm text-gray-600 mb-2 block">Proof of Address</Label>
+                          <Label className="text-sm text-ink/65 mb-2 block">Proof of Address</Label>
                           {seller.proof_of_address_url ? (
                             <Button
                               variant="outline"
                               size="sm"
                               onClick={() => setViewingDocument({ url: seller.proof_of_address_url, title: 'Proof of Address' })}
-                              className="text-[#7A9D7A]"
+                              className="text-moss-600"
                             >
                               <Eye className="w-4 h-4 mr-2" />
                               View Document
                             </Button>
                           ) : (
-                            <p className="text-sm text-gray-500">Not uploaded</p>
+                            <p className="text-sm text-ink/55">Not uploaded</p>
                           )}
                         </div>
                       </div>
@@ -1088,7 +1088,7 @@ export default function Admin() {
                         <Button
                           onClick={() => verifySellerMutation.mutate({ userId: seller.id, approved: true })}
                           disabled={verifySellerMutation.isPending}
-                          className="bg-green-600 hover:bg-green-700"
+                          className="bg-moss-600 hover:bg-moss-700"
                         >
                           <CheckCircle2 className="w-4 h-4 mr-2" />
                           Approve & Verify
@@ -1097,7 +1097,7 @@ export default function Admin() {
                           onClick={() => verifySellerMutation.mutate({ userId: seller.id, approved: false })}
                           disabled={verifySellerMutation.isPending}
                           variant="outline"
-                          className="text-red-600 hover:text-red-700"
+                          className="text-terracotta-600 hover:text-terracotta-700"
                         >
                           <XCircle className="w-4 h-4 mr-2" />
                           Reject
@@ -1119,15 +1119,15 @@ export default function Admin() {
               </Button>
             </div>
             <div className="space-y-6">
-              <Card className="border-0 shadow-lg overflow-hidden">
-                <div className="p-4 bg-gray-50 border-b">
-                  <h3 className="font-semibold text-gray-900">Featured Listing Payments</h3>
+              <Card className="card-premium overflow-hidden">
+                <div className="p-4 bg-cream border-b">
+                  <h3 className="font-semibold text-ink">Featured Listing Payments</h3>
                 </div>
                 {pendingPayments.length === 0 ? (
                   <div className="p-12 text-center">
-                    <CheckCircle2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No pending payments</h3>
-                    <p className="text-gray-600">All payment verifications are up to date</p>
+                    <CheckCircle2 className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                    <h3 className="font-display text-xl font-semibold text-ink mb-2">No pending payments</h3>
+                    <p className="text-ink/65">All payment verifications are up to date</p>
                   </div>
                 ) : (
                   <div className="divide-y">
@@ -1135,13 +1135,13 @@ export default function Admin() {
                       <div key={payment.id} className="p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div>
-                            <p className="font-medium text-gray-900">Seller: {payment.seller_id}</p>
-                            <p className="text-sm text-gray-600">Listing ID: {payment.listing_id}</p>
-                            <p className="text-sm text-gray-600">Reference: {payment.payment_reference}</p>
+                            <p className="font-medium text-ink">Seller: {payment.seller_id}</p>
+                            <p className="text-sm text-ink/65">Listing ID: {payment.listing_id}</p>
+                            <p className="text-sm text-ink/65">Reference: {payment.payment_reference}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-2xl font-bold text-[#7A9D7A]">R{payment.amount_paid}</p>
-                            <p className="text-sm text-gray-600">{payment.duration_days} days</p>
+                            <p className="text-2xl font-bold text-moss-600">R{payment.amount_paid}</p>
+                            <p className="text-sm text-ink/65">{payment.duration_days} days</p>
                           </div>
                         </div>
 
@@ -1151,7 +1151,7 @@ export default function Admin() {
                               variant="outline"
                               size="sm"
                               onClick={() => setViewingDocument({ url: payment.payment_proof_url, title: 'Payment Proof' })}
-                              className="text-[#7A9D7A]"
+                              className="text-moss-600"
                             >
                               <Eye className="w-4 h-4 mr-2" />
                               View Payment Proof
@@ -1163,7 +1163,7 @@ export default function Admin() {
                           <Button
                             onClick={() => verifyPaymentMutation.mutate({ paymentId: payment.id, approved: true, payment })}
                             disabled={verifyPaymentMutation.isPending}
-                            className="bg-green-600 hover:bg-green-700"
+                            className="bg-moss-600 hover:bg-moss-700"
                           >
                             <CheckCircle2 className="w-4 h-4 mr-2" />
                             Approve & Feature
@@ -1172,7 +1172,7 @@ export default function Admin() {
                             onClick={() => verifyPaymentMutation.mutate({ paymentId: payment.id, approved: false, payment })}
                             disabled={verifyPaymentMutation.isPending}
                             variant="outline"
-                            className="text-red-600 hover:text-red-700"
+                            className="text-terracotta-600 hover:text-terracotta-700"
                           >
                             <XCircle className="w-4 h-4 mr-2" />
                             Reject
@@ -1184,15 +1184,15 @@ export default function Admin() {
                 )}
               </Card>
 
-              <Card className="border-0 shadow-lg overflow-hidden">
-                <div className="p-4 bg-gray-50 border-b">
-                  <h3 className="font-semibold text-gray-900">Verification Payments</h3>
+              <Card className="card-premium overflow-hidden">
+                <div className="p-4 bg-cream border-b">
+                  <h3 className="font-semibold text-ink">Verification Payments</h3>
                 </div>
                 {pendingVerificationPayments.length === 0 ? (
                   <div className="p-12 text-center">
-                    <CheckCircle2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No pending verification payments</h3>
-                    <p className="text-gray-600">All verification payments are up to date</p>
+                    <CheckCircle2 className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                    <h3 className="font-display text-xl font-semibold text-ink mb-2">No pending verification payments</h3>
+                    <p className="text-ink/65">All verification payments are up to date</p>
                   </div>
                 ) : (
                   <div className="divide-y">
@@ -1200,11 +1200,11 @@ export default function Admin() {
                       <div key={payment.id} className="p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div>
-                            <p className="font-medium text-gray-900">Seller: {payment.seller_id}</p>
-                            <p className="text-sm text-gray-600">Reference: {payment.payment_reference}</p>
+                            <p className="font-medium text-ink">Seller: {payment.seller_id}</p>
+                            <p className="text-sm text-ink/65">Reference: {payment.payment_reference}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-2xl font-bold text-[#7A9D7A]">R{payment.amount_paid}</p>
+                            <p className="text-2xl font-bold text-moss-600">R{payment.amount_paid}</p>
                             <Badge variant="secondary">Verification Fee</Badge>
                           </div>
                         </div>
@@ -1215,7 +1215,7 @@ export default function Admin() {
                               variant="outline"
                               size="sm"
                               onClick={() => setViewingDocument({ url: payment.payment_proof_url, title: 'Payment Proof' })}
-                              className="text-[#7A9D7A]"
+                              className="text-moss-600"
                             >
                               <Eye className="w-4 h-4 mr-2" />
                               View Payment Proof
@@ -1227,7 +1227,7 @@ export default function Admin() {
                           <Button
                             onClick={() => verifyVerificationPaymentMutation.mutate({ paymentId: payment.id, approved: true, payment })}
                             disabled={verifyVerificationPaymentMutation.isPending}
-                            className="bg-green-600 hover:bg-green-700"
+                            className="bg-moss-600 hover:bg-moss-700"
                           >
                             <CheckCircle2 className="w-4 h-4 mr-2" />
                             Approve & Verify Seller
@@ -1236,7 +1236,7 @@ export default function Admin() {
                             onClick={() => verifyVerificationPaymentMutation.mutate({ paymentId: payment.id, approved: false, payment })}
                             disabled={verifyVerificationPaymentMutation.isPending}
                             variant="outline"
-                            className="text-red-600 hover:text-red-700"
+                            className="text-terracotta-600 hover:text-terracotta-700"
                           >
                             <XCircle className="w-4 h-4 mr-2" />
                             Reject
@@ -1248,15 +1248,15 @@ export default function Admin() {
                 )}
               </Card>
 
-              <Card className="border-0 shadow-lg overflow-hidden">
-                <div className="p-4 bg-gray-50 border-b">
-                  <h3 className="font-semibold text-gray-900">Tier Upgrade Payments</h3>
+              <Card className="card-premium overflow-hidden">
+                <div className="p-4 bg-cream border-b">
+                  <h3 className="font-semibold text-ink">Tier Upgrade Payments</h3>
                 </div>
                 {pendingTierUpgrades.length === 0 ? (
                   <div className="p-12 text-center">
-                    <CheckCircle2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No pending tier upgrades</h3>
-                    <p className="text-gray-600">All tier upgrade verifications are up to date</p>
+                    <CheckCircle2 className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                    <h3 className="font-display text-xl font-semibold text-ink mb-2">No pending tier upgrades</h3>
+                    <p className="text-ink/65">All tier upgrade verifications are up to date</p>
                   </div>
                 ) : (
                   <div className="divide-y">
@@ -1264,12 +1264,12 @@ export default function Admin() {
                       <div key={upgrade.id} className="p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div>
-                            <p className="font-medium text-gray-900">Seller: {upgrade.seller_id}</p>
-                            <p className="text-sm text-gray-600">From: {upgrade.from_tier} → To: {upgrade.to_tier}</p>
-                            <p className="text-sm text-gray-600">Reference: {upgrade.payment_reference}</p>
+                            <p className="font-medium text-ink">Seller: {upgrade.seller_id}</p>
+                            <p className="text-sm text-ink/65">From: {upgrade.from_tier} → To: {upgrade.to_tier}</p>
+                            <p className="text-sm text-ink/65">Reference: {upgrade.payment_reference}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-2xl font-bold text-[#7A9D7A]">R{upgrade.amount_paid}</p>
+                            <p className="text-2xl font-bold text-moss-600">R{upgrade.amount_paid}</p>
                           </div>
                         </div>
 
@@ -1279,7 +1279,7 @@ export default function Admin() {
                               variant="outline"
                               size="sm"
                               onClick={() => setViewingDocument({ url: upgrade.payment_proof_url, title: 'Payment Proof' })}
-                              className="text-[#7A9D7A]"
+                              className="text-moss-600"
                             >
                               <Eye className="w-4 h-4 mr-2" />
                               View Payment Proof
@@ -1291,7 +1291,7 @@ export default function Admin() {
                           <Button
                             onClick={() => verifyTierUpgradeMutation.mutate({ upgradeId: upgrade.id, approved: true, upgrade })}
                             disabled={verifyTierUpgradeMutation.isPending}
-                            className="bg-green-600 hover:bg-green-700"
+                            className="bg-moss-600 hover:bg-moss-700"
                           >
                             <CheckCircle2 className="w-4 h-4 mr-2" />
                             Approve & Upgrade
@@ -1300,7 +1300,7 @@ export default function Admin() {
                             onClick={() => verifyTierUpgradeMutation.mutate({ upgradeId: upgrade.id, approved: false, upgrade })}
                             disabled={verifyTierUpgradeMutation.isPending}
                             variant="outline"
-                            className="text-red-600 hover:text-red-700"
+                            className="text-terracotta-600 hover:text-terracotta-700"
                           >
                             <XCircle className="w-4 h-4 mr-2" />
                             Reject
@@ -1312,36 +1312,36 @@ export default function Admin() {
                     )}
                     </Card>
 
-                    <Card className="border-0 shadow-lg overflow-hidden">
-                    <div className="p-4 bg-gray-50 border-b">
-                    <h3 className="font-semibold text-gray-900">Yoco Transaction Logs</h3>
+                    <Card className="card-premium overflow-hidden">
+                    <div className="p-4 bg-cream border-b">
+                    <h3 className="font-semibold text-ink">Yoco Transaction Logs</h3>
                     </div>
                     <div className="overflow-x-auto">
                     <table className="w-full">
-                    <thead className="bg-gray-50 border-b">
+                    <thead className="bg-cream border-b">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">User</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Payment Type</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Details</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">User</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Type</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Payment Type</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Amount</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Details</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {yocoTransactionLogs.map((log) => (
-                        <tr key={log.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 text-sm text-gray-600">
+                        <tr key={log.id} className="hover:bg-cream">
+                          <td className="px-6 py-4 text-sm text-ink/65">
                             {new Date(log.created_date).toLocaleString()}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-900">{log.user_email}</td>
+                          <td className="px-6 py-4 text-sm text-ink">{log.user_email}</td>
                           <td className="px-6 py-4">
                             <Badge variant={log.transaction_type === 'webhook_event' ? 'default' : 'secondary'}>
                               {log.transaction_type === 'webhook_event' ? log.event_type : log.transaction_type}
                             </Badge>
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600 capitalize">
+                          <td className="px-6 py-4 text-sm text-ink/65 capitalize">
                             {log.payment_type?.replace('_', ' ') || '-'}
                           </td>
                           <td className="px-6 py-4 font-medium">
@@ -1365,14 +1365,14 @@ export default function Admin() {
                                 </DialogHeader>
                                 <div className="space-y-4">
                                   <div>
-                                    <h4 className="font-semibold text-sm text-gray-900 mb-2">Request Payload</h4>
-                                    <pre className="bg-gray-50 p-4 rounded text-xs overflow-auto">
+                                    <h4 className="font-semibold text-sm text-ink mb-2">Request Payload</h4>
+                                    <pre className="bg-cream p-4 rounded text-xs overflow-auto">
                                       {JSON.stringify(log.request_payload, null, 2)}
                                     </pre>
                                   </div>
                                   <div>
-                                    <h4 className="font-semibold text-sm text-gray-900 mb-2">Response Payload</h4>
-                                    <pre className="bg-gray-50 p-4 rounded text-xs overflow-auto">
+                                    <h4 className="font-semibold text-sm text-ink mb-2">Response Payload</h4>
+                                    <pre className="bg-cream p-4 rounded text-xs overflow-auto">
                                       {JSON.stringify(log.response_payload, null, 2)}
                                     </pre>
                                   </div>
@@ -1398,8 +1398,8 @@ export default function Admin() {
               </Button>
             </div>
             <div className="space-y-6">
-              <Card className="p-6 border-0 shadow-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Create New Tier</h3>
+              <Card className="p-6 card-premium">
+                <h3 className="font-display text-lg font-semibold text-ink mb-4">Create New Tier</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Tier Name</Label>
@@ -1473,7 +1473,7 @@ export default function Admin() {
                 <Button
                   onClick={() => createTierMutation.mutate(tierFormData)}
                   disabled={!tierFormData.name || createTierMutation.isPending}
-                  className="mt-4 bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                  className="mt-4 btn-cta"
                 >
                   Create Tier
                 </Button>
@@ -1481,7 +1481,7 @@ export default function Admin() {
 
               <div className="grid sm:grid-cols-2 gap-6">
                 {tiers.map((tier) => (
-                  <Card key={tier.id} className="p-6 border-0 shadow-lg">
+                  <Card key={tier.id} className="p-6 card-premium">
                     {editingTier?.id === tier.id ? (
                       <div className="space-y-3">
                         <div>
@@ -1541,7 +1541,7 @@ export default function Admin() {
                           <Button
                             onClick={() => updateTierMutation.mutate({ id: tier.id, data: editingTier })}
                             size="sm"
-                            className="bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                            className="btn-cta"
                           >
                             Save
                           </Button>
@@ -1554,15 +1554,15 @@ export default function Admin() {
                       <>
                         <div className="flex items-start justify-between mb-4">
                           <div>
-                            <h3 className="text-xl font-bold text-gray-900">{tier.name}</h3>
-                            <p className="text-2xl font-bold text-[#7A9D7A] mt-1">R{tier.price}/mo</p>
+                            <h3 className="text-xl font-bold text-ink">{tier.name}</h3>
+                            <p className="text-2xl font-bold text-moss-600 mt-1">R{tier.price}/mo</p>
                           </div>
                           <div className="flex gap-2">
                             <Button
                               variant="ghost"
                               size="sm"
                               onClick={() => setEditingTier(tier)}
-                              className="text-blue-600"
+                              className="text-moss-700"
                             >
                               <Settings className="w-4 h-4" />
                             </Button>
@@ -1570,13 +1570,13 @@ export default function Admin() {
                               variant="ghost"
                               size="sm"
                               onClick={() => deleteTierMutation.mutate(tier.id)}
-                              className="text-red-600"
+                              className="text-terracotta-600"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </div>
-                        <div className="space-y-2 text-sm text-gray-600">
+                        <div className="space-y-2 text-sm text-ink/65">
                           <p>• <strong>Listings:</strong> {tier.max_listings} max</p>
                           <p>• <strong>Images:</strong> {tier.max_images_per_listing} per listing</p>
                           <p>• <strong>CRM Prospects:</strong> {tier.max_prospects || 50} max</p>
@@ -1600,9 +1600,9 @@ export default function Admin() {
                 <ArrowLeft className="w-4 h-4" /> Back to Dashboard
               </Button>
             </div>
-            <Card className="p-6 border-0 shadow-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-[#7A9D7A]" />
+            <Card className="p-6 card-premium">
+              <h3 className="font-display text-lg font-semibold text-ink mb-4 flex items-center gap-2">
+                <DollarSign className="w-5 h-5 text-moss-600" />
                 Create Feature Pricing Plan
                 </h3>
                 <div className="grid grid-cols-3 gap-4">
@@ -1635,17 +1635,17 @@ export default function Admin() {
                 <Button
                   onClick={() => createPricingMutation.mutate({ ...pricingFormData, is_active: true })}
                   disabled={!pricingFormData.name || createPricingMutation.isPending}
-                  className="mt-4 bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                  className="mt-4 btn-cta"
                 >
                   Create Pricing Plan
                 </Button>
               </Card>
 
               <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Active Pricing Plans</h3>
+                <h3 className="font-display text-lg font-semibold text-ink mb-4">Active Pricing Plans</h3>
                 <div className="grid sm:grid-cols-3 gap-4">
                   {featurePricing.map((plan) => (
-                    <Card key={plan.id} className="p-6 border-0 shadow-lg">
+                    <Card key={plan.id} className="p-6 card-premium">
                       {editingPricing?.id === plan.id ? (
                         <div className="space-y-3">
                           <Input
@@ -1670,7 +1670,7 @@ export default function Admin() {
                             <Button
                               onClick={() => updatePricingMutation.mutate({ id: plan.id, data: editingPricing })}
                               size="sm"
-                              className="bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                              className="btn-cta"
                             >
                               Save
                             </Button>
@@ -1682,13 +1682,13 @@ export default function Admin() {
                       ) : (
                         <>
                           <div className="flex items-start justify-between mb-3">
-                            <Star className="w-6 h-6 text-yellow-500 fill-yellow-500" />
+                            <Star className="w-6 h-6 text-yolk-500 fill-yolk-500" />
                             <div className="flex gap-1">
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setEditingPricing(plan)}
-                                className="text-blue-600 -mt-2"
+                                className="text-moss-700 -mt-2"
                               >
                                 <Settings className="w-4 h-4" />
                               </Button>
@@ -1696,15 +1696,15 @@ export default function Admin() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => deletePricingMutation.mutate(plan.id)}
-                                className="text-red-600 -mt-2 -mr-2"
+                                className="text-terracotta-600 -mt-2 -mr-2"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
                             </div>
                           </div>
-                          <h4 className="text-xl font-bold text-gray-900 mb-1">{plan.name}</h4>
-                          <p className="text-3xl font-bold text-[#7A9D7A] mb-2">R{plan.price}</p>
-                          <p className="text-sm text-gray-600">{plan.duration_days} days featured</p>
+                          <h4 className="text-xl font-bold text-ink mb-1">{plan.name}</h4>
+                          <p className="text-3xl font-bold text-moss-600 mb-2">R{plan.price}</p>
+                          <p className="text-sm text-ink/65">{plan.duration_days} days featured</p>
                         </>
                       )}
                     </Card>
@@ -1712,35 +1712,35 @@ export default function Admin() {
                 </div>
               </div>
 
-              <Card className="border-0 shadow-lg">
+              <Card className="card-premium">
                 <div className="p-6 border-b">
-                  <h3 className="text-lg font-semibold text-gray-900">Recent Feature Payments</h3>
+                  <h3 className="font-display text-lg font-semibold text-ink">Recent Feature Payments</h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50 border-b">
+                    <thead className="bg-cream border-b">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Seller</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Listing</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Ends</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Seller</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Listing</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Amount</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Duration</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Ends</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {featurePayments.slice(0, 20).map((payment) => (
-                        <tr key={payment.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 text-sm text-gray-900">{payment.seller_id}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{payment.listing_id}</td>
+                        <tr key={payment.id} className="hover:bg-cream">
+                          <td className="px-6 py-4 text-sm text-ink">{payment.seller_id}</td>
+                          <td className="px-6 py-4 text-sm text-ink/65">{payment.listing_id}</td>
                           <td className="px-6 py-4 font-medium">R{payment.amount_paid}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{payment.duration_days} days</td>
+                          <td className="px-6 py-4 text-sm text-ink/65">{payment.duration_days} days</td>
                           <td className="px-6 py-4">
                             <Badge variant={payment.status === 'active' ? 'default' : 'secondary'}>
                               {payment.status}
                             </Badge>
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">
+                          <td className="px-6 py-4 text-sm text-ink/65">
                             {new Date(payment.feature_ends).toLocaleDateString()}
                           </td>
                         </tr>
@@ -1760,12 +1760,12 @@ export default function Admin() {
               </Button>
             </div>
             <div className="space-y-6">
-              <Card className="p-6 border-0 shadow-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Account Approval Settings</h3>
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <Card className="p-6 card-premium">
+                <h3 className="font-display text-lg font-semibold text-ink mb-4">Account Approval Settings</h3>
+                <div className="flex items-center justify-between p-4 bg-cream rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-900">Require Admin Approval for New Accounts</p>
-                    <p className="text-sm text-gray-600">When enabled, new seller accounts will need admin approval before they can create listings. When disabled, all new accounts are automatically active.</p>
+                    <p className="font-medium text-ink">Require Admin Approval for New Accounts</p>
+                    <p className="text-sm text-ink/65">When enabled, new seller accounts will need admin approval before they can create listings. When disabled, all new accounts are automatically active.</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <input
@@ -1786,12 +1786,12 @@ export default function Admin() {
                 </div>
               </Card>
 
-              <Card className="p-6 border-0 shadow-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Yoco Webhook Settings</h3>
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <Card className="p-6 card-premium">
+                <h3 className="font-display text-lg font-semibold text-ink mb-4">Yoco Webhook Settings</h3>
+                <div className="flex items-center justify-between p-4 bg-cream rounded-lg">
                   <div>
-                    <p className="font-medium text-gray-900">Validate Yoco Webhook Signature</p>
-                    <p className="text-sm text-gray-600">When enabled, validates incoming webhook requests using YOCO_WEBHOOK_SECRET for security. Disable for testing.</p>
+                    <p className="font-medium text-ink">Validate Yoco Webhook Signature</p>
+                    <p className="text-sm text-ink/65">When enabled, validates incoming webhook requests using YOCO_WEBHOOK_SECRET for security. Disable for testing.</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <input
@@ -1812,8 +1812,8 @@ export default function Admin() {
                 </div>
               </Card>
 
-              <Card className="p-6 border-0 shadow-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Verification Fee Settings</h3>
+              <Card className="p-6 card-premium">
+                <h3 className="font-display text-lg font-semibold text-ink mb-4">Verification Fee Settings</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Verification Fee (R)</Label>
@@ -1838,7 +1838,7 @@ export default function Admin() {
                     verification_fee: verificationFee || adminSettings?.verification_fee || 0,
                     verification_fee_message: verificationMessage || adminSettings?.verification_fee_message || ''
                   })}
-                  className="mt-4 bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                  className="mt-4 btn-cta"
                 >
                   Save Fee Settings
                 </Button>
@@ -1855,8 +1855,8 @@ export default function Admin() {
               </Button>
             </div>
             <div className="space-y-6">
-              <Card className="p-6 border-0 shadow-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Update Banking Information</h3>
+              <Card className="p-6 card-premium">
+                <h3 className="font-display text-lg font-semibold text-ink mb-4">Update Banking Information</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label>Bank Name</Label>
@@ -1902,39 +1902,39 @@ export default function Admin() {
                 <Button
                   onClick={() => createBankingInfoMutation.mutate(bankingFormData)}
                   disabled={!bankingFormData.bank_name || !bankingFormData.account_holder || !bankingFormData.account_number}
-                  className="mt-4 bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                  className="mt-4 btn-cta"
                 >
                   Update Banking Info
                 </Button>
               </Card>
 
               {bankingInfo.length > 0 && (
-                <Card className="p-6 border-0 shadow-lg">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">Current Banking Information</h3>
+                <Card className="p-6 card-premium">
+                  <h3 className="font-display text-lg font-semibold text-ink mb-4">Current Banking Information</h3>
                   {bankingInfo.filter(info => info.is_active).map((info) => (
-                    <div key={info.id} className="bg-blue-50 p-4 rounded-lg">
+                    <div key={info.id} className="bg-moss-50 p-4 rounded-lg">
                       <div className="grid grid-cols-2 gap-3 text-sm">
                         <div>
-                          <span className="text-gray-600">Bank:</span>
+                          <span className="text-ink/65">Bank:</span>
                           <span className="ml-2 font-medium">{info.bank_name}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Account Holder:</span>
+                          <span className="text-ink/65">Account Holder:</span>
                           <span className="ml-2 font-medium">{info.account_holder}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Account Number:</span>
+                          <span className="text-ink/65">Account Number:</span>
                           <span className="ml-2 font-medium">{info.account_number}</span>
                         </div>
                         {info.account_type && (
                           <div>
-                            <span className="text-gray-600">Account Type:</span>
+                            <span className="text-ink/65">Account Type:</span>
                             <span className="ml-2 font-medium">{info.account_type}</span>
                           </div>
                         )}
                         {info.branch_code && (
                           <div>
-                            <span className="text-gray-600">Branch Code:</span>
+                            <span className="text-ink/65">Branch Code:</span>
                             <span className="ml-2 font-medium">{info.branch_code}</span>
                           </div>
                         )}
@@ -1956,52 +1956,52 @@ export default function Admin() {
             </div>
             <div className="space-y-6">
               <div className="grid grid-cols-4 gap-6">
-                <Card className="p-6 border-0 shadow-lg">
-                  <DollarSign className="w-8 h-8 text-[#7A9D7A] mb-2" />
-                  <p className="text-3xl font-bold text-gray-900">R{featurePayments.filter(p => p.status === 'verified').reduce((sum, p) => sum + p.amount_paid, 0).toFixed(2)}</p>
-                  <p className="text-sm text-gray-600">Total Revenue</p>
+                <Card className="p-6 card-premium">
+                  <DollarSign className="w-8 h-8 text-moss-600 mb-2" />
+                  <p className="text-3xl font-bold text-ink">R{featurePayments.filter(p => p.status === 'verified').reduce((sum, p) => sum + p.amount_paid, 0).toFixed(2)}</p>
+                  <p className="text-sm text-ink/65">Total Revenue</p>
                 </Card>
-                <Card className="p-6 border-0 shadow-lg">
-                  <CheckCircle2 className="w-8 h-8 text-green-600 mb-2" />
-                  <p className="text-3xl font-bold text-gray-900">{featurePayments.filter(p => p.status === 'verified').length}</p>
-                  <p className="text-sm text-gray-600">Verified Payments</p>
+                <Card className="p-6 card-premium">
+                  <CheckCircle2 className="w-8 h-8 text-moss-700 mb-2" />
+                  <p className="text-3xl font-bold text-ink">{featurePayments.filter(p => p.status === 'verified').length}</p>
+                  <p className="text-sm text-ink/65">Verified Payments</p>
                 </Card>
-                <Card className="p-6 border-0 shadow-lg">
-                  <Loader2 className="w-8 h-8 text-yellow-600 mb-2" />
-                  <p className="text-3xl font-bold text-gray-900">{pendingPayments.length}</p>
-                  <p className="text-sm text-gray-600">Pending Verification</p>
+                <Card className="p-6 card-premium">
+                  <Loader2 className="w-8 h-8 text-yolk-600 mb-2" />
+                  <p className="text-3xl font-bold text-ink">{pendingPayments.length}</p>
+                  <p className="text-sm text-ink/65">Pending Verification</p>
                 </Card>
-                <Card className="p-6 border-0 shadow-lg">
-                  <XCircle className="w-8 h-8 text-red-600 mb-2" />
-                  <p className="text-3xl font-bold text-gray-900">{featurePayments.filter(p => p.status === 'rejected').length}</p>
-                  <p className="text-sm text-gray-600">Rejected</p>
+                <Card className="p-6 card-premium">
+                  <XCircle className="w-8 h-8 text-terracotta-600 mb-2" />
+                  <p className="text-3xl font-bold text-ink">{featurePayments.filter(p => p.status === 'rejected').length}</p>
+                  <p className="text-sm text-ink/65">Rejected</p>
                 </Card>
               </div>
 
-              <Card className="border-0 shadow-lg">
+              <Card className="card-premium">
                 <div className="p-6 border-b">
-                  <h3 className="text-lg font-semibold text-gray-900">Recent Transactions</h3>
+                  <h3 className="font-display text-lg font-semibold text-ink">Recent Transactions</h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50 border-b">
+                    <thead className="bg-cream border-b">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Seller</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Duration</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Date</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Seller</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Amount</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Duration</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {featurePayments.slice(0, 20).map((payment) => (
-                        <tr key={payment.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 text-sm text-gray-600">
+                        <tr key={payment.id} className="hover:bg-cream">
+                          <td className="px-6 py-4 text-sm text-ink/65">
                             {new Date(payment.created_date).toLocaleDateString()}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-900">{payment.seller_id}</td>
+                          <td className="px-6 py-4 text-sm text-ink">{payment.seller_id}</td>
                           <td className="px-6 py-4 font-medium">R{payment.amount_paid}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{payment.duration_days} days</td>
+                          <td className="px-6 py-4 text-sm text-ink/65">{payment.duration_days} days</td>
                           <td className="px-6 py-4">
                             <Badge variant={payment.status === 'verified' ? 'default' : payment.status === 'pending' ? 'secondary' : 'destructive'}>
                               {payment.status}
@@ -2024,24 +2024,24 @@ export default function Admin() {
                 <ArrowLeft className="w-4 h-4" /> Back to Dashboard
               </Button>
             </div>
-            <Card className="border-0 shadow-lg overflow-hidden">
-              <div className="p-4 bg-yellow-50 border-b">
-                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <Star className="w-5 h-5 text-yellow-500" />
+            <Card className="card-premium overflow-hidden">
+              <div className="p-4 bg-yolk-50 border-b">
+                <h3 className="font-semibold text-ink flex items-center gap-2">
+                  <Star className="w-5 h-5 text-yolk-500" />
                   Featured Listings
                 </h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-cream border-b">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Listing</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Seller</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Featured Start</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Featured End</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Listing</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Seller</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Price</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Featured Start</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Featured End</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -2052,7 +2052,7 @@ export default function Admin() {
                       const daysRemaining = Math.ceil((featuredEnd - now) / (1000 * 60 * 60 * 24));
                       
                       return (
-                        <tr key={listing.id} className="hover:bg-gray-50">
+                        <tr key={listing.id} className="hover:bg-cream">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <img
@@ -2061,26 +2061,26 @@ export default function Admin() {
                                 className="w-12 h-12 rounded object-cover"
                               />
                               <div>
-                                <p className="font-medium text-gray-900 line-clamp-1">{listing.title}</p>
-                                <Badge className="mt-1 bg-yellow-500">Featured</Badge>
+                                <p className="font-medium text-ink line-clamp-1">{listing.title}</p>
+                                <Badge className="mt-1 bg-yolk-500">Featured</Badge>
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{listing.created_by}</td>
+                          <td className="px-6 py-4 text-sm text-ink/65">{listing.created_by}</td>
                           <td className="px-6 py-4 font-medium">R{listing.price}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">
+                          <td className="px-6 py-4 text-sm text-ink/65">
                             {featurePayments.find(p => p.listing_id === listing.id)?.feature_starts 
                               ? new Date(featurePayments.find(p => p.listing_id === listing.id).feature_starts).toLocaleDateString()
                               : '-'}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">
+                          <td className="px-6 py-4 text-sm text-ink/65">
                             {listing.featured_until ? new Date(listing.featured_until).toLocaleDateString() : '-'}
                           </td>
                           <td className="px-6 py-4">
                             {isActive ? (
                               <div>
-                                <Badge className="bg-green-500">Active</Badge>
-                                <p className="text-xs text-gray-500 mt-1">{daysRemaining} days left</p>
+                                <Badge className="bg-fresh-500">Active</Badge>
+                                <p className="text-xs text-ink/55 mt-1">{daysRemaining} days left</p>
                               </div>
                             ) : (
                               <Badge variant="secondary">Expired</Badge>
@@ -2104,7 +2104,7 @@ export default function Admin() {
                                   queryClient.invalidateQueries(['all-listings']);
                                   toast.success('Listing unfeatured');
                                 }}
-                                className="text-yellow-600 hover:text-yellow-700"
+                                className="text-yolk-600 hover:text-yolk-700"
                                 title="Unfeature listing"
                               >
                                 <XCircle className="w-4 h-4" />
@@ -2119,9 +2119,9 @@ export default function Admin() {
               </div>
               {listings.filter(l => l.featured).length === 0 && (
                 <div className="p-12 text-center">
-                  <Star className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No featured listings</h3>
-                  <p className="text-gray-600">No listings are currently featured</p>
+                  <Star className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                  <h3 className="font-display text-xl font-semibold text-ink mb-2">No featured listings</h3>
+                  <p className="text-ink/65">No listings are currently featured</p>
                 </div>
               )}
             </Card>
@@ -2135,21 +2135,21 @@ export default function Admin() {
                 <ArrowLeft className="w-4 h-4" /> Back to Dashboard
               </Button>
             </div>
-            <Card className="border-0 shadow-lg overflow-hidden">
+            <Card className="card-premium overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-cream border-b">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Listing</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Seller</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Price</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Listing</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Seller</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Price</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {listings.map((listing) => (
-                      <tr key={listing.id} className="hover:bg-gray-50">
+                      <tr key={listing.id} className="hover:bg-cream">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <img
@@ -2158,12 +2158,12 @@ export default function Admin() {
                               className="w-12 h-12 rounded object-cover"
                             />
                             <div>
-                              <p className="font-medium text-gray-900 line-clamp-1">{listing.title}</p>
-                              {listing.featured && <Badge className="mt-1 bg-yellow-500">Featured</Badge>}
+                              <p className="font-medium text-ink line-clamp-1">{listing.title}</p>
+                              {listing.featured && <Badge className="mt-1 bg-yolk-500">Featured</Badge>}
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{listing.created_by}</td>
+                        <td className="px-6 py-4 text-sm text-ink/65">{listing.created_by}</td>
                         <td className="px-6 py-4 font-medium">R{listing.price}</td>
                         <td className="px-6 py-4">
                           <Badge variant={listing.status === 'active' ? 'default' : 'secondary'}>
@@ -2189,7 +2189,7 @@ export default function Admin() {
                                   queryClient.invalidateQueries(['all-listings']);
                                   toast.success('Listing unfeatured');
                                 }}
-                                className="text-yellow-600 hover:text-yellow-700"
+                                className="text-yolk-600 hover:text-yolk-700"
                                 title="Unfeature listing"
                               >
                                 <XCircle className="w-4 h-4" />
@@ -2199,7 +2199,7 @@ export default function Admin() {
                               variant="ghost"
                               size="sm"
                               onClick={() => deleteListingMutation.mutate(listing.id)}
-                              className="text-red-600 hover:text-red-700"
+                              className="text-terracotta-600 hover:text-terracotta-700"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
@@ -2228,22 +2228,22 @@ export default function Admin() {
                   onClick={() => sendPaymentRemindersMutation.mutate()}
                   disabled={sendPaymentRemindersMutation.isPending}
                   variant="outline"
-                  className="text-[#E07A5F]"
+                  className="text-terracotta-600"
                 >
                   {sendPaymentRemindersMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                   Send Payment Reminders (5 days before expiry)
                 </Button>
               </div>
 
-              <Card className="border-0 shadow-lg overflow-hidden">
-                <div className="p-4 bg-gray-50 border-b flex items-center gap-2">
-                  <Gavel className="w-5 h-5 text-[#E07A5F]" />
-                  <h3 className="font-semibold text-gray-900">Pending Auction House Payments</h3>
+              <Card className="card-premium overflow-hidden">
+                <div className="p-4 bg-cream border-b flex items-center gap-2">
+                  <Gavel className="w-5 h-5 text-terracotta-600" />
+                  <h3 className="font-semibold text-ink">Pending Auction House Payments</h3>
                 </div>
                 {pendingAuctionHousePayments.length === 0 ? (
                   <div className="p-12 text-center">
-                    <CheckCircle2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">No pending payments</h3>
+                    <CheckCircle2 className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                    <h3 className="font-display text-xl font-semibold text-ink mb-2">No pending payments</h3>
                   </div>
                 ) : (
                   <div className="divide-y">
@@ -2251,12 +2251,12 @@ export default function Admin() {
                       <div key={payment.id} className="p-6">
                         <div className="flex items-start justify-between mb-4">
                           <div>
-                            <p className="font-medium text-gray-900">Seller: {payment.seller_email}</p>
-                            <p className="text-sm text-gray-600">Auction House ID: {payment.auction_house_id}</p>
-                            <p className="text-sm text-gray-600">Reference: {payment.payment_reference}</p>
+                            <p className="font-medium text-ink">Seller: {payment.seller_email}</p>
+                            <p className="text-sm text-ink/65">Auction House ID: {payment.auction_house_id}</p>
+                            <p className="text-sm text-ink/65">Reference: {payment.payment_reference}</p>
                           </div>
                           <div className="text-right">
-                            <p className="text-2xl font-bold text-[#E07A5F]">R{payment.amount}</p>
+                            <p className="text-2xl font-bold text-terracotta-600">R{payment.amount}</p>
                             <Badge variant="secondary">{payment.tier_name || 'Basic'} - {payment.payment_type || 'initial'}</Badge>
                           </div>
                         </div>
@@ -2267,7 +2267,7 @@ export default function Admin() {
                               variant="outline"
                               size="sm"
                               onClick={() => setViewingDocument({ url: payment.payment_proof_url, title: 'Payment Proof' })}
-                              className="text-[#7A9D7A]"
+                              className="text-moss-600"
                             >
                               <Eye className="w-4 h-4 mr-2" />
                               View Payment Proof
@@ -2279,7 +2279,7 @@ export default function Admin() {
                           <Button
                             onClick={() => verifyAuctionHousePaymentMutation.mutate({ paymentId: payment.id, approved: true, payment })}
                             disabled={verifyAuctionHousePaymentMutation.isPending}
-                            className="bg-green-600 hover:bg-green-700"
+                            className="bg-moss-600 hover:bg-moss-700"
                           >
                             <CheckCircle2 className="w-4 h-4 mr-2" />
                             Approve & Activate
@@ -2288,7 +2288,7 @@ export default function Admin() {
                             onClick={() => verifyAuctionHousePaymentMutation.mutate({ paymentId: payment.id, approved: false, payment })}
                             disabled={verifyAuctionHousePaymentMutation.isPending}
                             variant="outline"
-                            className="text-red-600 hover:text-red-700"
+                            className="text-terracotta-600 hover:text-terracotta-700"
                           >
                             <XCircle className="w-4 h-4 mr-2" />
                             Reject
@@ -2300,32 +2300,32 @@ export default function Admin() {
                 )}
               </Card>
 
-              <Card className="border-0 shadow-lg overflow-hidden">
-                <div className="p-4 bg-gray-50 border-b">
-                  <h3 className="font-semibold text-gray-900">Active Auction Events</h3>
+              <Card className="card-premium overflow-hidden">
+                <div className="p-4 bg-cream border-b">
+                  <h3 className="font-semibold text-ink">Active Auction Events</h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50 border-b">
+                    <thead className="bg-cream border-b">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Event</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Items</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">End Time</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Event</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Items</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">End Time</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {allAuctionEvents.filter(e => e.status !== 'ended').map((event) => (
-                        <tr key={event.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 font-medium text-gray-900">{event.title}</td>
+                        <tr key={event.id} className="hover:bg-cream">
+                          <td className="px-6 py-4 font-medium text-ink">{event.title}</td>
                           <td className="px-6 py-4">
-                            <Badge className={event.status === 'live' ? 'bg-green-500' : event.status === 'scheduled' ? 'bg-blue-500' : 'bg-gray-500'}>
+                            <Badge className={event.status === 'live' ? 'bg-fresh-500' : event.status === 'scheduled' ? 'bg-moss-500' : 'bg-cream0'}>
                               {event.status}
                             </Badge>
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{event.total_items || 0} lots</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{new Date(event.end_time).toLocaleString()}</td>
+                          <td className="px-6 py-4 text-sm text-ink/65">{event.total_items || 0} lots</td>
+                          <td className="px-6 py-4 text-sm text-ink/65">{new Date(event.end_time).toLocaleString()}</td>
                           <td className="px-6 py-4">
                             <div className="flex gap-2">
                               <Link to={createPageUrl('AuctionEventDetail') + `?id=${event.id}`}>
@@ -2350,44 +2350,44 @@ export default function Admin() {
                 </div>
               </Card>
 
-              <Card className="border-0 shadow-lg overflow-hidden">
-                <div className="p-4 bg-gray-50 border-b">
-                  <h3 className="font-semibold text-gray-900">All Auction Houses</h3>
+              <Card className="card-premium overflow-hidden">
+                <div className="p-4 bg-cream border-b">
+                  <h3 className="font-semibold text-ink">All Auction Houses</h3>
                 </div>
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50 border-b">
+                    <thead className="bg-cream border-b">
                       <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Auction House</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tier</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Subscription</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Auction House</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Owner</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Tier</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Subscription</th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Status</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y">
                       {allAuctionHouses.map((house) => (
-                        <tr key={house.id} className="hover:bg-gray-50">
+                        <tr key={house.id} className="hover:bg-cream">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               {house.logo_url ? (
                                 <img src={house.logo_url} alt={house.name} className="w-10 h-10 rounded-full object-cover" />
                               ) : (
-                                <div className="w-10 h-10 rounded-full bg-[#E07A5F]/10 flex items-center justify-center">
-                                  <Gavel className="w-5 h-5 text-[#E07A5F]" />
+                                <div className="w-10 h-10 rounded-full bg-terracotta-500/10 flex items-center justify-center">
+                                  <Gavel className="w-5 h-5 text-terracotta-600" />
                                 </div>
                               )}
                               <div>
-                                <p className="font-medium text-gray-900">{house.name}</p>
-                                <p className="text-xs text-gray-500">{house.city}, {house.province}</p>
+                                <p className="font-medium text-ink">{house.name}</p>
+                                <p className="text-xs text-ink/55">{house.city}, {house.province}</p>
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{house.created_by}</td>
+                          <td className="px-6 py-4 text-sm text-ink/65">{house.created_by}</td>
                           <td className="px-6 py-4">
                             <Badge variant="outline">{house.tier_name || 'Basic'}</Badge>
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">
+                          <td className="px-6 py-4 text-sm text-ink/65">
                             {house.subscription_end ? new Date(house.subscription_end).toLocaleDateString() : '-'}
                           </td>
                           <td className="px-6 py-4">
@@ -2413,9 +2413,9 @@ export default function Admin() {
               </Button>
             </div>
             <div className="space-y-6">
-              <Card className="p-6 border-0 shadow-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Building2 className="w-5 h-5 text-[#E07A5F]" />
+              <Card className="p-6 card-premium">
+                <h3 className="font-display text-lg font-semibold text-ink mb-4 flex items-center gap-2">
+                  <Building2 className="w-5 h-5 text-terracotta-600" />
                   Create Auction House Tier
                 </h3>
                 <div className="grid grid-cols-3 gap-4">
@@ -2479,7 +2479,7 @@ export default function Admin() {
                 <Button
                   onClick={() => createAuctionTierMutation.mutate(auctionTierForm)}
                   disabled={!auctionTierForm.name || createAuctionTierMutation.isPending}
-                  className="mt-4 bg-[#E07A5F] hover:bg-[#D06A4F]"
+                  className="mt-4 bg-terracotta-500 hover:bg-terracotta-600 text-white"
                 >
                   <Plus className="w-4 h-4 mr-2" />
                   Create Tier
@@ -2488,7 +2488,7 @@ export default function Admin() {
 
               <div className="grid sm:grid-cols-3 gap-6">
                 {auctionHouseTiers.map((tier) => (
-                  <Card key={tier.id} className="p-6 border-0 shadow-lg relative">
+                  <Card key={tier.id} className="p-6 card-premium relative">
                     {editingAuctionTier?.id === tier.id ? (
                       <div className="space-y-3">
                         <Input
@@ -2527,7 +2527,7 @@ export default function Admin() {
                           <Button
                             onClick={() => updateAuctionTierMutation.mutate({ id: tier.id, data: editingAuctionTier })}
                             size="sm"
-                            className="bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                            className="btn-cta"
                           >
                             Save
                           </Button>
@@ -2539,15 +2539,15 @@ export default function Admin() {
                     ) : (
                       <>
                         {tier.featured_placement && (
-                          <div className="absolute -top-3 left-4 bg-[#E07A5F] text-white text-xs font-bold px-2 py-1 rounded">
+                          <div className="absolute -top-3 left-4 bg-terracotta-500 text-white text-xs font-bold px-2 py-1 rounded">
                             POPULAR
                           </div>
                         )}
                         <div className="flex items-start justify-between mb-4">
                           <div>
-                            <h3 className="text-xl font-bold text-gray-900">{tier.name}</h3>
-                            <p className="text-3xl font-bold text-[#E07A5F] mt-1">
-                              R{tier.monthly_price}<span className="text-sm font-normal text-gray-500">/mo</span>
+                            <h3 className="text-xl font-bold text-ink">{tier.name}</h3>
+                            <p className="text-3xl font-bold text-terracotta-600 mt-1">
+                              R{tier.monthly_price}<span className="text-sm font-normal text-ink/55">/mo</span>
                             </p>
                           </div>
                           <div className="flex gap-1">
@@ -2555,7 +2555,7 @@ export default function Admin() {
                               variant="ghost"
                               size="sm"
                               onClick={() => setEditingAuctionTier(tier)}
-                              className="text-blue-600"
+                              className="text-moss-700"
                             >
                               <Settings className="w-4 h-4" />
                             </Button>
@@ -2563,36 +2563,36 @@ export default function Admin() {
                               variant="ghost"
                               size="sm"
                               onClick={() => deleteAuctionTierMutation.mutate(tier.id)}
-                              className="text-red-600"
+                              className="text-terracotta-600"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
                         </div>
-                        <ul className="space-y-2 text-sm text-gray-600">
+                        <ul className="space-y-2 text-sm text-ink/65">
                           <li className="flex items-center gap-2">
-                            <Gavel className="w-4 h-4 text-[#7A9D7A]" />
+                            <Gavel className="w-4 h-4 text-moss-600" />
                             {tier.max_live_auctions} live auction{tier.max_live_auctions > 1 ? 's' : ''} at a time
                           </li>
                           <li className="flex items-center gap-2">
-                            <CheckCircle2 className="w-4 h-4 text-[#7A9D7A]" />
+                            <CheckCircle2 className="w-4 h-4 text-moss-600" />
                             Up to {tier.max_items_per_auction} items per auction
                           </li>
                           {tier.featured_placement && (
                             <li className="flex items-center gap-2">
-                              <Star className="w-4 h-4 text-yellow-500" />
+                              <Star className="w-4 h-4 text-yolk-500" />
                               Featured placement
                             </li>
                           )}
                           {tier.priority_support && (
                             <li className="flex items-center gap-2">
-                              <CheckCircle2 className="w-4 h-4 text-[#7A9D7A]" />
+                              <CheckCircle2 className="w-4 h-4 text-moss-600" />
                               Priority support
                             </li>
                           )}
                         </ul>
                         <div className="mt-4 pt-4 border-t">
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-ink/55">
                             {allAuctionHouses.filter(h => h.tier_id === tier.id).length} auction house(s) using this tier
                           </p>
                         </div>
@@ -2603,10 +2603,10 @@ export default function Admin() {
               </div>
 
               {auctionHouseTiers.length === 0 && (
-                <Card className="p-12 text-center border-0 shadow-lg">
-                  <Building2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No tiers created yet</h3>
-                  <p className="text-gray-600">Create your first auction house tier above</p>
+                <Card className="p-12 text-center card-premium">
+                  <Building2 className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                  <h3 className="font-display text-xl font-semibold text-ink mb-2">No tiers created yet</h3>
+                  <p className="text-ink/65">Create your first auction house tier above</p>
                 </Card>
               )}
             </div>
@@ -2633,70 +2633,70 @@ export default function Admin() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <Card className="p-6 border-0 shadow-lg">
+              <Card className="p-6 card-premium">
                 <div className="flex items-center gap-3 mb-3">
-                  <Package className="w-8 h-8 text-[#7A9D7A]" />
+                  <Package className="w-8 h-8 text-moss-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Total Listings</p>
-                    <p className="text-3xl font-bold text-gray-900">{listings.length}</p>
+                    <p className="text-sm text-ink/65">Total Listings</p>
+                    <p className="text-3xl font-bold text-ink">{listings.length}</p>
                   </div>
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-ink/55">
                   Active: {listings.filter(l => l.status === 'active').length}
                 </div>
               </Card>
 
-              <Card className="p-6 border-0 shadow-lg">
+              <Card className="p-6 card-premium">
                 <div className="flex items-center gap-3 mb-3">
-                  <Eye className="w-8 h-8 text-[#E07A5F]" />
+                  <Eye className="w-8 h-8 text-terracotta-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Total Views</p>
-                    <p className="text-3xl font-bold text-gray-900">{totalViews}</p>
+                    <p className="text-sm text-ink/65">Total Views</p>
+                    <p className="text-3xl font-bold text-ink">{totalViews}</p>
                   </div>
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-ink/55">
                   Avg: {listings.length > 0 ? Math.round(totalViews / listings.length) : 0} per listing
                 </div>
               </Card>
 
-              <Card className="p-6 border-0 shadow-lg">
+              <Card className="p-6 card-premium">
                 <div className="flex items-center gap-3 mb-3">
-                  <MessageCircle className="w-8 h-8 text-blue-500" />
+                  <MessageCircle className="w-8 h-8 text-moss-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Total Inquiries</p>
-                    <p className="text-3xl font-bold text-gray-900">{inquiries.length}</p>
+                    <p className="text-sm text-ink/65">Total Inquiries</p>
+                    <p className="text-3xl font-bold text-ink">{inquiries.length}</p>
                   </div>
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-ink/55">
                   Engagement rate: {listings.length > 0 ? ((inquiries.length / totalViews) * 100).toFixed(1) : 0}%
                 </div>
               </Card>
 
-              <Card className="p-6 border-0 shadow-lg">
+              <Card className="p-6 card-premium">
                 <div className="flex items-center gap-3 mb-3">
-                  <Users className="w-8 h-8 text-purple-500" />
+                  <Users className="w-8 h-8 text-moss-600" />
                   <div>
-                    <p className="text-sm text-gray-600">Total Users</p>
-                    <p className="text-3xl font-bold text-gray-900">{users.length}</p>
+                    <p className="text-sm text-ink/65">Total Users</p>
+                    <p className="text-3xl font-bold text-ink">{users.length}</p>
                   </div>
                 </div>
-                <div className="text-xs text-gray-500">
+                <div className="text-xs text-ink/55">
                   Sellers: {users.filter(u => u.user_type === 'seller' || u.user_type === 'both').length}
                 </div>
               </Card>
             </div>
 
-            <Card className="p-6 border-0 shadow-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Most Viewed Listings</h3>
+            <Card className="p-6 card-premium">
+              <h3 className="font-display text-lg font-semibold text-ink mb-6">Most Viewed Listings</h3>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-cream border-b">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Listing</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Seller</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Views</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Inquiries</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Conversion</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Listing</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Seller</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Views</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Inquiries</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Conversion</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -2704,7 +2704,7 @@ export default function Admin() {
                       .sort((a, b) => (b.view_count || 0) - (a.view_count || 0))
                       .slice(0, 10)
                       .map((listing) => (
-                        <tr key={listing.id} className="hover:bg-gray-50">
+                        <tr key={listing.id} className="hover:bg-cream">
                           <td className="px-6 py-4">
                             <div className="flex items-center gap-3">
                               <img
@@ -2713,14 +2713,14 @@ export default function Admin() {
                                 className="w-10 h-10 rounded object-cover"
                               />
                               <div>
-                                <p className="font-medium text-gray-900 line-clamp-1">{listing.title}</p>
-                                {listing.featured && <Badge className="mt-1 bg-yellow-500 text-xs">Featured</Badge>}
+                                <p className="font-medium text-ink line-clamp-1">{listing.title}</p>
+                                {listing.featured && <Badge className="mt-1 bg-yolk-500 text-xs">Featured</Badge>}
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{listing.created_by}</td>
+                          <td className="px-6 py-4 text-sm text-ink/65">{listing.created_by}</td>
                           <td className="px-6 py-4 font-medium">{listing.view_count || 0}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{listing.inquiry_count || 0}</td>
+                          <td className="px-6 py-4 text-sm text-ink/65">{listing.inquiry_count || 0}</td>
                           <td className="px-6 py-4">
                             <Badge variant={
                               (listing.view_count || 0) > 0 && ((listing.inquiry_count || 0) / (listing.view_count || 1)) > 0.1 
@@ -2741,8 +2741,8 @@ export default function Admin() {
             </Card>
 
             <div className="grid md:grid-cols-2 gap-6">
-              <Card className="p-6 border-0 shadow-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Listings by Category</h3>
+              <Card className="p-6 card-premium">
+                <h3 className="font-display text-lg font-semibold text-ink mb-6">Listings by Category</h3>
                 <div className="space-y-3">
                   {Object.entries(
                     listings.reduce((acc, listing) => {
@@ -2764,12 +2764,12 @@ export default function Admin() {
                       return (
                         <div key={category}>
                           <div className="flex justify-between text-sm mb-1">
-                            <span className="text-gray-700 capitalize">{categoryLabels[category] || category}</span>
-                            <span className="font-medium text-gray-900">{count} ({percentage.toFixed(1)}%)</span>
+                            <span className="text-ink/75 capitalize">{categoryLabels[category] || category}</span>
+                            <span className="font-medium text-ink">{count} ({percentage.toFixed(1)}%)</span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="w-full bg-cream-deep rounded-full h-2">
                             <div
-                              className="bg-[#7A9D7A] h-2 rounded-full"
+                              className="bg-moss-600 h-2 rounded-full"
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
@@ -2779,8 +2779,8 @@ export default function Admin() {
                 </div>
               </Card>
 
-              <Card className="p-6 border-0 shadow-lg">
-                <h3 className="text-lg font-semibold text-gray-900 mb-6">Listings by Province</h3>
+              <Card className="p-6 card-premium">
+                <h3 className="font-display text-lg font-semibold text-ink mb-6">Listings by Province</h3>
                 <div className="space-y-3">
                   {Object.entries(
                     listings.reduce((acc, listing) => {
@@ -2796,12 +2796,12 @@ export default function Admin() {
                       return (
                         <div key={province}>
                           <div className="flex justify-between text-sm mb-1">
-                            <span className="text-gray-700">{province}</span>
-                            <span className="font-medium text-gray-900">{count} ({percentage.toFixed(1)}%)</span>
+                            <span className="text-ink/75">{province}</span>
+                            <span className="font-medium text-ink">{count} ({percentage.toFixed(1)}%)</span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-2">
+                          <div className="w-full bg-cream-deep rounded-full h-2">
                             <div
-                              className="bg-[#E07A5F] h-2 rounded-full"
+                              className="bg-terracotta-500 h-2 rounded-full"
                               style={{ width: `${percentage}%` }}
                             />
                           </div>
@@ -2812,17 +2812,17 @@ export default function Admin() {
               </Card>
             </div>
 
-            <Card className="p-6 border-0 shadow-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-6">Top Sellers by Views</h3>
+            <Card className="p-6 card-premium">
+              <h3 className="font-display text-lg font-semibold text-ink mb-6">Top Sellers by Views</h3>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-cream border-b">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Seller</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Listings</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Views</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Inquiries</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Avg Views/Listing</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Seller</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Listings</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Total Views</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Total Inquiries</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Avg Views/Listing</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -2841,12 +2841,12 @@ export default function Admin() {
                       .sort(([, a], [, b]) => b.views - a.views)
                       .slice(0, 10)
                       .map(([seller, stats]) => (
-                        <tr key={seller} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 text-sm text-gray-900">{seller}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{stats.count}</td>
+                        <tr key={seller} className="hover:bg-cream">
+                          <td className="px-6 py-4 text-sm text-ink">{seller}</td>
+                          <td className="px-6 py-4 text-sm text-ink/65">{stats.count}</td>
                           <td className="px-6 py-4 font-medium">{stats.views}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{stats.inquiries}</td>
-                          <td className="px-6 py-4 text-sm text-gray-600">
+                          <td className="px-6 py-4 text-sm text-ink/65">{stats.inquiries}</td>
+                          <td className="px-6 py-4 text-sm text-ink/65">
                             {Math.round(stats.views / stats.count)}
                           </td>
                         </tr>
@@ -2866,8 +2866,8 @@ export default function Admin() {
               </Button>
             </div>
 
-            <Card className="p-6 border-0 shadow-lg">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">Create New Competition</h3>
+            <Card className="p-6 card-premium">
+              <h3 className="font-display text-lg font-semibold text-ink mb-4">Create New Competition</h3>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>Competition Name *</Label>
@@ -2918,7 +2918,7 @@ export default function Admin() {
                     }}
                     disabled={uploadingBanner}
                   />
-                  {uploadingBanner && <p className="text-sm text-gray-500 mt-1">Uploading...</p>}
+                  {uploadingBanner && <p className="text-sm text-ink/55 mt-1">Uploading...</p>}
                   {competitionForm.banner_image_url && (
                     <div className="mt-2">
                       <img src={competitionForm.banner_image_url} alt="Banner preview" className="h-24 object-cover rounded" />
@@ -2961,26 +2961,26 @@ export default function Admin() {
               <Button
                 onClick={() => createCompetitionMutation.mutate(competitionForm)}
                 disabled={!competitionForm.name || !competitionForm.start_date || !competitionForm.end_date}
-                className="mt-4 bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                className="mt-4 btn-cta"
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Create Competition
               </Button>
             </Card>
 
-            <Card className="border-0 shadow-lg overflow-hidden">
-              <div className="p-4 bg-gray-50 border-b">
-                <h3 className="font-semibold text-gray-900">All Competitions</h3>
+            <Card className="card-premium overflow-hidden">
+              <div className="p-4 bg-cream border-b">
+                <h3 className="font-semibold text-ink">All Competitions</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-cream border-b">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Name</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Period</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Entries</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Name</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Period</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Entries</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
@@ -2990,15 +2990,15 @@ export default function Admin() {
                       const canFinalize = isPast && !comp.winner_id;
                       
                       return (
-                        <tr key={comp.id} className="hover:bg-gray-50">
+                        <tr key={comp.id} className="hover:bg-cream">
                           <td className="px-6 py-4">
-                            <p className="font-medium text-gray-900">{comp.name}</p>
-                            <p className="text-xs text-gray-500">{comp.description}</p>
+                            <p className="font-medium text-ink">{comp.name}</p>
+                            <p className="text-xs text-ink/55">{comp.description}</p>
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">
+                          <td className="px-6 py-4 text-sm text-ink/65">
                             {moment(comp.start_date).format('MMM D')} - {moment(comp.end_date).format('MMM D, YYYY')}
                           </td>
-                          <td className="px-6 py-4 text-sm text-gray-600">{comp.total_entries || 0}</td>
+                          <td className="px-6 py-4 text-sm text-ink/65">{comp.total_entries || 0}</td>
                           <td className="px-6 py-4">
                             <Badge variant={comp.status === 'active' ? 'default' : comp.status === 'ended' ? 'secondary' : 'outline'}>
                               {comp.status || 'upcoming'}
@@ -3009,7 +3009,7 @@ export default function Admin() {
                               {canFinalize && (
                                 <Button
                                   size="sm"
-                                  className="bg-yellow-500 hover:bg-yellow-600"
+                                  className="bg-yolk-500 hover:bg-yolk-600"
                                   onClick={() => finalizeCompetitionMutation.mutate(comp.id)}
                                   disabled={finalizeCompetitionMutation.isPending}
                                 >
@@ -3021,7 +3021,7 @@ export default function Admin() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => setEditingCompetition(comp)}
-                                className="text-blue-600"
+                                className="text-moss-700"
                               >
                                 <Settings className="w-4 h-4" />
                               </Button>
@@ -3029,7 +3029,7 @@ export default function Admin() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => deleteCompetitionMutation.mutate(comp.id)}
-                                className="text-red-600"
+                                className="text-terracotta-600"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </Button>
@@ -3044,40 +3044,40 @@ export default function Admin() {
             </Card>
 
             {/* Competition Entries Table */}
-            <Card className="border-0 shadow-lg overflow-hidden">
-              <div className="p-4 bg-gray-50 border-b">
-                <h3 className="font-semibold text-gray-900">All Competition Entries</h3>
+            <Card className="card-premium overflow-hidden">
+              <div className="p-4 bg-cream border-b">
+                <h3 className="font-semibold text-ink">All Competition Entries</h3>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full">
-                  <thead className="bg-gray-50 border-b">
+                  <thead className="bg-cream border-b">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Entry</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Competition</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Owner</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Votes</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rating</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Entry</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Competition</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Owner</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Votes</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Rating</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y">
                     {allCompetitionEntries.map((entry) => (
-                      <tr key={entry.id} className="hover:bg-gray-50">
+                      <tr key={entry.id} className="hover:bg-cream">
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             {entry.images?.[0] && (
                               <img src={entry.images[0]} alt={entry.chicken_name} className="w-12 h-12 rounded object-cover" />
                             )}
                             <div>
-                              <p className="font-medium text-gray-900">{entry.chicken_name}</p>
-                              <p className="text-xs text-gray-500">{entry.breed}</p>
+                              <p className="font-medium text-ink">{entry.chicken_name}</p>
+                              <p className="text-xs text-ink/55">{entry.breed}</p>
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{entry.competition_name}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{entry.owner_name}</td>
-                        <td className="px-6 py-4 text-sm text-gray-600">{entry.vote_count || 0}</td>
+                        <td className="px-6 py-4 text-sm text-ink/65">{entry.competition_name}</td>
+                        <td className="px-6 py-4 text-sm text-ink/65">{entry.owner_name}</td>
+                        <td className="px-6 py-4 text-sm text-ink/65">{entry.vote_count || 0}</td>
                         <td className="px-6 py-4 text-sm font-medium">{(entry.average_rating || 0).toFixed(1)}</td>
                         <td className="px-6 py-4">
                           {entry.disqualified ? (
@@ -3101,7 +3101,7 @@ export default function Admin() {
                                   setDisqualifyingEntry(entry);
                                   setDisqualificationReason('');
                                 }}
-                                className="text-red-600 hover:text-red-700"
+                                className="text-terracotta-600 hover:text-terracotta-700"
                               >
                                 <XCircle className="w-4 h-4" />
                               </Button>
@@ -3136,7 +3136,7 @@ export default function Admin() {
                         placeholder="e.g., Violated competition rules"
                         rows={3}
                       />
-                      <p className="text-xs text-gray-500 mt-1">This message will be visible to the entry owner</p>
+                      <p className="text-xs text-ink/55 mt-1">This message will be visible to the entry owner</p>
                     </div>
                     <div className="flex justify-end gap-3">
                       <Button variant="outline" onClick={() => setDisqualifyingEntry(null)}>Cancel</Button>
@@ -3146,7 +3146,7 @@ export default function Admin() {
                           reason: disqualificationReason 
                         })}
                         disabled={!disqualificationReason || disqualifyEntryMutation.isPending}
-                        className="bg-red-600 hover:bg-red-700"
+                        className="bg-terracotta-500 hover:bg-terracotta-600"
                       >
                         Disqualify Entry
                       </Button>
@@ -3199,7 +3199,7 @@ export default function Admin() {
                         }}
                         disabled={uploadingBanner}
                       />
-                      {uploadingBanner && <p className="text-sm text-gray-500 mt-1">Uploading...</p>}
+                      {uploadingBanner && <p className="text-sm text-ink/55 mt-1">Uploading...</p>}
                       {editingCompetition.banner_image_url && (
                         <div className="mt-2">
                           <img src={editingCompetition.banner_image_url} alt="Banner preview" className="h-24 object-cover rounded" />
@@ -3259,7 +3259,7 @@ export default function Admin() {
                       <Button variant="outline" onClick={() => setEditingCompetition(null)}>Cancel</Button>
                       <Button 
                         onClick={() => updateCompetitionMutation.mutate({ id: editingCompetition.id, data: editingCompetition })}
-                        className="bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                        className="btn-cta"
                       >
                         Update Competition
                       </Button>

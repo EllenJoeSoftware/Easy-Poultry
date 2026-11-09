@@ -10,9 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Zap, Plus, Calendar, CheckCircle2, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
+import { Zap, Plus, Calendar, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import PageShell from '@/components/shell/PageShell';
 import { toast } from 'sonner';
-import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import moment from 'moment';
 
@@ -117,7 +117,7 @@ export default function VaccinationManagement() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
@@ -126,27 +126,15 @@ export default function VaccinationManagement() {
   const scheduledEvents = events.filter(e => e.status === 'scheduled');
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to={createPageUrl('FarmDashboard')} className="inline-flex items-center text-white/90 hover:text-white mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Farm Dashboard
-          </Link>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Vaccination Management</h1>
-              <p className="text-white/90">Track vaccinations for your poultry batches</p>
-            </div>
-            <Button onClick={() => setShowEventForm(true)} className="bg-white text-blue-600 hover:bg-gray-50">
-              <Plus className="w-5 h-5 mr-2" />
-              Record Vaccination
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <PageShell
+      variant="compact"
+      eyebrow="Farm"
+      title="Vaccinations"
+      subtitle="Keep every batch protected — log vaccinations and see what is due next."
+      breadcrumb={[{ label: 'Farm', href: createPageUrl('FarmDashboard') }, { label: 'Vaccinations' }]}
+      action={<Button onClick={() => setShowEventForm(true)} className="btn-cta px-5 py-2.5 text-sm gap-1.5"><Plus className="w-4 h-4" /> Record vaccination</Button>}
+    >
+      <div>
         <Tabs defaultValue="completed">
           <TabsList>
             <TabsTrigger value="completed">Completed ({completedEvents.length})</TabsTrigger>
@@ -156,8 +144,8 @@ export default function VaccinationManagement() {
           <TabsContent value="completed" className="mt-6">
             {completedEvents.length === 0 ? (
               <Card className="p-12 text-center">
-                <Zap className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600">No vaccination records yet</p>
+                <Zap className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                <p className="text-ink/65">No vaccination records yet</p>
               </Card>
             ) : (
               <div className="space-y-4">
@@ -166,11 +154,11 @@ export default function VaccinationManagement() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <CheckCircle2 className="w-5 h-5 text-green-600" />
-                          <h3 className="font-semibold text-gray-900">{event.vaccine_name}</h3>
+                          <CheckCircle2 className="w-5 h-5 text-moss-700" />
+                          <h3 className="font-semibold text-ink">{event.vaccine_name}</h3>
                           <Badge variant="outline">{event.batch_name}</Badge>
                         </div>
-                        <div className="grid sm:grid-cols-3 gap-4 text-sm text-gray-600">
+                        <div className="grid sm:grid-cols-3 gap-4 text-sm text-ink/65">
                           <p>Date: {moment(event.vaccination_date).format('MMM D, YYYY')}</p>
                           <p>Birds: {event.birds_vaccinated}</p>
                           <p>Age: {event.batch_age_days} days</p>
@@ -178,7 +166,7 @@ export default function VaccinationManagement() {
                           {event.administered_by && <p>By: {event.administered_by}</p>}
                         </div>
                         {event.notes && (
-                          <p className="text-sm text-gray-600 mt-2">{event.notes}</p>
+                          <p className="text-sm text-ink/65 mt-2">{event.notes}</p>
                         )}
                       </div>
                     </div>
@@ -191,18 +179,18 @@ export default function VaccinationManagement() {
           <TabsContent value="scheduled" className="mt-6">
             {scheduledEvents.length === 0 ? (
               <Card className="p-12 text-center">
-                <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600">No scheduled vaccinations</p>
+                <Calendar className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                <p className="text-ink/65">No scheduled vaccinations</p>
               </Card>
             ) : (
               <div className="space-y-4">
                 {scheduledEvents.map(event => (
                   <Card key={event.id} className="p-6">
                     <div className="flex items-center gap-3">
-                      <AlertCircle className="w-5 h-5 text-orange-500" />
+                      <AlertCircle className="w-5 h-5 text-yolk-500" />
                       <div>
                         <h3 className="font-semibold">{event.vaccine_name}</h3>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-ink/65">
                           Due: {moment(event.due_date).format('MMM D, YYYY')}
                         </p>
                       </div>
@@ -304,11 +292,11 @@ export default function VaccinationManagement() {
 
             <div className="flex justify-end gap-3">
               <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
-              <Button type="submit" className="bg-blue-600 hover:bg-blue-700">Record</Button>
+              <Button type="submit" className="bg-moss-600 hover:bg-moss-700">Record</Button>
             </div>
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </PageShell>
   );
 }

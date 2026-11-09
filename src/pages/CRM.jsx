@@ -207,20 +207,20 @@ export default function CRM() {
   });
 
   const statusConfig = {
-    new_lead: { label: 'New Lead', color: 'bg-blue-500', icon: Target },
-    contacted: { label: 'Contacted', color: 'bg-purple-500', icon: Phone },
+    new_lead: { label: 'New Lead', color: 'bg-moss-500', icon: Target },
+    contacted: { label: 'Contacted', color: 'bg-moss-500', icon: Phone },
     qualified: { label: 'Qualified', color: 'bg-cyan-500', icon: CheckCircle2 },
-    proposal: { label: 'Proposal', color: 'bg-yellow-500', icon: TrendingUp },
-    negotiation: { label: 'Negotiation', color: 'bg-orange-500', icon: DollarSign },
-    won: { label: 'Won', color: 'bg-green-500', icon: Award },
-    lost: { label: 'Lost', color: 'bg-gray-500', icon: AlertCircle }
+    proposal: { label: 'Proposal', color: 'bg-yolk-500', icon: TrendingUp },
+    negotiation: { label: 'Negotiation', color: 'bg-yolk-500', icon: DollarSign },
+    won: { label: 'Won', color: 'bg-fresh-500', icon: Award },
+    lost: { label: 'Lost', color: 'bg-cream0', icon: AlertCircle }
   };
 
   const priorityColors = {
-    low: 'bg-gray-100 text-gray-800',
-    medium: 'bg-blue-100 text-blue-800',
-    high: 'bg-orange-100 text-orange-800',
-    urgent: 'bg-red-100 text-red-800'
+    low: 'bg-cream-deep text-ink/70',
+    medium: 'bg-moss-100 text-moss-800',
+    high: 'bg-yolk-50 text-yolk-700',
+    urgent: 'bg-terracotta-50 text-terracotta-600'
   };
 
   // Stats
@@ -242,18 +242,18 @@ export default function CRM() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-[#7A9D7A] to-[#6A8D6A] text-white py-12">
+    <div className="min-h-[80vh] bg-cream">
+      <div className="bg-moss-gradient text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Customer Relationship Management</h1>
+              <h1 className="font-display text-3xl font-bold mb-2">Customer Relationship Management</h1>
               <p className="text-white/90">
                 Manage prospects and customer relationships
                 {(() => {
@@ -263,7 +263,7 @@ export default function CRM() {
                 })()}
               </p>
             </div>
-            <Button onClick={() => setShowForm(true)} className="bg-white text-[#7A9D7A] hover:bg-gray-50">
+            <Button onClick={() => setShowForm(true)} className="bg-white text-moss-600 hover:bg-cream">
               <Plus className="w-5 h-5 mr-2" />
               Add Prospect
             </Button>
@@ -275,34 +275,34 @@ export default function CRM() {
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-4 mb-8">
           <Card className="p-4 border-0 shadow">
-            <Users className="w-6 h-6 text-[#7A9D7A] mb-2" />
+            <Users className="w-6 h-6 text-moss-600 mb-2" />
             <p className="text-2xl font-bold">{stats.total}</p>
-            <p className="text-sm text-gray-600">Total Prospects</p>
+            <p className="text-sm text-ink/65">Total Prospects</p>
           </Card>
           <Card className="p-4 border-0 shadow">
-            <Target className="w-6 h-6 text-blue-500 mb-2" />
+            <Target className="w-6 h-6 text-moss-600 mb-2" />
             <p className="text-2xl font-bold">{stats.new_leads}</p>
-            <p className="text-sm text-gray-600">New Leads</p>
+            <p className="text-sm text-ink/65">New Leads</p>
           </Card>
           <Card className="p-4 border-0 shadow">
             <CheckCircle2 className="w-6 h-6 text-cyan-500 mb-2" />
             <p className="text-2xl font-bold">{stats.qualified}</p>
-            <p className="text-sm text-gray-600">Qualified</p>
+            <p className="text-sm text-ink/65">Qualified</p>
           </Card>
           <Card className="p-4 border-0 shadow">
-            <Award className="w-6 h-6 text-green-500 mb-2" />
+            <Award className="w-6 h-6 text-fresh-600 mb-2" />
             <p className="text-2xl font-bold">{stats.won}</p>
-            <p className="text-sm text-gray-600">Won Deals</p>
+            <p className="text-sm text-ink/65">Won Deals</p>
           </Card>
           <Card className="p-4 border-0 shadow">
-            <DollarSign className="w-6 h-6 text-[#E07A5F] mb-2" />
+            <DollarSign className="w-6 h-6 text-terracotta-600 mb-2" />
             <p className="text-2xl font-bold">R{stats.total_value.toLocaleString()}</p>
-            <p className="text-sm text-gray-600">Pipeline Value</p>
+            <p className="text-sm text-ink/65">Pipeline Value</p>
           </Card>
           <Card className="p-4 border-0 shadow">
-            <Clock className="w-6 h-6 text-orange-500 mb-2" />
+            <Clock className="w-6 h-6 text-yolk-500 mb-2" />
             <p className="text-2xl font-bold">{stats.overdue}</p>
-            <p className="text-sm text-gray-600">Overdue Follow-ups</p>
+            <p className="text-sm text-ink/65">Overdue Follow-ups</p>
           </Card>
         </div>
 
@@ -317,7 +317,7 @@ export default function CRM() {
             <Card className="p-4 mb-6 border-0 shadow">
               <div className="grid sm:grid-cols-3 gap-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-ink/40" />
                   <Input
                     placeholder="Search prospects..."
                     value={searchQuery}
@@ -354,10 +354,10 @@ export default function CRM() {
             {/* Prospects List */}
             {filteredProspects.length === 0 ? (
               <Card className="p-12 text-center border-0 shadow">
-                <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                <Users className="w-16 h-16 text-ink/25 mx-auto mb-4" />
                 <h3 className="text-xl font-semibold mb-2">No prospects yet</h3>
-                <p className="text-gray-600 mb-6">Start building your customer pipeline</p>
-                <Button onClick={() => setShowForm(true)} className="bg-[#7A9D7A] hover:bg-[#6A8D6A]">
+                <p className="text-ink/65 mb-6">Start building your customer pipeline</p>
+                <Button onClick={() => setShowForm(true)} className="btn-cta">
                   <Plus className="w-5 h-5 mr-2" />
                   Add First Prospect
                 </Button>
@@ -373,8 +373,8 @@ export default function CRM() {
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <h3 className="text-xl font-semibold text-gray-900">{prospect.full_name}</h3>
-                            <Badge className={statusConfig[prospect.status]?.color || 'bg-gray-500'}>
+                            <h3 className="font-display text-xl font-semibold text-ink">{prospect.full_name}</h3>
+                            <Badge className={statusConfig[prospect.status]?.color || 'bg-cream0'}>
                               <StatusIcon className="w-3 h-3 mr-1" />
                               {statusConfig[prospect.status]?.label}
                             </Badge>
@@ -383,7 +383,7 @@ export default function CRM() {
                             </Badge>
                           </div>
                           {prospect.company && (
-                            <p className="text-gray-600 flex items-center gap-2">
+                            <p className="text-ink/65 flex items-center gap-2">
                               <Building2 className="w-4 h-4" />
                               {prospect.company}
                             </p>
@@ -396,7 +396,7 @@ export default function CRM() {
                           <Button
                             variant="outline"
                             size="sm"
-                            className="text-red-600"
+                            className="text-terracotta-600"
                             onClick={() => deleteProspectMutation.mutate(prospect.id)}
                           >
                             <Trash2 className="w-4 h-4" />
@@ -406,29 +406,29 @@ export default function CRM() {
 
                       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
                         {prospect.email && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <div className="flex items-center gap-2 text-sm text-ink/65">
                             <Mail className="w-4 h-4" />
-                            <a href={`mailto:${prospect.email}`} className="hover:text-[#7A9D7A]">
+                            <a href={`mailto:${prospect.email}`} className="hover:text-moss-600">
                               {prospect.email}
                             </a>
                           </div>
                         )}
                         {prospect.phone && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <div className="flex items-center gap-2 text-sm text-ink/65">
                             <Phone className="w-4 h-4" />
-                            <a href={`tel:${prospect.phone}`} className="hover:text-[#7A9D7A]">
+                            <a href={`tel:${prospect.phone}`} className="hover:text-moss-600">
                               {prospect.phone}
                             </a>
                           </div>
                         )}
                         {(prospect.city || prospect.province) && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <div className="flex items-center gap-2 text-sm text-ink/65">
                             <MapPin className="w-4 h-4" />
                             {[prospect.city, prospect.province].filter(Boolean).join(', ')}
                           </div>
                         )}
                         {prospect.estimated_value > 0 && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <div className="flex items-center gap-2 text-sm text-ink/65">
                             <DollarSign className="w-4 h-4" />
                             R{prospect.estimated_value.toLocaleString()}
                           </div>
@@ -436,14 +436,14 @@ export default function CRM() {
                       </div>
 
                       {prospect.interest && (
-                        <p className="text-sm text-gray-600 mb-4">
+                        <p className="text-sm text-ink/65 mb-4">
                           <strong>Interest:</strong> {prospect.interest}
                         </p>
                       )}
 
                       {prospect.next_follow_up && (
                         <div className={`flex items-center gap-2 text-sm p-2 rounded ${
-                          isOverdue ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700'
+                          isOverdue ? 'bg-terracotta-50 text-terracotta-700' : 'bg-moss-50 text-moss-700'
                         }`}>
                           <Calendar className="w-4 h-4" />
                           <span>
@@ -455,10 +455,10 @@ export default function CRM() {
 
                       {prospect.interactions && prospect.interactions.length > 0 && (
                         <div className="mt-4 pt-4 border-t">
-                          <p className="text-sm font-medium text-gray-700 mb-2">Recent Interactions:</p>
+                          <p className="text-sm font-medium text-ink/75 mb-2">Recent Interactions:</p>
                           <div className="space-y-2">
                             {prospect.interactions.slice(-3).reverse().map((interaction, idx) => (
-                              <div key={idx} className="text-sm text-gray-600 bg-gray-50 p-2 rounded">
+                              <div key={idx} className="text-sm text-ink/65 bg-cream p-2 rounded">
                                 <span className="font-medium capitalize">{interaction.type}</span> - {moment(interaction.date).format('MMM D, h:mm A')}
                                 <p className="text-xs mt-1">{interaction.notes}</p>
                               </div>
@@ -479,7 +479,7 @@ export default function CRM() {
                       </div>
 
                       {showInteractionForm === prospect.id && (
-                        <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-3">
+                        <div className="mt-4 p-4 bg-cream rounded-lg space-y-3">
                           <Select value={newInteraction.type} onValueChange={(val) => setNewInteraction({ ...newInteraction, type: val })}>
                             <SelectTrigger>
                               <SelectValue />
@@ -520,7 +520,7 @@ export default function CRM() {
                       <StageIcon className="w-5 h-5" />
                       <div>
                         <h3 className="font-semibold text-sm">{stage.label}</h3>
-                        <p className="text-xs text-gray-500">{stage.prospects.length} prospects</p>
+                        <p className="text-xs text-ink/55">{stage.prospects.length} prospects</p>
                       </div>
                     </div>
                     <div className="space-y-2">
@@ -531,9 +531,9 @@ export default function CRM() {
                           onClick={() => handleEdit(prospect)}
                         >
                           <p className="font-medium text-sm mb-1">{prospect.full_name}</p>
-                          {prospect.company && <p className="text-xs text-gray-600">{prospect.company}</p>}
+                          {prospect.company && <p className="text-xs text-ink/65">{prospect.company}</p>}
                           {prospect.estimated_value > 0 && (
-                            <p className="text-xs text-[#E07A5F] font-medium mt-1">
+                            <p className="text-xs text-terracotta-600 font-medium mt-1">
                               R{prospect.estimated_value.toLocaleString()}
                             </p>
                           )}
@@ -704,7 +704,7 @@ export default function CRM() {
 
           <div className="flex justify-end gap-3 pt-4 border-t">
             <Button variant="outline" onClick={resetForm}>Cancel</Button>
-            <Button onClick={handleSave} className="bg-[#7A9D7A] hover:bg-[#6A8D6A]">
+            <Button onClick={handleSave} className="btn-cta">
               {editingProspect ? 'Update' : 'Add'} Prospect
             </Button>
           </div>

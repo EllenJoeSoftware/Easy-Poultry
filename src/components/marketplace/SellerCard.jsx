@@ -11,9 +11,9 @@ export default function SellerCard({ seller, onContact, isLoading }) {
 
   if (isLoading) {
     return (
-      <Card className="p-6 border-0 shadow-lg">
+      <Card className="p-6 card-premium">
         <div className="flex items-center justify-center py-8">
-          <div className="w-6 h-6 border-2 border-[#7A9D7A] border-t-transparent rounded-full animate-spin" />
+          <div className="w-6 h-6 border-2 border-moss-600 border-t-transparent rounded-full animate-spin" />
         </div>
       </Card>
     );
@@ -33,7 +33,7 @@ export default function SellerCard({ seller, onContact, isLoading }) {
   };
 
   return (
-    <Card className="p-6 border-0 shadow-lg sticky top-6">
+    <Card className="p-6 card-premium sticky top-6">
       <Link to={createPageUrl('SellerListings') + `?email=${encodeURIComponent(seller?.email)}`} className="block">
         <div className="flex items-start gap-4 mb-6 group cursor-pointer">
           <img
@@ -43,33 +43,33 @@ export default function SellerCard({ seller, onContact, isLoading }) {
           />
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
-              <h3 className="font-semibold text-gray-900 group-hover:text-[#7A9D7A] transition-colors">{seller?.full_name}</h3>
+              <h3 className="font-semibold text-ink group-hover:text-moss-600 transition-colors">{seller?.full_name}</h3>
               {seller?.seller_verified && (
-                <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center" title="Verified Seller">
+                <div className="w-5 h-5 rounded-full bg-moss-500 flex items-center justify-center" title="Verified Seller">
                   <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                   </svg>
                 </div>
               )}
-              <ChevronRight className="w-4 h-4 text-gray-400 group-hover:text-[#7A9D7A] transition-colors" />
+              <ChevronRight className="w-4 h-4 text-ink/40 group-hover:text-moss-600 transition-colors" />
             </div>
             {seller?.farm_name && (
-              <p className="text-sm text-gray-600">{seller.farm_name}</p>
+              <p className="text-sm text-ink/65">{seller.farm_name}</p>
             )}
-            <p className="text-xs text-[#7A9D7A] mt-1">View all listings</p>
+            <p className="text-xs text-moss-600 mt-1">View all listings</p>
           </div>
         </div>
       </Link>
 
       {seller?.seller_description && (
-        <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+        <p className="text-sm text-ink/65 mb-6 leading-relaxed">
           {seller.seller_description}
         </p>
       )}
 
       <div className="space-y-3 mb-6 text-sm">
         {(seller?.city || seller?.province) && (
-          <div className="flex items-start gap-3 text-gray-600">
+          <div className="flex items-start gap-3 text-ink/65">
             <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
             <span>
               {seller.exact_location && `${seller.exact_location}, `}
@@ -79,14 +79,14 @@ export default function SellerCard({ seller, onContact, isLoading }) {
         )}
         
         {seller?.business_hours && (
-          <div className="flex items-start gap-3 text-gray-600">
+          <div className="flex items-start gap-3 text-ink/65">
             <Clock className="w-4 h-4 mt-0.5 flex-shrink-0" />
             <span>{seller.business_hours}</span>
           </div>
         )}
 
         {seller?.bio && (
-          <p className="text-gray-600 leading-relaxed">
+          <p className="text-ink/65 leading-relaxed">
             {seller.bio}
           </p>
         )}
@@ -105,7 +105,7 @@ export default function SellerCard({ seller, onContact, isLoading }) {
           
           <div className="grid grid-cols-2 gap-2">
             {showPhone && seller?.contact_number ? (
-              <a href={`tel:${seller.contact_number}`} className="flex items-center justify-center h-11 border rounded-md bg-gray-50 font-medium text-gray-900">
+              <a href={`tel:${seller.contact_number}`} className="flex items-center justify-center h-11 border rounded-md bg-cream font-medium text-ink">
                 {seller.contact_number}
               </a>
             ) : (
@@ -131,12 +131,12 @@ export default function SellerCard({ seller, onContact, isLoading }) {
         </div>
       ) : (
         <div className="space-y-3">
-          <div className="p-3 rounded-lg bg-gray-50 border border-gray-200 text-center">
-            <p className="text-sm text-gray-600">Contact seller through inquiry to exchange numbers</p>
+          <div className="p-3 rounded-lg bg-cream border border-border text-center">
+            <p className="text-sm text-ink/65">Contact seller through inquiry to exchange numbers</p>
           </div>
           <Button
             onClick={onContact}
-            className="w-full bg-[#7A9D7A] hover:bg-[#6A8D6A] h-11"
+            className="w-full btn-cta h-11"
           >
             <Mail className="w-4 h-4 mr-2" />
             Send Inquiry

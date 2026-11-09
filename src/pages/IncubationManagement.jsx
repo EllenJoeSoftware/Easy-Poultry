@@ -157,13 +157,13 @@ export default function IncubationManagement() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[80vh] bg-cream">
       <div className="bg-gradient-to-r from-orange-500 to-amber-600 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between">
@@ -172,12 +172,12 @@ export default function IncubationManagement() {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back to Farm Dashboard
               </Link>
-              <h1 className="text-3xl font-bold mb-2">🥚 Egg Incubation Management</h1>
+              <h1 className="font-display text-3xl font-bold mb-2">🥚 Egg Incubation Management</h1>
               <p className="text-white/90">Track and manage your egg incubation batches</p>
             </div>
             <Button
               onClick={() => setShowForm(true)}
-              className="bg-white text-orange-600 hover:bg-gray-50"
+              className="bg-white text-yolk-600 hover:bg-cream"
             >
               <Plus className="w-5 h-5 mr-2" />
               New Incubation
@@ -189,41 +189,41 @@ export default function IncubationManagement() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="p-6 border-0 shadow-lg">
-            <Egg className="w-8 h-8 text-orange-600 mb-2" />
-            <p className="text-3xl font-bold text-gray-900">{activeIncubations.length}</p>
-            <p className="text-sm text-gray-600">Active Batches</p>
+          <Card className="p-6 card-premium">
+            <Egg className="w-8 h-8 text-yolk-600 mb-2" />
+            <p className="text-3xl font-bold text-ink">{activeIncubations.length}</p>
+            <p className="text-sm text-ink/65">Active Batches</p>
           </Card>
 
-          <Card className="p-6 border-0 shadow-lg">
+          <Card className="p-6 card-premium">
             <Egg className="w-8 h-8 text-amber-600 mb-2" />
-            <p className="text-3xl font-bold text-gray-900">{totalEggsIncubating}</p>
-            <p className="text-sm text-gray-600">Eggs Incubating</p>
+            <p className="text-3xl font-bold text-ink">{totalEggsIncubating}</p>
+            <p className="text-sm text-ink/65">Eggs Incubating</p>
           </Card>
 
-          <Card className="p-6 border-0 shadow-lg">
-            <TrendingUp className="w-8 h-8 text-green-600 mb-2" />
-            <p className="text-3xl font-bold text-gray-900">{avgHatchRate.toFixed(1)}%</p>
-            <p className="text-sm text-gray-600">Avg Hatch Rate</p>
+          <Card className="p-6 card-premium">
+            <TrendingUp className="w-8 h-8 text-moss-700 mb-2" />
+            <p className="text-3xl font-bold text-ink">{avgHatchRate.toFixed(1)}%</p>
+            <p className="text-sm text-ink/65">Avg Hatch Rate</p>
           </Card>
 
-          <Card className="p-6 border-0 shadow-lg">
-            <Egg className="w-8 h-8 text-blue-600 mb-2" />
-            <p className="text-3xl font-bold text-gray-900">{completedIncubations.length}</p>
-            <p className="text-sm text-gray-600">Completed</p>
+          <Card className="p-6 card-premium">
+            <Egg className="w-8 h-8 text-moss-700 mb-2" />
+            <p className="text-3xl font-bold text-ink">{completedIncubations.length}</p>
+            <p className="text-sm text-ink/65">Completed</p>
           </Card>
         </div>
 
         {/* Active Incubations */}
-        <Card className="border-0 shadow-lg mb-8">
+        <Card className="card-premium mb-8">
           <div className="p-6 border-b">
-            <h3 className="text-lg font-semibold text-gray-900">Active Incubations</h3>
+            <h3 className="font-display text-lg font-semibold text-ink">Active Incubations</h3>
           </div>
           <div className="p-6">
             {activeIncubations.length === 0 ? (
               <div className="text-center py-12">
-                <Egg className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600 mb-4">No active incubations</p>
+                <Egg className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                <p className="text-ink/65 mb-4">No active incubations</p>
                 <Button onClick={() => setShowForm(true)} className="bg-orange-600 hover:bg-orange-700">
                   <Plus className="w-4 h-4 mr-2" />
                   Start First Incubation
@@ -240,7 +240,7 @@ export default function IncubationManagement() {
                     <Card key={incubation.id} className="p-4 hover:shadow-md transition-shadow">
                       <div className="flex items-start justify-between mb-3">
                         <div className="flex-1">
-                          <h4 className="font-semibold text-gray-900">{incubation.batch_name}</h4>
+                          <h4 className="font-semibold text-ink">{incubation.batch_name}</h4>
                           <Badge variant={incubation.status === 'hatching' ? 'default' : 'secondary'} className="mt-1">
                             {incubation.status}
                           </Badge>
@@ -248,31 +248,31 @@ export default function IncubationManagement() {
                       </div>
 
                       <div className="space-y-2 text-sm mb-3">
-                        <div className="flex items-center gap-2 text-gray-600">
+                        <div className="flex items-center gap-2 text-ink/65">
                           <Egg className="w-4 h-4" />
                           <span>{incubation.egg_count} eggs</span>
                         </div>
                         {incubation.breed && (
-                          <p className="text-gray-600">Breed: {incubation.breed}</p>
+                          <p className="text-ink/65">Breed: {incubation.breed}</p>
                         )}
-                        <div className="flex items-center gap-2 text-gray-600">
+                        <div className="flex items-center gap-2 text-ink/65">
                           <Calendar className="w-4 h-4" />
                           <span>Started: {moment(incubation.incubation_start_date).format('MMM DD, YYYY')}</span>
                         </div>
-                        <div className="flex items-center gap-2 text-gray-600">
+                        <div className="flex items-center gap-2 text-ink/65">
                           <Calendar className="w-4 h-4" />
-                          <span className={daysRemaining <= 3 ? 'text-orange-600 font-semibold' : ''}>
+                          <span className={daysRemaining <= 3 ? 'text-yolk-600 font-semibold' : ''}>
                             {daysRemaining > 0 ? `${daysRemaining} days to hatch` : 'Hatching soon!'}
                           </span>
                         </div>
                       </div>
 
                       <div className="mb-3">
-                        <div className="flex justify-between text-xs text-gray-600 mb-1">
+                        <div className="flex justify-between text-xs text-ink/65 mb-1">
                           <span>Day {daysElapsed}</span>
                           <span>{progress.toFixed(0)}%</span>
                         </div>
-                        <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="w-full bg-cream-deep rounded-full h-2">
                           <div
                             className="bg-orange-600 h-2 rounded-full transition-all"
                             style={{ width: `${progress}%` }}
@@ -280,7 +280,7 @@ export default function IncubationManagement() {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-3 gap-2 text-xs text-gray-600 mb-3">
+                      <div className="grid grid-cols-3 gap-2 text-xs text-ink/65 mb-3">
                         <div className="flex items-center gap-1">
                           <Thermometer className="w-3 h-3" />
                           <span>{incubation.temperature_celsius}°C</span>
@@ -320,9 +320,9 @@ export default function IncubationManagement() {
 
         {/* Completed Incubations */}
         {completedIncubations.length > 0 && (
-          <Card className="border-0 shadow-lg">
+          <Card className="card-premium">
             <div className="p-6 border-b">
-              <h3 className="text-lg font-semibold text-gray-900">Completed Incubations</h3>
+              <h3 className="font-display text-lg font-semibold text-ink">Completed Incubations</h3>
             </div>
             <div className="p-6">
               <div className="space-y-3">
@@ -330,14 +330,14 @@ export default function IncubationManagement() {
                   <Card key={incubation.id} className="p-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-semibold text-gray-900">{incubation.batch_name}</h4>
-                        <p className="text-sm text-gray-600">{incubation.breed}</p>
+                        <h4 className="font-semibold text-ink">{incubation.batch_name}</h4>
+                        <p className="text-sm text-ink/65">{incubation.breed}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold text-green-600">
+                        <p className="text-lg font-bold text-moss-700">
                           {incubation.eggs_hatched} hatched
                         </p>
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-ink/65">
                           {incubation.hatch_rate_percent?.toFixed(1)}% success rate
                         </p>
                       </div>

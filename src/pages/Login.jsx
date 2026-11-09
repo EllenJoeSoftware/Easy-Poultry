@@ -23,7 +23,19 @@ export default function Login() {
   const [resetSent, setResetSent] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const returnUrl = searchParams.get('return') || createPageUrl('Dashboard');
+  // Normalise the return target to a same-origin path (it may arrive as a full URL).
+  const returnUrl = (() => {
+    const raw = searchParams.get('return');
+    if (!raw) return createPageUrl('Dashboard');
+    try {
+      const u = new URL(raw, window.location.origin);
+      if (u.origin !== window.location.origin) return createPageUrl('Dashboard');
+      const path = u.pathname + u.search + u.hash;
+      return path.toLowerCase().startsWith('/login') ? createPageUrl('Dashboard') : path;
+    } catch {
+      return createPageUrl('Dashboard');
+    }
+  })();
 
   // Redirect immediately if already signed in (skip when in reset mode so they
   // can stay on the page after clicking the email link)

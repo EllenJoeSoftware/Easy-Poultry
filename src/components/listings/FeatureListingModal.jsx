@@ -61,13 +61,13 @@ export default function FeatureListingModal({ listing, isOpen, onClose }) {
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Star className="w-5 h-5 text-yellow-500 fill-yellow-500" />
+            <Star className="w-5 h-5 text-yolk-500 fill-yolk-500" />
             Feature Your Listing
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
-          <Card className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
+          <Card className="p-4 bg-gradient-to-r from-yellow-50 to-orange-50 border-yolk-200">
             <div className="flex items-start gap-3">
               <img
                 src={listing?.images?.[0] || 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=100'}
@@ -75,16 +75,16 @@ export default function FeatureListingModal({ listing, isOpen, onClose }) {
                 className="w-16 h-16 rounded object-cover"
               />
               <div>
-                <h4 className="font-semibold text-gray-900">{listing?.title}</h4>
-                <p className="text-sm text-gray-600">R{listing?.price}</p>
+                <h4 className="font-semibold text-ink">{listing?.title}</h4>
+                <p className="text-sm text-ink/65">R{listing?.price}</p>
               </div>
             </div>
           </Card>
 
           <div>
-            <h3 className="font-semibold text-gray-900 mb-3">Select Promotion Duration</h3>
+            <h3 className="font-semibold text-ink mb-3">Select Promotion Duration</h3>
             {pricingPlans.length === 0 ? (
-              <p className="text-gray-600 text-sm">No pricing plans available. Contact admin.</p>
+              <p className="text-ink/65 text-sm">No pricing plans available. Contact admin.</p>
             ) : (
               <RadioGroup value={selectedPlan?.id} onValueChange={(id) => {
                 const plan = pricingPlans.find(p => p.id === id);
@@ -93,17 +93,17 @@ export default function FeatureListingModal({ listing, isOpen, onClose }) {
                 <div className="grid gap-3">
                   {pricingPlans.map((plan) => (
                     <label key={plan.id} htmlFor={plan.id} className="cursor-pointer">
-                      <Card className={`p-4 transition-all ${selectedPlan?.id === plan.id ? 'border-[#7A9D7A] border-2 bg-[#7A9D7A]/5' : 'border-gray-200 hover:border-gray-300'}`}>
+                      <Card className={`p-4 transition-all ${selectedPlan?.id === plan.id ? 'border-moss-600 border-2 bg-moss-600/5' : 'border-border hover:border-border'}`}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
                             <RadioGroupItem value={plan.id} id={plan.id} />
                             <div>
-                              <p className="font-semibold text-gray-900">{plan.name}</p>
-                              <p className="text-sm text-gray-600">{plan.duration_days} days featured</p>
+                              <p className="font-semibold text-ink">{plan.name}</p>
+                              <p className="text-sm text-ink/65">{plan.duration_days} days featured</p>
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="text-2xl font-bold text-[#7A9D7A]">R{plan.price}</p>
+                            <p className="text-2xl font-bold text-moss-600">R{plan.price}</p>
                           </div>
                         </div>
                       </Card>
@@ -115,9 +115,9 @@ export default function FeatureListingModal({ listing, isOpen, onClose }) {
           </div>
 
           {selectedPlan && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-semibold text-gray-900 mb-2">What you get:</h4>
-              <ul className="space-y-1 text-sm text-gray-700">
+            <div className="bg-moss-50 border border-moss-200 rounded-lg p-4">
+              <h4 className="font-semibold text-ink mb-2">What you get:</h4>
+              <ul className="space-y-1 text-sm text-ink/75">
                 <li>✓ Top position in search results</li>
                 <li>✓ Featured badge on your listing</li>
                 <li>✓ Increased visibility to buyers</li>
@@ -130,7 +130,7 @@ export default function FeatureListingModal({ listing, isOpen, onClose }) {
             <Button
               onClick={handlePayment}
               disabled={!selectedPlan || processing}
-              className="flex-1 bg-[#7A9D7A] hover:bg-[#6A8D6A] h-12"
+              className="flex-1 btn-cta h-12"
             >
               {processing ? (
                 <>

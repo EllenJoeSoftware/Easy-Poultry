@@ -160,7 +160,7 @@ export default function SubmitEntry() {
   if (!user || !competition) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
@@ -168,8 +168,8 @@ export default function SubmitEntry() {
   const hasVotes = existingEntry && existingEntry.vote_count > 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-[#7A9D7A] to-[#6A8D6A] text-white py-12">
+    <div className="min-h-[80vh] bg-cream">
+      <div className="bg-moss-gradient text-white py-12">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link to={createPageUrl('CompetitionDetail') + `?id=${competitionId}`} className="inline-flex items-center text-white/90 hover:text-white mb-4">
             <ArrowLeft className="w-4 h-4 mr-2" />
@@ -187,14 +187,14 @@ export default function SubmitEntry() {
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {hasVotes && (
-          <Card className="p-4 mb-6 border-blue-200 bg-blue-50">
+          <Card className="p-4 mb-6 border-moss-200 bg-moss-50">
             <p className="text-sm text-blue-900">
               <strong>Note:</strong> Your entry has received votes, so you can only add more photos. Other details cannot be changed.
             </p>
           </Card>
         )}
         
-        <Card className="p-6 border-0 shadow-lg">
+        <Card className="p-6 card-premium">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label>Chicken Name *</Label>
@@ -250,7 +250,7 @@ export default function SubmitEntry() {
                   onChange={handleImageUpload}
                   disabled={uploadingImages || formData.images.length >= 5}
                 />
-                {uploadingImages && <p className="text-sm text-gray-500 mt-1">Uploading...</p>}
+                {uploadingImages && <p className="text-sm text-ink/55 mt-1">Uploading...</p>}
               </div>
 
               {formData.images.length > 0 && (
@@ -264,7 +264,7 @@ export default function SubmitEntry() {
                           <button
                             type="button"
                             onClick={() => removeImage(index)}
-                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
+                            className="absolute -top-2 -right-2 bg-terracotta-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm hover:bg-red-600"
                           >
                             ×
                           </button>
@@ -280,7 +280,7 @@ export default function SubmitEntry() {
               <Link to={createPageUrl('CompetitionDetail') + `?id=${competitionId}`}>
                 <Button type="button" variant="outline">Cancel</Button>
               </Link>
-              <Button type="submit" className="bg-[#7A9D7A] hover:bg-[#6A8D6A]" disabled={submitEntryMutation.isPending}>
+              <Button type="submit" className="btn-cta" disabled={submitEntryMutation.isPending}>
                 {submitEntryMutation.isPending ? (hasVotes ? 'Adding Photos...' : (editEntryId ? 'Updating...' : 'Submitting...')) : (hasVotes ? 'Add Photos' : (editEntryId ? 'Update Entry' : 'Submit Entry'))}
               </Button>
             </div>

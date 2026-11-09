@@ -66,7 +66,7 @@ export default function MyAuctionHouse() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
@@ -74,20 +74,20 @@ export default function MyAuctionHouse() {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
 
   if (!myHouse) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-[80vh] bg-cream">
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <Building2 className="w-20 h-20 text-gray-300 mx-auto mb-6" />
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">No Auction House Yet</h1>
-          <p className="text-gray-600 mb-8">Create your auction house to start hosting auctions and selling your poultry.</p>
+          <Building2 className="w-20 h-20 text-ink/25 mx-auto mb-6" />
+          <h1 className="text-3xl font-bold text-ink mb-4">No Auction House Yet</h1>
+          <p className="text-ink/65 mb-8">Create your auction house to start hosting auctions and selling your poultry.</p>
           <Link to={createPageUrl('CreateAuctionHouse')}>
-            <Button className="bg-[#E07A5F] hover:bg-[#D06A4F]">
+            <Button className="bg-terracotta-500 hover:bg-terracotta-600 text-white">
               <Plus className="w-4 h-4 mr-2" />
               Create Auction House
             </Button>
@@ -99,10 +99,10 @@ export default function MyAuctionHouse() {
 
   const getStatusBadge = (status) => {
     const styles = {
-      pending_payment: 'bg-yellow-100 text-yellow-700',
-      awaiting_verification: 'bg-blue-100 text-blue-700',
-      active: 'bg-green-100 text-green-700',
-      suspended: 'bg-red-100 text-red-700'
+      pending_payment: 'bg-yolk-50 text-yolk-700',
+      awaiting_verification: 'bg-moss-100 text-moss-800',
+      active: 'bg-fresh-50 text-moss-700',
+      suspended: 'bg-terracotta-50 text-terracotta-600'
     };
     return <Badge className={styles[status]}>{status.replace('_', ' ')}</Badge>;
   };
@@ -115,9 +115,9 @@ export default function MyAuctionHouse() {
   const canCreateAuction = liveEvents.length < maxLiveAuctions && !isExpired;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[80vh] bg-cream">
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#E07A5F] to-[#D06A4F] text-white">
+      <div className="bg-terracotta-gradient text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-4">
@@ -140,13 +140,13 @@ export default function MyAuctionHouse() {
               <div className="flex gap-2">
                 {canCreateAuction ? (
                   <Link to={createPageUrl('CreateAuctionEvent') + `?houseId=${myHouse.id}`}>
-                    <Button className="bg-white text-[#E07A5F] hover:bg-gray-100">
+                    <Button className="bg-white text-terracotta-600 hover:bg-cream-deep">
                       <Plus className="w-4 h-4 mr-2" />
                       New Auction
                     </Button>
                   </Link>
                 ) : (
-                  <Button disabled className="bg-white/50 text-gray-500">
+                  <Button disabled className="bg-white/50 text-ink/55">
                     Max {maxLiveAuctions} live auction{maxLiveAuctions > 1 ? 's' : ''} reached
                   </Button>
                 )}
@@ -159,11 +159,11 @@ export default function MyAuctionHouse() {
       {/* Status Alerts */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-4">
         {myHouse.status !== 'active' && (
-          <Card className="p-4 border-0 shadow bg-yellow-50 border-yellow-200">
+          <Card className="p-4 border-0 shadow bg-yolk-50 border-yolk-200">
             <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5 text-yellow-600" />
+              <Clock className="w-5 h-5 text-yolk-600" />
               <div>
-                <p className="font-medium text-yellow-800">
+                <p className="font-medium text-yolk-700">
                   {myHouse.status === 'pending_payment' && 'Complete payment to activate your auction house'}
                   {myHouse.status === 'awaiting_verification' && 'Your payment is being verified (24-48 hours)'}
                   {myHouse.status === 'expired' && 'Your subscription has expired'}
@@ -181,13 +181,13 @@ export default function MyAuctionHouse() {
         )}
 
         {isExpired && myHouse.status === 'active' && (
-          <Card className="p-4 border-0 shadow bg-red-50 border-red-200">
+          <Card className="p-4 border-0 shadow bg-terracotta-50 border-terracotta-200">
             <div className="flex items-center gap-3">
-              <AlertTriangle className="w-5 h-5 text-red-600" />
+              <AlertTriangle className="w-5 h-5 text-terracotta-600" />
               <div>
-                <p className="font-medium text-red-800">Your subscription has expired! Renew to continue hosting auctions.</p>
+                <p className="font-medium text-terracotta-700">Your subscription has expired! Renew to continue hosting auctions.</p>
                 <Link to={createPageUrl('AuctionHousePayment') + `?houseId=${myHouse.id}&tierId=${myHouse.tier_id}&renewal=true`}>
-                  <Button size="sm" className="mt-2 bg-red-600 hover:bg-red-700">Renew Now</Button>
+                  <Button size="sm" className="mt-2 bg-terracotta-500 hover:bg-terracotta-600">Renew Now</Button>
                 </Link>
               </div>
             </div>
@@ -195,9 +195,9 @@ export default function MyAuctionHouse() {
         )}
 
         {needsRenewal && !isExpired && myHouse.status === 'active' && (
-          <Card className="p-4 border-0 shadow bg-orange-50 border-orange-200">
+          <Card className="p-4 border-0 shadow bg-yolk-50 border-yolk-200">
             <div className="flex items-center gap-3">
-              <CreditCard className="w-5 h-5 text-orange-600" />
+              <CreditCard className="w-5 h-5 text-yolk-600" />
               <div>
                 <p className="font-medium text-orange-800">
                   Your subscription expires in {daysUntilExpiry} day{daysUntilExpiry !== 1 ? 's' : ''} ({moment(myHouse.subscription_end).format('MMM D, YYYY')})
@@ -215,29 +215,29 @@ export default function MyAuctionHouse() {
         {/* Stats */}
         <div className="grid sm:grid-cols-5 gap-4 mb-8">
           <Card className="p-4 border-0 shadow">
-            <Calendar className="w-6 h-6 text-[#E07A5F] mb-2" />
+            <Calendar className="w-6 h-6 text-terracotta-600 mb-2" />
             <p className="text-2xl font-bold">{events.length}</p>
-            <p className="text-sm text-gray-600">Total Auctions</p>
+            <p className="text-sm text-ink/65">Total Auctions</p>
           </Card>
           <Card className="p-4 border-0 shadow">
-            <Gavel className="w-6 h-6 text-blue-500 mb-2" />
+            <Gavel className="w-6 h-6 text-moss-600 mb-2" />
             <p className="text-2xl font-bold">{liveEvents.length} / {maxLiveAuctions}</p>
-            <p className="text-sm text-gray-600">Live Auctions</p>
+            <p className="text-sm text-ink/65">Live Auctions</p>
           </Card>
           <Card className="p-4 border-0 shadow">
-            <Package className="w-6 h-6 text-[#7A9D7A] mb-2" />
+            <Package className="w-6 h-6 text-moss-600 mb-2" />
             <p className="text-2xl font-bold">{items.length}</p>
-            <p className="text-sm text-gray-600">Total Items</p>
+            <p className="text-sm text-ink/65">Total Items</p>
           </Card>
           <Card className="p-4 border-0 shadow">
-            <CheckCircle2 className="w-6 h-6 text-green-500 mb-2" />
+            <CheckCircle2 className="w-6 h-6 text-fresh-600 mb-2" />
             <p className="text-2xl font-bold">R{items.filter(i => i.status === 'sold').reduce((sum, i) => sum + (i.final_price || 0), 0).toLocaleString()}</p>
-            <p className="text-sm text-gray-600">Total Sales</p>
+            <p className="text-sm text-ink/65">Total Sales</p>
           </Card>
-          <Card className="p-4 border-0 shadow bg-gradient-to-br from-[#E07A5F]/10 to-[#E07A5F]/5">
-            <CreditCard className="w-6 h-6 text-[#E07A5F] mb-2" />
+          <Card className="p-4 card-premium bg-yolk-50/60">
+            <CreditCard className="w-6 h-6 text-terracotta-600 mb-2" />
             <p className="text-lg font-bold">{tier?.name || 'Basic'}</p>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-ink/65">
               {myHouse.subscription_end ? `Expires ${moment(myHouse.subscription_end).format('MMM D')}` : 'Current Plan'}
             </p>
           </Card>
@@ -254,11 +254,11 @@ export default function MyAuctionHouse() {
             <TabsContent value="live">
               {liveEvents.length === 0 ? (
                 <Card className="p-12 text-center border-0 shadow">
-                  <Gavel className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <Gavel className="w-16 h-16 text-ink/25 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold mb-2">No live auctions</h3>
-                  <p className="text-gray-600 mb-6">Create an auction to start selling</p>
+                  <p className="text-ink/65 mb-6">Create an auction to start selling</p>
                   <Link to={createPageUrl('CreateAuctionEvent') + `?houseId=${myHouse.id}`}>
-                    <Button className="bg-[#E07A5F] hover:bg-[#D06A4F]">Create Auction</Button>
+                    <Button className="bg-terracotta-500 hover:bg-terracotta-600 text-white">Create Auction</Button>
                   </Link>
                 </Card>
               ) : (
@@ -273,7 +273,7 @@ export default function MyAuctionHouse() {
             <TabsContent value="scheduled">
               {scheduledEvents.length === 0 ? (
                 <Card className="p-12 text-center border-0 shadow">
-                  <Calendar className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <Calendar className="w-16 h-16 text-ink/25 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold mb-2">No scheduled auctions</h3>
                 </Card>
               ) : (
@@ -288,7 +288,7 @@ export default function MyAuctionHouse() {
             <TabsContent value="ended">
               {endedEvents.length === 0 ? (
                 <Card className="p-12 text-center border-0 shadow">
-                  <CheckCircle2 className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <CheckCircle2 className="w-16 h-16 text-ink/25 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold mb-2">No ended auctions</h3>
                 </Card>
               ) : (
@@ -319,13 +319,13 @@ function EventCard({ event, items }) {
           <div className="flex items-start justify-between mb-2">
             <div>
               <h3 className="text-xl font-semibold">{event.title}</h3>
-              <p className="text-sm text-gray-600">{moment(event.start_time).format('MMM D, h:mm A')} - {moment(event.end_time).format('MMM D, h:mm A')}</p>
+              <p className="text-sm text-ink/65">{moment(event.start_time).format('MMM D, h:mm A')} - {moment(event.end_time).format('MMM D, h:mm A')}</p>
             </div>
-            <Badge className={event.status === 'live' ? 'bg-green-500' : event.status === 'scheduled' ? 'bg-blue-500' : 'bg-gray-500'}>
+            <Badge className={event.status === 'live' ? 'bg-fresh-500' : event.status === 'scheduled' ? 'bg-moss-500' : 'bg-cream0'}>
               {event.status}
             </Badge>
           </div>
-          <div className="flex items-center gap-6 text-sm text-gray-600 mb-4">
+          <div className="flex items-center gap-6 text-sm text-ink/65 mb-4">
             <span className="flex items-center gap-1"><Package className="w-4 h-4" /> {items.length} items</span>
             <span className="flex items-center gap-1"><Gavel className="w-4 h-4" /> {items.reduce((s, i) => s + (i.bid_count || 0), 0)} bids</span>
             <span className="flex items-center gap-1"><Eye className="w-4 h-4" /> {event.view_count || 0} views</span>

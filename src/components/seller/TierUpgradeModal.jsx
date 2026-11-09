@@ -63,26 +63,26 @@ export default function TierUpgradeModal({ isOpen, onClose, currentUser }) {
           <DialogTitle>Upgrade Your Tier</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <p className="text-sm text-gray-700">
+          <div className="bg-moss-50 p-4 rounded-lg border border-moss-200">
+            <p className="text-sm text-ink/75">
               <strong>Current Tier:</strong> {currentTierName.charAt(0).toUpperCase() + currentTierName.slice(1)}
             </p>
           </div>
 
           {availableTiers.length === 0 ? (
-            <p className="text-center text-gray-600">You're already on the highest tier!</p>
+            <p className="text-center text-ink/65">You're already on the highest tier!</p>
           ) : (
             <>
               <RadioGroup value={selectedTier?.id} onValueChange={(value) => setSelectedTier(tiers.find(t => t.id === value))}>
                 <div className="grid sm:grid-cols-2 gap-4">
                   {availableTiers.map((tier) => (
-                    <Card key={tier.id} className={`p-6 cursor-pointer transition-all ${selectedTier?.id === tier.id ? 'border-2 border-[#7A9D7A] bg-[#7A9D7A]/5' : 'border hover:border-[#7A9D7A]/50'}`}>
+                    <Card key={tier.id} className={`p-6 cursor-pointer transition-all ${selectedTier?.id === tier.id ? 'border-2 border-moss-600 bg-moss-600/5' : 'border hover:border-moss-600/50'}`}>
                       <div className="flex items-start gap-3">
                         <RadioGroupItem value={tier.id} id={tier.id} />
                         <label htmlFor={tier.id} className="flex-1 cursor-pointer">
-                          <h3 className="text-xl font-bold text-gray-900">{tier.name}</h3>
-                          <p className="text-2xl font-bold text-[#7A9D7A] mt-1">R{tier.price}/mo</p>
-                          <div className="mt-3 space-y-1 text-sm text-gray-600">
+                          <h3 className="text-xl font-bold text-ink">{tier.name}</h3>
+                          <p className="text-2xl font-bold text-moss-600 mt-1">R{tier.price}/mo</p>
+                          <div className="mt-3 space-y-1 text-sm text-ink/65">
                             <p>• {tier.max_listings} listings max</p>
                             <p>• {tier.max_images_per_listing} images per listing</p>
                             {tier.can_show_phone && <p>• Phone number visible</p>}
@@ -99,7 +99,7 @@ export default function TierUpgradeModal({ isOpen, onClose, currentUser }) {
                 <Button
                   onClick={handlePayment}
                   disabled={!selectedTier || processing}
-                  className="flex-1 bg-[#7A9D7A] hover:bg-[#6A8D6A] h-12"
+                  className="flex-1 btn-cta h-12"
                 >
                   {processing ? (
                     <>

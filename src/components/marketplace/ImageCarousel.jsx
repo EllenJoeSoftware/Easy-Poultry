@@ -17,11 +17,11 @@ export default function ImageCarousel({ images }) {
 
   return (
     <div className="relative">
-      <div className="relative aspect-[4/3] lg:aspect-[16/10] overflow-hidden rounded-2xl bg-gray-100">
+      <div className="relative aspect-[4/3] lg:aspect-[16/10] overflow-hidden rounded-2xl bg-cream-deep">
         <img
           src={validImages[currentIndex]}
           alt={`Product image ${currentIndex + 1}`}
-          className="w-full h-full object-contain bg-gray-100"
+          className="w-full h-full object-contain bg-cream-deep"
         />
         
         {validImages.length > 1 && (
@@ -65,7 +65,7 @@ export default function ImageCarousel({ images }) {
               key={index}
               onClick={() => setCurrentIndex(index)}
               className={`relative aspect-square rounded-lg overflow-hidden border-2 transition-all ${
-                index === currentIndex ? 'border-[#7A9D7A]' : 'border-transparent opacity-60 hover:opacity-100'
+                index === currentIndex ? 'border-moss-600' : 'border-transparent opacity-60 hover:opacity-100'
               }`}
             >
               <img

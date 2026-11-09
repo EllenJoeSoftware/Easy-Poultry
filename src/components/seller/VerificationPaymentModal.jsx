@@ -53,26 +53,26 @@ export default function VerificationPaymentModal({ isOpen, onClose, currentUser,
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Shield className="w-5 h-5 text-[#7A9D7A]" />
+            <Shield className="w-5 h-5 text-moss-600" />
             Seller Verification
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="bg-[#7A9D7A]/10 rounded-lg p-4">
-            <p className="text-sm text-gray-700">
+          <div className="bg-moss-50 rounded-lg p-4">
+            <p className="text-sm text-ink/75">
               {adminSettings?.verification_fee_message || 'A one-time admin verification fee is required to become a verified seller.'}
             </p>
           </div>
 
           <div className="text-center py-4">
-            <p className="text-sm text-gray-500 mb-1">Verification Fee</p>
-            <p className="text-3xl font-bold text-[#E07A5F]">R{verificationFee}</p>
+            <p className="text-sm text-ink/55 mb-1">Verification Fee</p>
+            <p className="text-3xl font-bold text-terracotta-600">R{verificationFee}</p>
           </div>
 
-          <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
+          <div className="bg-cream rounded-lg p-4 space-y-2 text-sm">
             <p className="font-medium">Benefits of verification:</p>
-            <ul className="space-y-1 text-gray-600">
+            <ul className="space-y-1 text-ink/65">
               <li>• Verified badge on your profile</li>
               <li>• Display your contact number to buyers</li>
               <li>• Increased trust from potential buyers</li>
@@ -83,7 +83,7 @@ export default function VerificationPaymentModal({ isOpen, onClose, currentUser,
           <Button
             onClick={handlePayment}
             disabled={verificationFee === 0 || processing}
-            className="w-full bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+            className="w-full btn-cta"
           >
             {processing ? (
               <>

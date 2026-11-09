@@ -36,12 +36,12 @@ export default function NotificationBell({ userEmail }) {
 
   const getIcon = (type) => {
     switch (type) {
-      case 'inquiry': return <MessageCircle className="w-4 h-4 text-blue-500" />;
-      case 'review': return <Star className="w-4 h-4 text-yellow-500" />;
-      case 'verification': return <Shield className="w-4 h-4 text-green-500" />;
-      case 'payment': return <DollarSign className="w-4 h-4 text-[#E07A5F]" />;
-      case 'listing': return <Package className="w-4 h-4 text-[#7A9D7A]" />;
-      default: return <Bell className="w-4 h-4 text-gray-500" />;
+      case 'inquiry': return <MessageCircle className="w-4 h-4 text-moss-600" />;
+      case 'review': return <Star className="w-4 h-4 text-yolk-500" />;
+      case 'verification': return <Shield className="w-4 h-4 text-fresh-600" />;
+      case 'payment': return <DollarSign className="w-4 h-4 text-terracotta-600" />;
+      case 'listing': return <Package className="w-4 h-4 text-moss-600" />;
+      default: return <Bell className="w-4 h-4 text-ink/55" />;
     }
   };
 
@@ -55,7 +55,7 @@ export default function NotificationBell({ userEmail }) {
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-terracotta-500 text-white text-xs rounded-full flex items-center justify-center">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -66,13 +66,13 @@ export default function NotificationBell({ userEmail }) {
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
           <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border z-50 overflow-hidden">
             <div className="p-4 border-b flex items-center justify-between">
-              <h3 className="font-semibold text-gray-900">Notifications</h3>
+              <h3 className="font-semibold text-ink">Notifications</h3>
               {unreadCount > 0 && (
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={() => markAllReadMutation.mutate()}
-                  className="text-xs text-[#7A9D7A]"
+                  className="text-xs text-moss-600"
                 >
                   Mark all read
                 </Button>
@@ -81,15 +81,15 @@ export default function NotificationBell({ userEmail }) {
 
             <div className="max-h-96 overflow-y-auto">
               {notifications.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">
-                  <Bell className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                <div className="p-8 text-center text-ink/55">
+                  <Bell className="w-8 h-8 mx-auto mb-2 text-ink/25" />
                   <p className="text-sm">No notifications yet</p>
                 </div>
               ) : (
                 notifications.map((notification) => (
                   <div
                     key={notification.id}
-                    className={`p-4 border-b hover:bg-gray-50 cursor-pointer ${!notification.read ? 'bg-blue-50/50' : ''}`}
+                    className={`p-4 border-b hover:bg-cream cursor-pointer ${!notification.read ? 'bg-moss-50/40' : ''}`}
                     onClick={() => {
                       if (!notification.read) markAsReadMutation.mutate(notification.id);
                       if (notification.link) window.location.href = notification.link;
@@ -101,18 +101,18 @@ export default function NotificationBell({ userEmail }) {
                         {getIcon(notification.type)}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className={`text-sm ${!notification.read ? 'font-semibold' : ''} text-gray-900`}>
+                        <p className={`text-sm ${!notification.read ? 'font-semibold' : ''} text-ink`}>
                           {notification.title}
                         </p>
-                        <p className="text-xs text-gray-600 mt-0.5 line-clamp-2">
+                        <p className="text-xs text-ink/65 mt-0.5 line-clamp-2">
                           {notification.message}
                         </p>
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-ink/40 mt-1">
                           {moment(notification.created_date).fromNow()}
                         </p>
                       </div>
                       {!notification.read && (
-                        <div className="w-2 h-2 rounded-full bg-blue-500 flex-shrink-0 mt-2" />
+                        <div className="w-2 h-2 rounded-full bg-moss-500 flex-shrink-0 mt-2" />
                       )}
                     </div>
                   </div>
@@ -122,7 +122,7 @@ export default function NotificationBell({ userEmail }) {
 
             <Link
               to={createPageUrl('Notifications')}
-              className="block p-3 text-center text-sm text-[#7A9D7A] hover:bg-gray-50 border-t"
+              className="block p-3 text-center text-sm text-moss-600 hover:bg-cream border-t"
               onClick={() => setIsOpen(false)}
             >
               View all notifications

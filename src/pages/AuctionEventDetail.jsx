@@ -46,9 +46,9 @@ function LiveCountdown({ endTime }) {
         { label: 'Min', value: timeLeft.minutes },
         { label: 'Sec', value: timeLeft.seconds }
       ].map(({ label, value }) => (
-        <div key={label} className={`text-center p-3 rounded-lg ${isUrgent ? 'bg-red-100' : 'bg-gray-100'}`}>
-          <p className={`text-2xl font-bold ${isUrgent ? 'text-red-600' : 'text-gray-900'}`}>{value}</p>
-          <p className="text-xs text-gray-500">{label}</p>
+        <div key={label} className={`text-center p-3 rounded-lg ${isUrgent ? 'bg-red-100' : 'bg-cream-deep'}`}>
+          <p className={`text-2xl font-bold ${isUrgent ? 'text-terracotta-600' : 'text-ink'}`}>{value}</p>
+          <p className="text-xs text-ink/55">{label}</p>
         </div>
       ))}
     </div>
@@ -211,11 +211,11 @@ export default function AuctionEventDetail() {
   };
 
   if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-[#E07A5F]" /></div>;
+    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-terracotta-600" /></div>;
   }
 
   if (!event) {
-    return <div className="min-h-screen flex items-center justify-center"><p className="text-xl text-gray-500">Auction not found</p></div>;
+    return <div className="min-h-screen flex items-center justify-center"><p className="text-xl text-ink/55">Auction not found</p></div>;
   }
 
   const hasStarted = moment().isAfter(event.start_time);
@@ -228,10 +228,10 @@ export default function AuctionEventDetail() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[80vh] bg-cream">
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <Link to={createPageUrl('Auctions')} className="inline-flex items-center text-gray-600 hover:text-gray-900">
+          <Link to={createPageUrl('Auctions')} className="inline-flex items-center text-ink/65 hover:text-ink">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Auctions
           </Link>
@@ -239,16 +239,16 @@ export default function AuctionEventDetail() {
       </div>
 
       {/* Header */}
-      <div className="bg-gradient-to-r from-[#E07A5F] to-[#D06A4F] text-white py-8">
+      <div className="bg-terracotta-gradient text-white py-8">
         <div className="max-w-7xl mx-auto px-4">
           <div className="flex items-start justify-between">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Badge className={isLive ? 'bg-green-500' : hasEnded ? 'bg-gray-500' : 'bg-blue-500'}>
+                <Badge className={isLive ? 'bg-fresh-500' : hasEnded ? 'bg-cream0' : 'bg-moss-500'}>
                   {isLive ? 'LIVE' : hasEnded ? 'ENDED' : 'UPCOMING'}
                 </Badge>
               </div>
-              <h1 className="text-3xl font-bold mb-2">{event.title}</h1>
+              <h1 className="font-display text-3xl font-bold mb-2">{event.title}</h1>
               {house && (
                 <div className="flex items-center gap-2 text-white/90">
                   <Building2 className="w-4 h-4" />
@@ -272,13 +272,13 @@ export default function AuctionEventDetail() {
             {uniqueBidders.length > 0 && (
               <div className="mb-6 p-4 bg-white rounded-lg shadow">
                 <div className="flex items-center gap-2 mb-3">
-                  <Users className="w-5 h-5 text-[#7A9D7A]" />
+                  <Users className="w-5 h-5 text-moss-600" />
                   <h3 className="font-semibold">Active Bidders ({uniqueBidders.length})</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {uniqueBidders.map((bidder, i) => (
-                    <div key={i} className="flex items-center gap-2 bg-gray-100 rounded-full px-3 py-1">
-                      <User className="w-4 h-4 text-gray-500" />
+                    <div key={i} className="flex items-center gap-2 bg-cream-deep rounded-full px-3 py-1">
+                      <User className="w-4 h-4 text-ink/55" />
                       <span className="text-sm">{bidder.name || bidder.email.split('@')[0]}</span>
                     </div>
                   ))}
@@ -288,7 +288,7 @@ export default function AuctionEventDetail() {
 
             {/* Auction Results - Show when ended */}
             {hasEnded && (
-              <div className="mb-6 p-6 bg-gradient-to-r from-[#7A9D7A] to-[#6A8D6A] rounded-lg text-white">
+              <div className="mb-6 p-6 bg-moss-gradient rounded-lg text-white">
                 <div className="flex items-center gap-2 mb-4">
                   <Trophy className="w-6 h-6" />
                   <h3 className="text-xl font-bold">Auction Results</h3>
@@ -315,32 +315,32 @@ export default function AuctionEventDetail() {
               {items.map((item) => (
                 <Card
                   key={item.id}
-                  className={`overflow-hidden border-0 shadow cursor-pointer transition-all ${selectedItem?.id === item.id ? 'ring-2 ring-[#E07A5F]' : 'hover:shadow-lg'}`}
+                  className={`overflow-hidden border-0 shadow cursor-pointer transition-all ${selectedItem?.id === item.id ? 'ring-2 ring-moss-600' : 'hover:shadow-lift'}`}
                   onClick={() => setSelectedItem(item)}
                 >
-                  <div className="aspect-[4/3] bg-gray-100 relative">
+                  <div className="aspect-[4/3] bg-cream-deep relative">
                     <img src={item.images?.[0] || 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400'} alt={item.title} className="w-full h-full object-cover" />
                     <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-sm font-bold">Lot {item.lot_number}</div>
                     {item.status === 'sold' && (
                       <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
-                        <Badge className="bg-green-500 text-lg px-4 py-2">SOLD</Badge>
+                        <Badge className="bg-fresh-500 text-lg px-4 py-2">SOLD</Badge>
                       </div>
                     )}
                   </div>
                   <div className="p-4">
-                    <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">{item.title}</h3>
-                    <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">
+                    <h3 className="font-semibold text-ink mb-1 line-clamp-1">{item.title}</h3>
+                    <div className="flex items-center gap-2 text-sm text-ink/65 mb-2">
                       <Badge variant="outline">{poultryLabels[item.poultry_type]}</Badge>
                       {item.breed && <span>{item.breed}</span>}
                     </div>
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-xs text-gray-500">{item.bid_count > 0 ? 'Current Bid' : 'Starting'}</p>
-                        <p className="text-xl font-bold text-[#E07A5F]">R{(item.current_bid || item.starting_bid).toLocaleString()}</p>
+                        <p className="text-xs text-ink/55">{item.bid_count > 0 ? 'Current Bid' : 'Starting'}</p>
+                        <p className="text-xl font-bold text-terracotta-600">R{(item.current_bid || item.starting_bid).toLocaleString()}</p>
                       </div>
                       {item.bid_count > 0 && (
                         <div className="text-right">
-                          <span className="text-sm text-gray-500">{item.bid_count} bids</span>
+                          <span className="text-sm text-ink/55">{item.bid_count} bids</span>
                         </div>
                       )}
                     </div>
@@ -352,56 +352,56 @@ export default function AuctionEventDetail() {
 
           {/* Bidding Panel */}
           <div className="sticky top-24">
-            <Card className="p-6 border-0 shadow-lg">
+            <Card className="p-6 card-premium">
               {!hasStarted ? (
                 <div className="text-center">
-                  <Clock className="w-12 h-12 text-blue-500 mx-auto mb-4" />
+                  <Clock className="w-12 h-12 text-moss-600 mx-auto mb-4" />
                   <h3 className="text-xl font-bold mb-2">Starts Soon</h3>
-                  <p className="text-gray-600 mb-4">{moment(event.start_time).format('MMM D, YYYY h:mm A')}</p>
+                  <p className="text-ink/65 mb-4">{moment(event.start_time).format('MMM D, YYYY h:mm A')}</p>
                 </div>
               ) : hasEnded ? (
                 <div className="text-center">
-                  <Trophy className="w-12 h-12 text-[#7A9D7A] mx-auto mb-4" />
+                  <Trophy className="w-12 h-12 text-moss-600 mx-auto mb-4" />
                   <h3 className="text-xl font-bold mb-2">Auction Ended</h3>
-                  <p className="text-gray-600 mb-4">Final results are displayed above</p>
-                  <div className="bg-gray-50 rounded-lg p-4 text-left">
-                    <p className="text-sm text-gray-600">Total Sales</p>
-                    <p className="text-2xl font-bold text-[#E07A5F]">R{items.reduce((sum, i) => sum + (i.current_bid || 0), 0).toLocaleString()}</p>
-                    <p className="text-sm text-gray-500 mt-1">{items.filter(i => i.current_bid > 0).length} of {items.length} lots sold</p>
+                  <p className="text-ink/65 mb-4">Final results are displayed above</p>
+                  <div className="bg-cream rounded-lg p-4 text-left">
+                    <p className="text-sm text-ink/65">Total Sales</p>
+                    <p className="text-2xl font-bold text-terracotta-600">R{items.reduce((sum, i) => sum + (i.current_bid || 0), 0).toLocaleString()}</p>
+                    <p className="text-sm text-ink/55 mt-1">{items.filter(i => i.current_bid > 0).length} of {items.length} lots sold</p>
                   </div>
                 </div>
               ) : (
                 <>
                   <div className="mb-6">
-                    <p className="text-sm text-gray-500 mb-2">Time Remaining</p>
+                    <p className="text-sm text-ink/55 mb-2">Time Remaining</p>
                     <LiveCountdown endTime={event.end_time} />
                   </div>
 
                   {selectedItem ? (
                     <div>
                       <div className="border-t pt-4 mb-4">
-                        <p className="text-sm text-gray-500 mb-1">Lot {selectedItem.lot_number}</p>
-                        <h3 className="font-semibold text-gray-900">{selectedItem.title}</h3>
+                        <p className="text-sm text-ink/55 mb-1">Lot {selectedItem.lot_number}</p>
+                        <h3 className="font-semibold text-ink">{selectedItem.title}</h3>
                       </div>
 
-                      <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                        <p className="text-sm text-gray-500">{selectedItem.bid_count > 0 ? 'Current Bid' : 'Starting Bid'}</p>
-                        <p className="text-3xl font-bold text-[#E07A5F]">R{(selectedItem.current_bid || selectedItem.starting_bid).toLocaleString()}</p>
-                        <p className="text-sm text-gray-500 mt-1">{selectedItem.bid_count || 0} bids</p>
+                      <div className="bg-cream rounded-lg p-4 mb-4">
+                        <p className="text-sm text-ink/55">{selectedItem.bid_count > 0 ? 'Current Bid' : 'Starting Bid'}</p>
+                        <p className="text-3xl font-bold text-terracotta-600">R{(selectedItem.current_bid || selectedItem.starting_bid).toLocaleString()}</p>
+                        <p className="text-sm text-ink/55 mt-1">{selectedItem.bid_count || 0} bids</p>
                       </div>
 
                       {!user ? (
-                        <Button onClick={() => api.auth.redirectToLogin(window.location.href)} className="w-full bg-[#7A9D7A] hover:bg-[#6A8D6A]">
+                        <Button onClick={() => api.auth.redirectToLogin(window.location.href)} className="w-full btn-cta">
                           Login to Bid
                         </Button>
                       ) : selectedItem.status === 'sold' ? (
-                        <div className="bg-green-50 p-4 rounded-lg text-center">
-                          <p className="text-green-700 font-medium">This lot has been sold</p>
+                        <div className="bg-fresh-50 p-4 rounded-lg text-center">
+                          <p className="text-moss-700 font-medium">This lot has been sold</p>
                         </div>
                       ) : (
                         <div className="space-y-3">
                           <div>
-                            <p className="text-sm text-gray-500 mb-2">
+                            <p className="text-sm text-ink/55 mb-2">
                               Min: R{(selectedItem.current_bid > 0 
                                 ? (selectedItem.current_bid + (selectedItem.min_increment || 10)) 
                                 : selectedItem.starting_bid
@@ -409,7 +409,7 @@ export default function AuctionEventDetail() {
                             </p>
                             <div className="flex gap-2">
                               <Input type="number" value={bidAmount} onChange={(e) => setBidAmount(e.target.value)} placeholder="Your bid" />
-                              <Button onClick={handlePlaceBid} disabled={!bidAmount || placeBidMutation.isPending} className="bg-[#E07A5F] hover:bg-[#D06A4F] px-6">
+                              <Button onClick={handlePlaceBid} disabled={!bidAmount || placeBidMutation.isPending} className="bg-terracotta-500 hover:bg-terracotta-600 text-white px-6">
                                 {placeBidMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Bid'}
                               </Button>
                             </div>
@@ -418,10 +418,10 @@ export default function AuctionEventDetail() {
                           {/* Recent bids for this item */}
                           {bids.length > 0 && (
                             <div className="border-t pt-3 mt-3">
-                              <p className="text-sm font-medium text-gray-700 mb-2">Recent Bids</p>
+                              <p className="text-sm font-medium text-ink/75 mb-2">Recent Bids</p>
                               <div className="space-y-1 max-h-32 overflow-y-auto">
                                 {bids.slice(0, 5).map((bid, i) => (
-                                  <div key={bid.id} className={`text-sm flex justify-between ${i === 0 ? 'text-[#E07A5F] font-medium' : 'text-gray-600'}`}>
+                                  <div key={bid.id} className={`text-sm flex justify-between ${i === 0 ? 'text-terracotta-600 font-medium' : 'text-ink/65'}`}>
                                     <span>{bid.bidder_name || bid.bidder_email.split('@')[0]}</span>
                                     <span>R{bid.amount.toLocaleString()}</span>
                                   </div>
@@ -433,8 +433,8 @@ export default function AuctionEventDetail() {
                       )}
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-gray-500">
-                      <Gavel className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                    <div className="text-center py-8 text-ink/55">
+                      <Gavel className="w-8 h-8 mx-auto mb-2 text-ink/25" />
                       <p>Select a lot to place a bid</p>
                     </div>
                   )}

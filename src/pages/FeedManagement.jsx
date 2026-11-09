@@ -9,9 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Package, Plus, ShoppingCart, TrendingDown, AlertTriangle, Loader2, ArrowLeft } from 'lucide-react';
+import { Package, Plus, ShoppingCart, TrendingDown, AlertTriangle, Loader2 } from 'lucide-react';
+import PageShell from '@/components/shell/PageShell';
 import { toast } from 'sonner';
-import { Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
 import moment from 'moment';
 
@@ -249,7 +249,7 @@ export default function FeedManagement() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
@@ -257,45 +257,26 @@ export default function FeedManagement() {
   const lowStockFeeds = feedTypes.filter(f => f.current_stock_kg <= f.low_stock_alert_kg);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-orange-500 to-amber-600 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to={createPageUrl('FarmDashboard')} className="inline-flex items-center text-white/90 hover:text-white mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Farm Dashboard
-          </Link>
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">Feed Management</h1>
-              <p className="text-white/90">Track feed inventory and usage</p>
-            </div>
-            <div className="flex gap-2">
-              <Button onClick={() => setShowFeedTypeForm(true)} variant="outline" className="bg-white/10 border-white text-white hover:bg-white/20">
-                <Plus className="w-5 h-5 mr-2" />
-                Add Feed Type
-              </Button>
-              <Button onClick={() => setShowSupplierForm(true)} variant="outline" className="bg-white/10 border-white text-white hover:bg-white/20">
-                <Plus className="w-5 h-5 mr-2" />
-                Add Supplier
-              </Button>
-              <Button onClick={() => setShowPurchaseForm(true)} className="bg-white text-orange-600 hover:bg-gray-50">
-                <ShoppingCart className="w-5 h-5 mr-2" />
-                Record Purchase
-              </Button>
-              <Button onClick={() => setShowUsageForm(true)} variant="outline" className="bg-white/10 border-white text-white hover:bg-white/20">
-                <TrendingDown className="w-5 h-5 mr-2" />
-                Record Usage
-              </Button>
-            </div>
-          </div>
+    <PageShell
+      variant="compact"
+      eyebrow="Farm"
+      title="Feed"
+      subtitle="Track feed stock, purchases, suppliers and daily usage across your batches."
+      breadcrumb={[{ label: 'Farm', href: createPageUrl('FarmDashboard') }, { label: 'Feed' }]}
+      action={(
+        <div className="flex flex-wrap gap-2">
+          <Button onClick={() => setShowFeedTypeForm(true)} className="btn-ghost border border-border bg-white px-4 py-2.5 text-sm gap-1.5"><Plus className="w-4 h-4" /> Feed type</Button>
+          <Button onClick={() => setShowSupplierForm(true)} className="btn-ghost border border-border bg-white px-4 py-2.5 text-sm gap-1.5"><Plus className="w-4 h-4" /> Supplier</Button>
+          <Button onClick={() => setShowUsageForm(true)} className="btn-ghost border border-border bg-white px-4 py-2.5 text-sm gap-1.5"><TrendingDown className="w-4 h-4" /> Record usage</Button>
+          <Button onClick={() => setShowPurchaseForm(true)} className="btn-cta px-5 py-2.5 text-sm gap-1.5"><ShoppingCart className="w-4 h-4" /> Record purchase</Button>
         </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      )}
+    >
+      <div>
         {lowStockFeeds.length > 0 && (
-          <Card className="p-4 mb-6 border-orange-200 bg-orange-50">
+          <Card className="p-4 mb-6 border-yolk-200 bg-yolk-50">
             <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-orange-600 mt-0.5" />
+              <AlertTriangle className="w-5 h-5 text-yolk-600 mt-0.5" />
               <div>
                 <h3 className="font-semibold text-orange-900 mb-2">Low Stock Alert</h3>
                 {lowStockFeeds.map(feed => (
@@ -318,35 +299,35 @@ export default function FeedManagement() {
           <TabsContent value="inventory" className="mt-6">
             {feedTypes.length === 0 ? (
               <Card className="p-12 text-center">
-                <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600 mb-4">Setting up default feed types...</p>
+                <Package className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                <p className="text-ink/65 mb-4">Setting up default feed types...</p>
               </Card>
             ) : (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {feedTypes.map(feed => {
                 const isLow = feed.current_stock_kg <= feed.low_stock_alert_kg;
                 return (
-                  <Card key={feed.id} className={`p-6 ${isLow ? 'border-orange-300 bg-orange-50' : ''}`}>
+                  <Card key={feed.id} className={`p-6 ${isLow ? 'border-orange-300 bg-yolk-50' : ''}`}>
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <h3 className="font-bold text-gray-900">{feed.name}</h3>
+                        <h3 className="font-bold text-ink">{feed.name}</h3>
                         <Badge className="capitalize mt-1">{feed.category}</Badge>
                       </div>
-                      <Package className={`w-8 h-8 ${isLow ? 'text-orange-500' : 'text-gray-400'}`} />
+                      <Package className={`w-8 h-8 ${isLow ? 'text-yolk-500' : 'text-ink/40'}`} />
                     </div>
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Stock:</span>
-                        <span className={`font-semibold ${isLow ? 'text-orange-600' : 'text-gray-900'}`}>
+                        <span className="text-ink/65">Stock:</span>
+                        <span className={`font-semibold ${isLow ? 'text-yolk-600' : 'text-ink'}`}>
                           {feed.current_stock_kg}kg
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Alert Level:</span>
+                        <span className="text-ink/65">Alert Level:</span>
                         <span className="font-semibold">{feed.low_stock_alert_kg}kg</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600">Cost/kg:</span>
+                        <span className="text-ink/65">Cost/kg:</span>
                         <span className="font-semibold">R{feed.cost_per_kg || 0}</span>
                       </div>
                     </div>
@@ -360,8 +341,8 @@ export default function FeedManagement() {
           <TabsContent value="suppliers" className="mt-6">
             {suppliers.length === 0 ? (
               <Card className="p-12 text-center">
-                <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600 mb-4">No suppliers added yet</p>
+                <ShoppingCart className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                <p className="text-ink/65 mb-4">No suppliers added yet</p>
                 <Button onClick={() => setShowSupplierForm(true)} className="bg-orange-600 hover:bg-orange-700">
                   <Plus className="w-4 h-4 mr-2" />
                   Add First Supplier
@@ -373,16 +354,16 @@ export default function FeedManagement() {
                   <Card key={supplier.id} className="p-6">
                     <div className="flex items-start justify-between mb-4">
                       <div>
-                        <h3 className="font-bold text-gray-900">{supplier.name}</h3>
+                        <h3 className="font-bold text-ink">{supplier.name}</h3>
                         {supplier.contact_person && (
-                          <p className="text-sm text-gray-600">{supplier.contact_person}</p>
+                          <p className="text-sm text-ink/65">{supplier.contact_person}</p>
                         )}
                       </div>
                       <Badge variant={supplier.is_active ? 'default' : 'secondary'}>
                         {supplier.is_active ? 'Active' : 'Inactive'}
                       </Badge>
                     </div>
-                    <div className="space-y-1 text-sm text-gray-600">
+                    <div className="space-y-1 text-sm text-ink/65">
                       {supplier.phone && <p>📞 {supplier.phone}</p>}
                       {supplier.email && <p>📧 {supplier.email}</p>}
                       {supplier.address && <p>📍 {supplier.address}</p>}
@@ -399,9 +380,9 @@ export default function FeedManagement() {
                 <Card key={purchase.id} className="p-6">
                   <div className="flex items-start justify-between">
                     <div>
-                      <h3 className="font-semibold text-gray-900">{purchase.feed_name}</h3>
-                      <p className="text-sm text-gray-600">From: {purchase.supplier_name}</p>
-                      <div className="grid sm:grid-cols-3 gap-4 mt-2 text-sm text-gray-600">
+                      <h3 className="font-semibold text-ink">{purchase.feed_name}</h3>
+                      <p className="text-sm text-ink/65">From: {purchase.supplier_name}</p>
+                      <div className="grid sm:grid-cols-3 gap-4 mt-2 text-sm text-ink/65">
                         <p>Date: {moment(purchase.purchase_date).format('MMM D, YYYY')}</p>
                         <p>Quantity: {purchase.quantity_kg}kg</p>
                         <p>Total: R{purchase.total_cost}</p>
@@ -712,6 +693,6 @@ export default function FeedManagement() {
           </form>
         </DialogContent>
       </Dialog>
-    </div>
+    </PageShell>
   );
 }

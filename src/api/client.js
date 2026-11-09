@@ -397,7 +397,16 @@ const authApi = {
   },
   redirectToLogin(returnUrl) {
     if (typeof window === 'undefined') return;
-    const ret = returnUrl ? `?return=${encodeURIComponent(returnUrl)}` : '';
+    let ret = '';
+    if (returnUrl) {
+      try {
+        const u = new URL(returnUrl, window.location.origin);
+        const path = u.pathname + u.search + u.hash;
+        if (u.origin === window.location.origin && !path.toLowerCase().startsWith('/login')) {
+          ret = `?return=${encodeURIComponent(path)}`;
+        }
+      } catch { /* ignore malformed */ }
+    }
     window.location.href = `/Login${ret}`;
   },
 };

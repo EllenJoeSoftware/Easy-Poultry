@@ -1,178 +1,229 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/api/client';
-import { Card } from '@/components/ui/card';
-import { DollarSign, TrendingUp, TrendingDown, Package, Loader2, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Wallet, TrendingUp, TrendingDown, Wheat, Loader2, ArrowRight, Egg, Bird, Syringe, Receipt } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, AreaChart, Area } from 'recharts';
+import moment from 'moment';
+import { api } from '@/api/client';
+import PageShell from '@/components/shell/PageShell';
+import EmptyState from '@/components/shell/EmptyState';
+import StatCard from '@/components/shell/StatCard';
+import { StatSkeleton } from '@/components/shell/SkeletonCard';
 import { createPageUrl } from '../utils';
+
+const C = { moss: '#174D35', leaf: '#287A4C', fresh: '#83AA62', yolk: '#E5A23C', terracotta: '#C8673D', ink: '#16201B' };
+const R = (n) => `R${Math.round(n || 0).toLocaleString()}`;
+
+const TooltipBox = ({ active, payload, label }) => {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="rounded-xl bg-ink text-cream px-3 py-2 text-xs shadow-lift">
+      {label && <p className="font-semibold mb-1">{label}</p>}
+      {payload.map((p, i) => <p key={i} className="flex items-center gap-2"><span className="w-2 h-2 rounded-full" style={{ background: p.color || p.payload?.fill }} />{p.name}: <span className="font-semibold">{R(p.value)}</span></p>)}
+    </div>
+  );
+};
 
 export default function FarmFinancials() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const currentUser = await api.auth.me();
-        setUser(currentUser);
-      } catch (error) {
-        api.auth.redirectToLogin(window.location.href);
-      }
-    };
-    loadUser();
+    api.auth.me().then(setUser).catch(() => api.auth.redirectToLogin(window.location.href));
   }, []);
 
-  const { data: batches = [] } = useQuery({
-    queryKey: ['batches-finance'],
+  const { data: batches = [], isLoading: lb } = useQuery({
+    queryKey: ['batches-finance', user?.email],
     queryFn: () => api.entities.PoultryBatch.filter({ created_by: user?.email }),
-    enabled: !!user
+    enabled: !!user,
   });
-
-  const { data: eggProduction = [] } = useQuery({
-    queryKey: ['egg-production-finance'],
+  const { data: eggProduction = [], isLoading: le } = useQuery({
+    queryKey: ['egg-production-finance', user?.email],
     queryFn: () => api.entities.EggProduction.filter({ created_by: user?.email }),
-    enabled: !!user
+    enabled: !!user,
   });
+  const { data: expenses = [] } = useQuery({
+    queryKey: ['batch-expenses-finance', user?.email],
+    queryFn: () => api.entities.BatchExpense.filter({ created_by: user?.email }),
+    enabled: !!user,
+  });
+  const isLoading = lb || le;
 
-  if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
-      </div>
-    );
-  }
+  const totals = useMemo(() => {
+    const birdRevenue = batches.reduce((s, b) => s + (b.total_revenue || 0), 0);
+    const eggRevenue = eggProduction.reduce((s, e) => s + (e.revenue || 0), 0);
+    const feed = batches.reduce((s, b) => s + (b.total_feed_cost || 0), 0);
+    const vaccine = batches.reduce((s, b) => s + (b.total_vaccine_cost || 0), 0);
+    const other = batches.reduce((s, b) => s + (b.total_other_costs || 0), 0);
+    const costs = feed + vaccine + other;
+    const revenue = birdRevenue + eggRevenue;
+    return { birdRevenue, eggRevenue, feed, vaccine, other, costs, revenue, net: revenue - costs, margin: revenue > 0 ? ((revenue - costs) / revenue) * 100 : 0 };
+  }, [batches, eggProduction]);
 
-  const totalRevenue = batches.reduce((sum, b) => sum + (b.total_revenue || 0), 0);
-  const eggRevenue = eggProduction.reduce((sum, e) => sum + (e.revenue || 0), 0);
-  const totalFeedCost = batches.reduce((sum, b) => sum + (b.total_feed_cost || 0), 0);
-  const totalVaccineCost = batches.reduce((sum, b) => sum + (b.total_vaccine_cost || 0), 0);
-  const totalOtherCosts = batches.reduce((sum, b) => sum + (b.total_other_costs || 0), 0);
-  const totalCosts = totalFeedCost + totalVaccineCost + totalOtherCosts;
-  const netProfit = totalRevenue + eggRevenue - totalCosts;
+  // Monthly cash-flow (last 6 months) from egg production + expenses
+  const monthly = useMemo(() => {
+    const months = [...Array(6)].map((_, i) => moment().subtract(5 - i, 'months').startOf('month'));
+    return months.map(m => {
+      const key = m.format('YYYY-MM');
+      const rev = eggProduction.filter(e => moment(e.production_date).format('YYYY-MM') === key).reduce((s, e) => s + (e.revenue || 0), 0);
+      const cost = expenses.filter(e => moment(e.expense_date).format('YYYY-MM') === key).reduce((s, e) => s + (e.amount || 0), 0);
+      return { month: m.format('MMM'), Revenue: rev, Costs: cost };
+    });
+  }, [eggProduction, expenses]);
+  const hasMonthly = monthly.some(m => m.Revenue || m.Costs);
+
+  const costSlices = [
+    { name: 'Feed', value: totals.feed, fill: C.leaf },
+    { name: 'Vaccines', value: totals.vaccine, fill: C.yolk },
+    { name: 'Other', value: totals.other, fill: C.terracotta },
+  ].filter(s => s.value > 0);
+
+  const batchRows = useMemo(() => batches.map(b => {
+    const revenue = b.total_revenue || 0;
+    const costs = (b.total_feed_cost || 0) + (b.total_vaccine_cost || 0) + (b.total_other_costs || 0);
+    return { ...b, revenue, costs, profit: revenue - costs };
+  }).sort((a, b) => b.profit - a.profit), [batches]);
+
+  if (!user) return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-moss-600" /></div>;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-purple-500 to-pink-600 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Link to={createPageUrl('FarmDashboard')} className="inline-flex items-center text-white/90 hover:text-white mb-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Farm Dashboard
-          </Link>
-          <h1 className="text-3xl font-bold mb-2">Farm Financials</h1>
-          <p className="text-white/90">Financial overview and reports</p>
-        </div>
+    <PageShell
+      variant="compact"
+      eyebrow="Farm"
+      title="Financials"
+      subtitle="Revenue, costs and margin across every batch — updated from your feed, vaccination and egg records."
+      breadcrumb={[{ label: 'Farm', href: createPageUrl('FarmDashboard') }, { label: 'Financials' }]}
+    >
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {isLoading ? [...Array(4)].map((_, i) => <StatSkeleton key={i} />) : (
+          <>
+            <StatCard icon={Wallet} label="Total revenue" value={R(totals.revenue)} deltaLabel="Birds + eggs" tint="moss" />
+            <StatCard icon={TrendingDown} label="Total costs" value={R(totals.costs)} deltaLabel="Feed, vaccines, other" tint="terracotta" />
+            <StatCard icon={TrendingUp} label="Net profit" value={R(totals.net)} delta={totals.revenue > 0 ? `${totals.margin.toFixed(0)}%` : undefined} deltaLabel="margin" tint={totals.net >= 0 ? 'moss' : 'terracotta'} />
+            <StatCard icon={Wheat} label="Feed share of costs" value={`${totals.costs > 0 ? ((totals.feed / totals.costs) * 100).toFixed(0) : 0}%`} deltaLabel={R(totals.feed)} tint="yolk" />
+          </>
+        )}
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="p-6 border-0 shadow-lg">
-            <DollarSign className="w-8 h-8 text-green-600 mb-2" />
-            <p className="text-3xl font-bold text-gray-900">R{(totalRevenue + eggRevenue).toFixed(0)}</p>
-            <p className="text-sm text-gray-600">Total Revenue</p>
-            <p className="text-xs text-gray-500 mt-1">Birds + Eggs</p>
-          </Card>
-
-          <Card className="p-6 border-0 shadow-lg">
-            <TrendingDown className="w-8 h-8 text-red-600 mb-2" />
-            <p className="text-3xl font-bold text-gray-900">R{totalCosts.toFixed(0)}</p>
-            <p className="text-sm text-gray-600">Total Costs</p>
-            <p className="text-xs text-gray-500 mt-1">All expenses</p>
-          </Card>
-
-          <Card className="p-6 border-0 shadow-lg">
-            <TrendingUp className={`w-8 h-8 mb-2 ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`} />
-            <p className={`text-3xl font-bold ${netProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              R{netProfit.toFixed(0)}
-            </p>
-            <p className="text-sm text-gray-600">Net Profit</p>
-            <p className="text-xs text-gray-500 mt-1">{netProfit >= 0 ? 'Profitable' : 'Loss'}</p>
-          </Card>
-
-          <Card className="p-6 border-0 shadow-lg">
-            <Package className="w-8 h-8 text-orange-600 mb-2" />
-            <p className="text-3xl font-bold text-gray-900">R{totalFeedCost.toFixed(0)}</p>
-            <p className="text-sm text-gray-600">Feed Costs</p>
-            <p className="text-xs text-gray-500 mt-1">{totalCosts > 0 ? ((totalFeedCost / totalCosts) * 100).toFixed(0) : 0}% of total</p>
-          </Card>
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-6">
-          <Card className="p-6 border-0 shadow-lg">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Cost Breakdown</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Feed</span>
-                <span className="font-semibold">R{totalFeedCost.toFixed(0)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Vaccines</span>
-                <span className="font-semibold">R{totalVaccineCost.toFixed(0)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Other Expenses</span>
-                <span className="font-semibold">R{totalOtherCosts.toFixed(0)}</span>
-              </div>
-              <div className="pt-3 border-t flex justify-between items-center">
-                <span className="font-semibold text-gray-900">Total Costs</span>
-                <span className="font-bold text-gray-900">R{totalCosts.toFixed(0)}</span>
-              </div>
+      <div className="grid lg:grid-cols-3 gap-5 mb-5">
+        {/* Cash flow */}
+        <section className="card-premium p-6 lg:col-span-2">
+          <div className="flex items-start justify-between mb-4">
+            <div><p className="eyebrow mb-1">Last 6 months</p><h3 className="font-display text-xl text-ink">Cash flow</h3></div>
+            <div className="flex items-center gap-3 text-xs text-ink/60"><span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: C.moss }} />Revenue</span><span className="inline-flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full" style={{ background: C.terracotta }} />Costs</span></div>
+          </div>
+          {hasMonthly ? (
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={monthly} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="gRev" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.moss} stopOpacity={0.35} /><stop offset="100%" stopColor={C.moss} stopOpacity={0} /></linearGradient>
+                    <linearGradient id="gCost" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.terracotta} stopOpacity={0.3} /><stop offset="100%" stopColor={C.terracotta} stopOpacity={0} /></linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#E7EBE1" vertical={false} />
+                  <XAxis dataKey="month" tick={{ fontSize: 12, fill: '#6B7A70' }} axisLine={false} tickLine={false} />
+                  <YAxis tick={{ fontSize: 12, fill: '#6B7A70' }} axisLine={false} tickLine={false} tickFormatter={(v) => `R${v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v}`} />
+                  <Tooltip content={<TooltipBox />} cursor={{ stroke: '#E7EBE1' }} />
+                  <Area type="monotone" dataKey="Revenue" stroke={C.moss} strokeWidth={2.5} fill="url(#gRev)" />
+                  <Area type="monotone" dataKey="Costs" stroke={C.terracotta} strokeWidth={2.5} fill="url(#gCost)" />
+                </AreaChart>
+              </ResponsiveContainer>
             </div>
-          </Card>
-
-          <Card className="p-6 border-0 shadow-lg">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Sources</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Bird Sales</span>
-                <span className="font-semibold">R{totalRevenue.toFixed(0)}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-600">Egg Sales</span>
-                <span className="font-semibold">R{eggRevenue.toFixed(0)}</span>
-              </div>
-              <div className="pt-3 border-t flex justify-between items-center">
-                <span className="font-semibold text-gray-900">Total Revenue</span>
-                <span className="font-bold text-gray-900">R{(totalRevenue + eggRevenue).toFixed(0)}</span>
-              </div>
+          ) : (
+            <div className="h-64 rounded-xl bg-cream border border-dashed border-border flex flex-col items-center justify-center text-center p-6">
+              <Receipt className="w-8 h-8 text-moss-600 mb-3" strokeWidth={1.5} />
+              <p className="font-medium text-ink">No dated records yet</p>
+              <p className="text-sm text-ink/55 mt-1 max-w-xs">Log egg sales and expenses on your batches and the monthly trend will fill in here.</p>
             </div>
-          </Card>
-        </div>
+          )}
+        </section>
 
-        <Card className="p-6 border-0 shadow-lg mt-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Batch Performance</h3>
+        {/* Cost breakdown */}
+        <section className="card-premium p-6">
+          <p className="eyebrow mb-1">Where it goes</p>
+          <h3 className="font-display text-xl text-ink mb-4">Cost breakdown</h3>
+          {costSlices.length ? (
+            <div className="h-44">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie data={costSlices} dataKey="value" nameKey="name" innerRadius={48} outerRadius={72} paddingAngle={3} stroke="none">
+                    {costSlices.map((s, i) => <Cell key={i} fill={s.fill} />)}
+                  </Pie>
+                  <Tooltip content={<TooltipBox />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          ) : <div className="h-44 rounded-xl bg-cream flex items-center justify-center text-sm text-ink/50">No costs recorded</div>}
+          <ul className="mt-2 space-y-2 text-sm">
+            {[{ l: 'Feed', v: totals.feed, c: C.leaf, I: Wheat }, { l: 'Vaccines', v: totals.vaccine, c: C.yolk, I: Syringe }, { l: 'Other', v: totals.other, c: C.terracotta, I: Receipt }].map(({ l, v, c, I }) => (
+              <li key={l} className="flex items-center justify-between"><span className="inline-flex items-center gap-2 text-ink/70"><span className="w-2.5 h-2.5 rounded-full" style={{ background: c }} /><I className="w-3.5 h-3.5 text-ink/40" />{l}</span><span className="font-semibold text-ink tabular-nums">{R(v)}</span></li>
+            ))}
+            <li className="flex items-center justify-between pt-2 border-t border-border"><span className="font-semibold text-ink">Total</span><span className="font-display font-bold text-ink tabular-nums">{R(totals.costs)}</span></li>
+          </ul>
+        </section>
+      </div>
+
+      <div className="grid lg:grid-cols-3 gap-5">
+        {/* Revenue sources */}
+        <section className="card-premium p-6">
+          <p className="eyebrow mb-1">Income</p>
+          <h3 className="font-display text-xl text-ink mb-4">Revenue sources</h3>
           <div className="space-y-4">
-            {batches.map(batch => {
-              const batchRevenue = (batch.total_revenue || 0);
-              const batchCosts = (batch.total_feed_cost || 0) + (batch.total_vaccine_cost || 0) + (batch.total_other_costs || 0);
-              const batchProfit = batchRevenue - batchCosts;
-              
+            {[{ l: 'Bird sales', v: totals.birdRevenue, I: Bird, c: 'bg-moss-600' }, { l: 'Egg sales', v: totals.eggRevenue, I: Egg, c: 'bg-yolk-500' }].map(({ l, v, I, c }) => {
+              const pct = totals.revenue > 0 ? (v / totals.revenue) * 100 : 0;
               return (
-                <div key={batch.id} className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-semibold text-gray-900">{batch.batch_name}</h4>
-                    <span className={`font-bold ${batchProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      R{batchProfit.toFixed(0)}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <p className="text-gray-600">Revenue</p>
-                      <p className="font-semibold">R{batchRevenue.toFixed(0)}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Costs</p>
-                      <p className="font-semibold">R{batchCosts.toFixed(0)}</p>
-                    </div>
-                    <div>
-                      <p className="text-gray-600">Status</p>
-                      <p className="font-semibold capitalize">{batch.status}</p>
-                    </div>
-                  </div>
+                <div key={l}>
+                  <div className="flex items-center justify-between text-sm mb-1.5"><span className="inline-flex items-center gap-2 text-ink/75"><I className="w-4 h-4 text-ink/45" />{l}</span><span className="font-semibold text-ink tabular-nums">{R(v)} <span className="text-ink/45 font-normal">· {pct.toFixed(0)}%</span></span></div>
+                  <div className="h-2 rounded-full bg-cream-deep overflow-hidden"><div className={`h-full rounded-full ${c}`} style={{ width: `${pct}%` }} /></div>
                 </div>
               );
             })}
+            <div className="pt-3 border-t border-border flex items-center justify-between"><span className="font-semibold text-ink">Total revenue</span><span className="font-display font-bold text-ink tabular-nums">{R(totals.revenue)}</span></div>
           </div>
-        </Card>
+        </section>
+
+        {/* Batch performance */}
+        <section className="card-premium overflow-hidden lg:col-span-2">
+          <div className="p-6 pb-3 flex items-start justify-between">
+            <div><p className="eyebrow mb-1">By batch</p><h3 className="font-display text-xl text-ink">Batch performance</h3></div>
+            <Link to={createPageUrl('BatchManagement')} className="text-sm text-moss-700 inline-flex items-center gap-1 link-underline">Manage batches <ArrowRight className="w-4 h-4" /></Link>
+          </div>
+          {batchRows.length === 0 ? (
+            <div className="px-6 pb-6"><EmptyState variant="plain" icon={Bird} title="No batches yet" subtitle="Create a batch to start tracking profit per flock." className="!py-8" /></div>
+          ) : (
+            <>
+              {batchRows.length > 1 && (
+                <div className="h-40 px-4">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={batchRows.slice(0, 8)} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#E7EBE1" vertical={false} />
+                      <XAxis dataKey="batch_name" tick={{ fontSize: 11, fill: '#6B7A70' }} axisLine={false} tickLine={false} interval={0} tickFormatter={(v) => v.length > 10 ? v.slice(0, 10) + '…' : v} />
+                      <YAxis tick={{ fontSize: 11, fill: '#6B7A70' }} axisLine={false} tickLine={false} tickFormatter={(v) => `R${v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v}`} />
+                      <Tooltip content={<TooltipBox />} cursor={{ fill: '#F4F6F1' }} />
+                      <Bar dataKey="revenue" name="Revenue" fill={C.moss} radius={[6, 6, 0, 0]} />
+                      <Bar dataKey="costs" name="Costs" fill={C.terracotta} radius={[6, 6, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              )}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead className="bg-cream text-[11px] uppercase tracking-wider text-ink/50"><tr><th className="text-left px-6 py-2.5 font-semibold">Batch</th><th className="text-right px-4 py-2.5 font-semibold">Revenue</th><th className="text-right px-4 py-2.5 font-semibold">Costs</th><th className="text-right px-6 py-2.5 font-semibold">Profit</th></tr></thead>
+                  <tbody className="divide-y divide-border">
+                    {batchRows.map(b => (
+                      <tr key={b.id} className="hover:bg-cream/70">
+                        <td className="px-6 py-3"><Link to={createPageUrl('BatchDetail') + `?id=${b.id}`} className="font-medium text-ink hover:text-moss-700">{b.batch_name}</Link><p className="text-xs text-ink/50 capitalize">{b.bird_type} · {b.status}</p></td>
+                        <td className="px-4 py-3 text-right tabular-nums text-ink/80">{R(b.revenue)}</td>
+                        <td className="px-4 py-3 text-right tabular-nums text-ink/80">{R(b.costs)}</td>
+                        <td className={`px-6 py-3 text-right tabular-nums font-semibold ${b.profit >= 0 ? 'text-moss-700' : 'text-terracotta-600'}`}>{b.profit < 0 ? '−' : ''}{R(Math.abs(b.profit))}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </>
+          )}
+        </section>
       </div>
-    </div>
+    </PageShell>
   );
 }

@@ -91,7 +91,7 @@ export default function CliffieChat() {
         <>
           <button
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-14 h-14 bg-[#7A9D7A] hover:bg-[#6A8D6A] text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105"
+            className="fixed bottom-6 right-6 z-50 w-14 h-14 btn-cta text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:scale-105"
           >
             <MessageCircle className="w-6 h-6" />
           </button>
@@ -111,7 +111,7 @@ export default function CliffieChat() {
       {isOpen && (
         <Card className="fixed bottom-6 right-6 z-50 w-[380px] h-[500px] max-h-[80vh] flex flex-col shadow-2xl border-0 overflow-hidden">
           {/* Header */}
-          <div className="bg-[#7A9D7A] text-white p-4 flex items-center justify-between">
+          <div className="bg-moss-600 text-white p-4 flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
                 <span className="text-xl">🐔</span>
@@ -130,7 +130,7 @@ export default function CliffieChat() {
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+          <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-cream">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
@@ -139,8 +139,8 @@ export default function CliffieChat() {
                 <div
                   className={`max-w-[80%] rounded-2xl px-4 py-2 ${
                     msg.role === 'user'
-                      ? 'bg-[#7A9D7A] text-white'
-                      : 'bg-white border border-gray-200 text-gray-800'
+                      ? 'bg-moss-600 text-white'
+                      : 'bg-white border border-border text-ink'
                   }`}
                 >
                   {msg.role === 'user' ? (
@@ -155,8 +155,8 @@ export default function CliffieChat() {
             ))}
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3">
-                  <Loader2 className="w-4 h-4 animate-spin text-[#7A9D7A]" />
+                <div className="bg-white border border-border rounded-2xl px-4 py-3">
+                  <Loader2 className="w-4 h-4 animate-spin text-moss-600" />
                 </div>
               </div>
             )}
@@ -177,7 +177,7 @@ export default function CliffieChat() {
               <Button
                 onClick={sendMessage}
                 disabled={!input.trim() || isLoading || !conversation}
-                className="bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                className="btn-cta"
               >
                 <Send className="w-4 h-4" />
               </Button>

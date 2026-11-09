@@ -146,31 +146,31 @@ export default function EditListing() {
   if (isLoading || !formData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
+    <div className="min-h-[80vh] bg-cream py-8">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Listing</h1>
-          <p className="text-gray-600">Update your listing details</p>
+          <h1 className="text-3xl font-bold text-ink mb-2">Edit Listing</h1>
+          <p className="text-ink/65">Update your listing details</p>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <Card className="p-6 border-0 shadow-lg mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Product Images</h2>
+          <Card className="p-6 card-premium mb-6">
+            <h2 className="font-display text-xl font-semibold text-ink mb-6">Product Images</h2>
             
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
               {formData.images.map((url, index) => (
-                <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+                <div key={index} className="relative aspect-square rounded-lg overflow-hidden bg-cream-deep">
                   <img src={url} alt={`Upload ${index + 1}`} className="w-full h-full object-cover" />
                   <button
                     type="button"
                     onClick={() => removeImage(index)}
-                    className="absolute top-2 right-2 w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white hover:bg-red-600"
+                    className="absolute top-2 right-2 w-6 h-6 bg-terracotta-500 rounded-full flex items-center justify-center text-white hover:bg-red-600"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -178,9 +178,9 @@ export default function EditListing() {
               ))}
               
               {formData.images.length < 10 && (
-                <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 hover:border-[#7A9D7A] cursor-pointer flex flex-col items-center justify-center bg-gray-50 hover:bg-gray-100 transition-colors">
-                  <Upload className="w-8 h-8 text-gray-400 mb-2" />
-                  <span className="text-sm text-gray-500">Upload</span>
+                <label className="aspect-square rounded-lg border-2 border-dashed border-border hover:border-moss-600 cursor-pointer flex flex-col items-center justify-center bg-cream hover:bg-cream-deep transition-colors">
+                  <Upload className="w-8 h-8 text-ink/40 mb-2" />
+                  <span className="text-sm text-ink/55">Upload</span>
                   <input
                     type="file"
                     multiple
@@ -194,8 +194,8 @@ export default function EditListing() {
             </div>
           </Card>
 
-          <Card className="p-6 border-0 shadow-lg mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Product Details</h2>
+          <Card className="p-6 card-premium mb-6">
+            <h2 className="font-display text-xl font-semibold text-ink mb-6">Product Details</h2>
             
             <div className="space-y-4">
               <div>
@@ -313,7 +313,7 @@ export default function EditListing() {
             <Button
               type="submit"
               disabled={updateListingMutation.isPending}
-              className="flex-1 bg-[#7A9D7A] hover:bg-[#6A8D6A] h-12"
+              className="flex-1 btn-cta h-12"
             >
               {updateListingMutation.isPending ? 'Updating...' : 'Update Listing'}
             </Button>

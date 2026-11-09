@@ -189,14 +189,14 @@ export default function ManageAuctionEvent() {
   ];
 
   if (!user || !event) {
-    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" /></div>;
+    return <div className="min-h-screen flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-moss-600" /></div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[80vh] bg-cream">
       <div className="bg-white border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <Link to={createPageUrl('MyAuctionHouse')} className="inline-flex items-center text-gray-600 hover:text-gray-900">
+          <Link to={createPageUrl('MyAuctionHouse')} className="inline-flex items-center text-ink/65 hover:text-ink">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back
           </Link>
@@ -207,20 +207,20 @@ export default function ManageAuctionEvent() {
         <div className="flex items-start justify-between mb-8">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <h1 className="text-2xl font-bold text-gray-900">{event.title}</h1>
-              <Badge className={event.status === 'draft' ? 'bg-gray-500' : event.status === 'scheduled' ? 'bg-blue-500' : 'bg-green-500'}>
+              <h1 className="font-display text-2xl font-bold text-ink">{event.title}</h1>
+              <Badge className={event.status === 'draft' ? 'bg-cream0' : event.status === 'scheduled' ? 'bg-moss-500' : 'bg-fresh-500'}>
                 {event.status}
               </Badge>
             </div>
-            <p className="text-gray-600">{moment(event.start_time).format('MMM D, h:mm A')} - {moment(event.end_time).format('MMM D, h:mm A')}</p>
+            <p className="text-ink/65">{moment(event.start_time).format('MMM D, h:mm A')} - {moment(event.end_time).format('MMM D, h:mm A')}</p>
           </div>
           <div className="flex gap-2">
-            <Button onClick={() => { resetForm(); setShowAddItem(true); }} className="bg-[#7A9D7A] hover:bg-[#6A8D6A]">
+            <Button onClick={() => { resetForm(); setShowAddItem(true); }} className="btn-cta">
               <Plus className="w-4 h-4 mr-2" />
               Add Item
             </Button>
             {event.status === 'draft' && items.length > 0 && (
-              <Button onClick={() => startAuctionMutation.mutate()} disabled={startAuctionMutation.isPending} className="bg-[#E07A5F] hover:bg-[#D06A4F]">
+              <Button onClick={() => startAuctionMutation.mutate()} disabled={startAuctionMutation.isPending} className="bg-terracotta-500 hover:bg-terracotta-600 text-white">
                 <Play className="w-4 h-4 mr-2" />
                 Schedule Auction
               </Button>
@@ -230,10 +230,10 @@ export default function ManageAuctionEvent() {
 
         {items.length === 0 ? (
           <Card className="p-12 text-center border-0 shadow">
-            <Package className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <Package className="w-16 h-16 text-ink/25 mx-auto mb-4" />
             <h3 className="text-xl font-semibold mb-2">No items yet</h3>
-            <p className="text-gray-600 mb-6">Add items to your auction</p>
-            <Button onClick={() => setShowAddItem(true)} className="bg-[#7A9D7A] hover:bg-[#6A8D6A]">
+            <p className="text-ink/65 mb-6">Add items to your auction</p>
+            <Button onClick={() => setShowAddItem(true)} className="btn-cta">
               <Plus className="w-4 h-4 mr-2" />
               Add First Item
             </Button>
@@ -242,31 +242,31 @@ export default function ManageAuctionEvent() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {items.map((item) => (
               <Card key={item.id} className="overflow-hidden border-0 shadow">
-                <div className="aspect-[4/3] bg-gray-100 relative">
+                <div className="aspect-[4/3] bg-cream-deep relative">
                   <img src={item.images?.[0] || 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400'} alt={item.title} className="w-full h-full object-cover" />
                   <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-sm font-bold">Lot {item.lot_number}</div>
                 </div>
                 <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-1">{item.title}</h3>
-                  {item.breed && <p className="text-sm text-gray-600 mb-2">{item.breed}</p>}
+                  <h3 className="font-semibold text-ink mb-1">{item.title}</h3>
+                  {item.breed && <p className="text-sm text-ink/65 mb-2">{item.breed}</p>}
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <span className="text-xl font-bold text-[#E07A5F]">R{item.current_bid || item.starting_bid}</span>
-                      {item.bid_count > 0 && <span className="text-sm text-gray-500 ml-2">({item.bid_count} bids)</span>}
+                      <span className="text-xl font-bold text-terracotta-600">R{item.current_bid || item.starting_bid}</span>
+                      {item.bid_count > 0 && <span className="text-sm text-ink/55 ml-2">({item.bid_count} bids)</span>}
                     </div>
                   </div>
                   
                   {/* Winner info */}
                   {(item.winner_email || item.current_bidder) && (event.status === 'ended' || item.status === 'sold') && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
-                      <div className="flex items-center gap-2 text-green-700 font-medium mb-2">
+                    <div className="bg-fresh-50 border border-fresh-200 rounded-lg p-3 mb-3">
+                      <div className="flex items-center gap-2 text-moss-700 font-medium mb-2">
                         <Trophy className="w-4 h-4" />
                         Winner
                       </div>
-                      <p className="text-sm font-medium text-gray-900">{item.winner_name || item.current_bidder_name || 'Unknown'}</p>
-                      <p className="text-xs text-gray-600">{item.winner_email || item.current_bidder}</p>
+                      <p className="text-sm font-medium text-ink">{item.winner_name || item.current_bidder_name || 'Unknown'}</p>
+                      <p className="text-xs text-ink/65">{item.winner_email || item.current_bidder}</p>
                       {getWinnerInfo(item.winner_email || item.current_bidder)?.phone && (
-                        <a href={`tel:${getWinnerInfo(item.winner_email || item.current_bidder).phone}`} className="flex items-center gap-1 text-sm text-[#7A9D7A] mt-1">
+                        <a href={`tel:${getWinnerInfo(item.winner_email || item.current_bidder).phone}`} className="flex items-center gap-1 text-sm text-moss-600 mt-1">
                           <Phone className="w-3 h-3" />
                           {getWinnerInfo(item.winner_email || item.current_bidder).phone}
                         </a>
@@ -275,7 +275,7 @@ export default function ManageAuctionEvent() {
                         <Button 
                           size="sm" 
                           variant="outline" 
-                          className="text-[#7A9D7A] text-xs h-7"
+                          className="text-moss-600 text-xs h-7"
                           onClick={() => {
                             const winnerEmail = item.winner_email || item.current_bidder;
                             window.location.href = createPageUrl('Messages') + `?startChat=${winnerEmail}&listingTitle=${encodeURIComponent(item.title)}`;
@@ -290,7 +290,7 @@ export default function ManageAuctionEvent() {
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            <Button size="sm" variant="outline" className="text-green-600 text-xs h-7">
+                            <Button size="sm" variant="outline" className="text-moss-700 text-xs h-7">
                               WhatsApp
                             </Button>
                           </a>
@@ -303,7 +303,7 @@ export default function ManageAuctionEvent() {
                     <Button size="sm" variant="outline" onClick={() => handleEditItem(item)}>
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button size="sm" variant="outline" onClick={() => deleteItemMutation.mutate(item.id)} className="text-red-600">
+                    <Button size="sm" variant="outline" onClick={() => deleteItemMutation.mutate(item.id)} className="text-terracotta-600">
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -326,12 +326,12 @@ export default function ManageAuctionEvent() {
                 {images.map((img, i) => (
                   <div key={i} className="relative aspect-square rounded overflow-hidden">
                     <img src={img} alt="" className="w-full h-full object-cover" />
-                    <button type="button" onClick={() => setImages(prev => prev.filter((_, idx) => idx !== i))} className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full text-xs">×</button>
+                    <button type="button" onClick={() => setImages(prev => prev.filter((_, idx) => idx !== i))} className="absolute top-1 right-1 w-5 h-5 bg-terracotta-500 text-white rounded-full text-xs">×</button>
                   </div>
                 ))}
                 {images.length < 10 && (
-                  <label className="aspect-square rounded border-2 border-dashed flex items-center justify-center cursor-pointer hover:border-[#7A9D7A]">
-                    {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4 text-gray-400" />}
+                  <label className="aspect-square rounded border-2 border-dashed flex items-center justify-center cursor-pointer hover:border-moss-600">
+                    {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4 text-ink/40" />}
                     <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
                   </label>
                 )}
@@ -398,7 +398,7 @@ export default function ManageAuctionEvent() {
             </div>
             <div className="flex gap-2 justify-end">
               <Button variant="outline" onClick={resetForm}>Cancel</Button>
-              <Button onClick={handleSubmitItem} disabled={addItemMutation.isPending || updateItemMutation.isPending} className="bg-[#E07A5F] hover:bg-[#D06A4F]">
+              <Button onClick={handleSubmitItem} disabled={addItemMutation.isPending || updateItemMutation.isPending} className="bg-terracotta-500 hover:bg-terracotta-600 text-white">
                 {(addItemMutation.isPending || updateItemMutation.isPending) ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                 {editingItem ? 'Update' : 'Add Item'}
               </Button>

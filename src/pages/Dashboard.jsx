@@ -251,24 +251,24 @@ export default function Dashboard() {
         )}
 
         {isSeller && recentTransactions.length > 0 && (
-          <Card className="p-6 border-0 shadow-lg mt-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Recent Transactions</h2>
+          <Card className="p-6 card-premium mt-8">
+            <h2 className="text-xl font-bold text-ink mb-4">Recent Transactions</h2>
             <div className="divide-y">
               {recentTransactions.map((transaction) => (
                 <div key={transaction.id} className="py-4 flex items-center justify-between">
                   <div>
-                    <p className="font-medium text-gray-900">{transaction.type}</p>
-                    <p className="text-sm text-gray-500">
+                    <p className="font-medium text-ink">{transaction.type}</p>
+                    <p className="text-sm text-ink/55">
                       {new Date(transaction.created_date).toLocaleDateString()} • {transaction.payment_reference || 'N/A'}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-semibold text-gray-900">R{transaction.amount?.toFixed(2)}</p>
+                    <p className="font-semibold text-ink">R{transaction.amount?.toFixed(2)}</p>
                     <Badge className={
-                      transaction.status === 'verified' ? 'bg-green-500' :
-                      transaction.status === 'pending' ? 'bg-yellow-500' :
-                      transaction.status === 'active' ? 'bg-blue-500' :
-                      'bg-gray-500'
+                      transaction.status === 'verified' ? 'bg-fresh-500' :
+                      transaction.status === 'pending' ? 'bg-yolk-500' :
+                      transaction.status === 'active' ? 'bg-moss-500' :
+                      'bg-cream0'
                     }>
                       {transaction.status}
                     </Badge>
@@ -307,7 +307,7 @@ export default function Dashboard() {
               ) : (
                 <div className="space-y-4">
                   {activeListings.map((listing) => (
-                    <Card key={listing.id} className="p-6 border-0 shadow-lg">
+                    <Card key={listing.id} className="p-6 card-premium">
                       <div className="flex gap-6">
                         <img
                           src={listing.images?.[0] || 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=200'}
@@ -317,14 +317,14 @@ export default function Dashboard() {
                         <div className="flex-1">
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <h3 className="text-xl font-semibold text-gray-900">{listing.title}</h3>
-                              {listing.breed && <p className="text-gray-600">{listing.breed}</p>}
+                              <h3 className="font-display text-xl font-semibold text-ink">{listing.title}</h3>
+                              {listing.breed && <p className="text-ink/65">{listing.breed}</p>}
                             </div>
-                            <Badge className={listing.featured ? 'bg-yellow-500' : ''}>
+                            <Badge className={listing.featured ? 'bg-yolk-500' : ''}>
                               {listing.featured ? 'Featured' : listing.status}
                             </Badge>
                           </div>
-                          <div className="flex items-center gap-6 text-sm text-gray-600 mb-4">
+                          <div className="flex items-center gap-6 text-sm text-ink/65 mb-4">
                             <span className="flex items-center gap-1">
                               <Eye className="w-4 h-4" />
                               {listing.view_count || 0} views
@@ -333,7 +333,7 @@ export default function Dashboard() {
                               <MessageCircle className="w-4 h-4" />
                               {listing.inquiry_count || 0} inquiries
                             </span>
-                            <span className="font-semibold text-[#E07A5F]">R{listing.price}</span>
+                            <span className="font-semibold text-terracotta-600">R{listing.price}</span>
                             <span className="flex items-center gap-1">
                               <Package className="w-4 h-4" />
                               {listing.stock_quantity} available
@@ -351,7 +351,7 @@ export default function Dashboard() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() => handleFeatureListing(listing)}
-                                className="text-yellow-600 hover:text-yellow-700"
+                                className="text-yolk-600 hover:text-yolk-700"
                               >
                                 <Star className="w-4 h-4 mr-2" />
                                 Feature
@@ -389,7 +389,7 @@ export default function Dashboard() {
               ) : (
                 <div className="space-y-4">
                   {soldListings.map((listing) => (
-                    <Card key={listing.id} className="p-6 border-0 shadow-lg opacity-75">
+                    <Card key={listing.id} className="p-6 card-premium opacity-75">
                       <div className="flex gap-6">
                         <img
                           src={listing.images?.[0] || 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=200'}
@@ -399,12 +399,12 @@ export default function Dashboard() {
                         <div className="flex-1">
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <h3 className="text-xl font-semibold text-gray-900">{listing.title}</h3>
-                              {listing.breed && <p className="text-gray-600">{listing.breed}</p>}
+                              <h3 className="font-display text-xl font-semibold text-ink">{listing.title}</h3>
+                              {listing.breed && <p className="text-ink/65">{listing.breed}</p>}
                             </div>
                             <Badge variant="secondary">Sold</Badge>
                           </div>
-                          <div className="flex items-center gap-6 text-sm text-gray-600">
+                          <div className="flex items-center gap-6 text-sm text-ink/65">
                             <span className="font-semibold">R{listing.price}</span>
                             <span>Sold: {listing.sold_quantity || listing.stock_quantity} items</span>
                             {listing.sold_date && (
@@ -457,40 +457,40 @@ export default function Dashboard() {
                       <div key={inquiry.id} className="p-6">
                         <div className="flex items-start justify-between mb-3">
                           <div>
-                            <p className="font-medium text-gray-900">{inquiry.created_by}</p>
+                            <p className="font-medium text-ink">{inquiry.created_by}</p>
                             {inquiry.buyer_contact && (
-                              <p className="text-sm text-gray-600">{inquiry.buyer_contact}</p>
+                              <p className="text-sm text-ink/65">{inquiry.buyer_contact}</p>
                             )}
                           </div>
                           <div className="text-right">
                             <Badge variant={inquiry.status === 'pending' ? 'secondary' : 'default'}>
                               {inquiry.status}
                             </Badge>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-ink/55 mt-1">
                               {new Date(inquiry.created_date).toLocaleDateString()}
                             </p>
                           </div>
                         </div>
                         
-                        <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                          <p className="text-gray-700">{inquiry.message}</p>
+                        <div className="bg-cream rounded-lg p-4 mb-4">
+                          <p className="text-ink/75">{inquiry.message}</p>
                         </div>
 
                         {inquiry.responses?.length > 0 && (
                           <div className="space-y-3 mb-4">
                             {inquiry.responses.map((response, idx) => (
                               <div key={idx} className={`rounded-lg p-4 ${
-                                response.from === user.email ? 'bg-[#7A9D7A]/10' : 'bg-gray-50'
+                                response.from === user.email ? 'bg-moss-50' : 'bg-cream'
                               }`}>
                                 <div className="flex items-center justify-between mb-2">
-                                  <span className="text-sm font-medium text-gray-900">
+                                  <span className="text-sm font-medium text-ink">
                                     {response.from === user.email ? 'You' : response.from}
                                   </span>
-                                  <span className="text-xs text-gray-500">
+                                  <span className="text-xs text-ink/55">
                                     {new Date(response.timestamp).toLocaleDateString()}
                                   </span>
                                 </div>
-                                <p className="text-gray-700">{response.message}</p>
+                                <p className="text-ink/75">{response.message}</p>
                               </div>
                             ))}
                           </div>
@@ -509,7 +509,7 @@ export default function Dashboard() {
                                 onClick={() => handleReply(inquiry)}
                                 disabled={replyMutation.isPending}
                                 size="sm"
-                                className="bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                                className="btn-cta"
                               >
                                 Send Reply
                               </Button>
@@ -562,38 +562,38 @@ export default function Dashboard() {
                     <div key={inquiry.id} className="p-6">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <p className="font-medium text-gray-900">To: {inquiry.seller_id}</p>
-                          <p className="text-sm text-gray-600">Listing: {inquiry.listing_id}</p>
+                          <p className="font-medium text-ink">To: {inquiry.seller_id}</p>
+                          <p className="text-sm text-ink/65">Listing: {inquiry.listing_id}</p>
                         </div>
                         <div className="text-right">
                           <Badge variant={inquiry.status === 'pending' ? 'secondary' : 'default'}>
                             {inquiry.status}
                           </Badge>
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-ink/55 mt-1">
                             {new Date(inquiry.created_date).toLocaleDateString()}
                           </p>
                         </div>
                       </div>
                       
-                      <div className="bg-gray-50 rounded-lg p-4 mb-4">
-                        <p className="text-gray-700">{inquiry.message}</p>
+                      <div className="bg-cream rounded-lg p-4 mb-4">
+                        <p className="text-ink/75">{inquiry.message}</p>
                       </div>
 
                       {inquiry.responses?.length > 0 && (
                         <div className="space-y-3">
                           {inquiry.responses.map((response, idx) => (
                             <div key={idx} className={`rounded-lg p-4 ${
-                              response.from === user.email ? 'bg-[#7A9D7A]/10' : 'bg-gray-50'
+                              response.from === user.email ? 'bg-moss-50' : 'bg-cream'
                             }`}>
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-sm font-medium text-gray-900">
+                                <span className="text-sm font-medium text-ink">
                                   {response.from === user.email ? 'You' : 'Seller'}
                                 </span>
-                                <span className="text-xs text-gray-500">
+                                <span className="text-xs text-ink/55">
                                   {new Date(response.timestamp).toLocaleDateString()}
                                 </span>
                               </div>
-                              <p className="text-gray-700">{response.message}</p>
+                              <p className="text-ink/75">{response.message}</p>
                             </div>
                           ))}
                         </div>
@@ -626,10 +626,10 @@ export default function Dashboard() {
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <p className="text-sm text-gray-600 mb-2">{markSoldDialog.title}</p>
-                <p className="text-sm text-gray-600">Available: {markSoldDialog.stock_quantity} items</p>
+                <p className="text-sm text-ink/65 mb-2">{markSoldDialog.title}</p>
+                <p className="text-sm text-ink/65">Available: {markSoldDialog.stock_quantity} items</p>
                 {markSoldDialog.sold_quantity > 0 && (
-                  <p className="text-sm text-gray-600">Previously sold: {markSoldDialog.sold_quantity} items</p>
+                  <p className="text-sm text-ink/65">Previously sold: {markSoldDialog.sold_quantity} items</p>
                 )}
               </div>
               <div>
@@ -644,8 +644,8 @@ export default function Dashboard() {
                   placeholder="Enter quantity sold"
                 />
               </div>
-              <div className="bg-gray-50 p-3 rounded-lg">
-                <p className="text-sm font-medium text-gray-900">
+              <div className="bg-cream p-3 rounded-lg">
+                <p className="text-sm font-medium text-ink">
                   Sale Value: R{(markSoldDialog.price * (parseInt(soldQuantity) || 0)).toFixed(2)}
                 </p>
               </div>
@@ -653,7 +653,7 @@ export default function Dashboard() {
                 <Button
                   onClick={handleMarkSold}
                   disabled={markAsSoldMutation.isPending}
-                  className="flex-1 bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                  className="flex-1 btn-cta"
                 >
                   {markAsSoldMutation.isPending ? 'Recording...' : 'Confirm Sale'}
                 </Button>

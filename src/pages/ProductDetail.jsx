@@ -37,7 +37,7 @@ function VerifiedSellerContact({ sellerProfile, onInquire }) {
           showPhone ? (
             <a
               href={`tel:${sellerProfile.contact_number}`}
-              className="flex items-center justify-center gap-2 h-11 border rounded-md bg-gray-50 font-medium text-gray-900 hover:bg-gray-100"
+              className="flex items-center justify-center gap-2 h-11 border rounded-md bg-cream font-medium text-ink hover:bg-cream-deep"
             >
               {sellerProfile.contact_number}
             </a>
@@ -368,41 +368,59 @@ export default function ProductDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+      <div className="min-h-screen bg-cream">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid lg:grid-cols-3 gap-8 animate-pulse">
+          <div className="lg:col-span-2 space-y-6">
+            <div className="aspect-[4/3] rounded-3xl bg-cream-deep" />
+            <div className="card-premium p-6 space-y-3"><div className="h-7 w-2/3 bg-cream-deep rounded" /><div className="h-4 w-1/3 bg-cream-deep rounded" /><div className="h-4 w-full bg-cream-deep rounded" /></div>
+          </div>
+          <div className="card-premium p-6 h-72" />
+        </div>
       </div>
     );
   }
 
   if (!listing) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl text-gray-500">Listing not found</p>
+      <div className="min-h-screen bg-cream flex items-center justify-center px-4">
+        <div className="card-premium p-10 text-center max-w-md">
+          <div className="mx-auto w-16 h-16 rounded-2xl bg-moss-50 border border-moss-100 flex items-center justify-center text-moss-700 mb-5"><Package className="w-8 h-8" /></div>
+          <h2 className="font-display text-2xl text-ink mb-2">Listing not found</h2>
+          <p className="text-ink/60 mb-6">It may have been sold or removed by the seller.</p>
+          <Link to={createPageUrl('Marketplace')} className="btn-cta px-5 py-2.5 text-sm">Browse marketplace</Link>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-          <div className="bg-white border-b">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-              <Link to={createPageUrl('Marketplace')} className="inline-flex items-center text-gray-600 hover:text-gray-900">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Marketplace
-              </Link>
-            </div>
-          </div>
+    <div className="min-h-screen bg-cream text-ink">
+      {/* Breadcrumb bar */}
+      <div className="border-b border-border bg-cream/80 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+          <nav className="text-xs text-ink/55 flex items-center gap-1.5 min-w-0">
+            <Link to={createPageUrl('Home')} className="hover:text-moss-700">Home</Link>
+            <span>/</span>
+            <Link to={createPageUrl('Marketplace')} className="hover:text-moss-700">Marketplace</Link>
+            {listing.category && (<><span>/</span>
+              <Link to={createPageUrl('Marketplace') + `?category=${listing.category}`} className="hover:text-moss-700">{categoryLabels[listing.category] || listing.category}</Link></>)}
+            <span>/</span>
+            <span className="text-ink/80 font-medium truncate">{listing.title}</span>
+          </nav>
+          <Link to={createPageUrl('Marketplace')} className="hidden sm:inline-flex items-center gap-1.5 text-xs text-ink/60 hover:text-moss-700">
+            <ArrowLeft className="w-3.5 h-3.5" /> Back
+          </Link>
+        </div>
+      </div>
 
-
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-10">
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <ImageCarousel images={listing.images} />
+            <div className="rounded-3xl overflow-hidden card-premium"><ImageCarousel images={listing.images} /></div>
 
             {/* ----- DIGITAL DOWNLOAD PANEL ----- */}
             {listing.product_type === 'digital' && (
-              <Card className="p-6 border-0 shadow-lg bg-gradient-to-br from-terracotta-50 to-yolk-50 border border-terracotta-100">
+              <Card className="card-premium p-6 border-0 shadow-none bg-gradient-to-br from-terracotta-50 to-yolk-50 border border-terracotta-100">
                 <div className="flex items-start gap-4">
                   <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center flex-shrink-0 shadow-sm text-terracotta-600">
                     <FileText className="w-7 h-7" />
@@ -520,43 +538,34 @@ export default function ProductDetail() {
               </Card>
             )}
 
-            <Card className="p-6 border-0 shadow-lg">
-              <div className="mb-4">
-                <Badge className="bg-[#7A9D7A]/10 text-[#7A9D7A] border-0 mb-3">
-                  {categoryLabels[listing.category] || listing.category}
-                </Badge>
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <Card className="card-premium p-6 lg:p-8 border-0 shadow-none">
+              <div className="mb-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="chip">{categoryLabels[listing.category] || listing.category}</span>
+                  {listing.product_type === 'digital' && <span className="chip chip-accent"><FileText className="w-3 h-3" />Digital</span>}
+                  {listing.featured && <span className="chip chip-yolk">★ Featured</span>}
+                </div>
+                <h1 className="font-display text-3xl sm:text-4xl font-bold text-ink leading-tight mb-2">
                   {listing.title}
                 </h1>
                 {listing.breed && (
-                  <p className="text-lg text-gray-600">
+                  <p className="text-base text-ink/60">
                     {listing.product_type === 'digital' ? `by ${listing.breed}` : listing.breed}
                   </p>
                 )}
               </div>
 
-              <div className="flex items-center mb-6 pb-6 border-b">
-                <div>
-                  <span className="text-4xl font-bold text-[#E07A5F]">
-                    R{listing.price}
-                  </span>
-                  {listing.product_type === 'digital' ? (
-                    <span className="text-sm text-gray-600 ml-2">per download</span>
-                  ) : (
-                    <>
-                      {listing.price_type === 'batch' && listing.stock_quantity > 1 && (
-                        <span className="text-sm text-gray-600 ml-2">for entire batch</span>
-                      )}
-                      {listing.price_type === 'per_item' && (
-                        <span className="text-sm text-gray-600 ml-2">per item</span>
-                      )}
-                    </>
-                  )}
-                </div>
+              <div className="flex flex-wrap items-baseline gap-x-4 gap-y-2 mb-6 pb-6 border-b border-border">
+                <span className="font-display text-4xl font-bold text-moss-700">
+                  R{Number(listing.price || 0).toLocaleString('en-ZA')}
+                </span>
+                <span className="text-sm text-ink/55">
+                  {listing.product_type === 'digital'
+                    ? 'per download'
+                    : listing.price_type === 'batch' && listing.stock_quantity > 1 ? 'for entire batch' : 'per item'}
+                </span>
                 {listing.product_type !== 'digital' && listing.stock_quantity > 0 && (
-                  <span className="ml-4 text-gray-600">
-                    {listing.stock_quantity} available
-                  </span>
+                  <span className="chip ml-auto"><Package className="w-3 h-3" />{listing.stock_quantity} available</span>
                 )}
               </div>
 
@@ -565,28 +574,28 @@ export default function ProductDetail() {
                 <div className="grid sm:grid-cols-2 gap-4 mb-6">
                   {listing.age && (
                     <div className="flex items-center gap-3">
-                      <Calendar className="w-5 h-5 text-gray-400" />
+                      <Calendar className="w-5 h-5 text-ink/40" />
                       <div>
-                        <p className="text-xs text-gray-500">Age</p>
-                        <p className="font-medium text-gray-900">{listing.age}</p>
+                        <p className="text-xs text-ink/50">Age</p>
+                        <p className="font-medium text-ink">{listing.age}</p>
                       </div>
                     </div>
                   )}
                   {listing.gender && listing.gender !== 'n/a' && (
                     <div className="flex items-center gap-3">
-                      <Package className="w-5 h-5 text-gray-400" />
+                      <Package className="w-5 h-5 text-ink/40" />
                       <div>
-                        <p className="text-xs text-gray-500">Gender</p>
-                        <p className="font-medium text-gray-900 capitalize">{listing.gender}</p>
+                        <p className="text-xs text-ink/50">Gender</p>
+                        <p className="font-medium text-ink capitalize">{listing.gender}</p>
                       </div>
                     </div>
                   )}
                   {(listing.city || listing.province) && (
                     <div className="flex items-center gap-3">
-                      <MapPin className="w-5 h-5 text-gray-400" />
+                      <MapPin className="w-5 h-5 text-ink/40" />
                       <div>
-                        <p className="text-xs text-gray-500">Location</p>
-                        <p className="font-medium text-gray-900">{listing.city}, {listing.province}</p>
+                        <p className="text-xs text-ink/50">Location</p>
+                        <p className="font-medium text-ink">{listing.city}, {listing.province}</p>
                       </div>
                     </div>
                   )}
@@ -595,8 +604,8 @@ export default function ProductDetail() {
 
               {listing.description && (
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-3">Description</h3>
-                  <p className="text-gray-600 leading-relaxed whitespace-pre-line">
+                  <h3 className="font-semibold text-ink mb-3">Description</h3>
+                  <p className="text-ink/65 leading-relaxed whitespace-pre-line">
                     {listing.description}
                   </p>
                 </div>
@@ -604,8 +613,8 @@ export default function ProductDetail() {
             </Card>
 
             {showInquiryForm && (
-              <Card ref={inquiryFormRef} className="p-6 border-0 shadow-lg">
-                <h3 className="font-semibold text-gray-900 mb-4">Send Inquiry</h3>
+              <Card ref={inquiryFormRef} className="p-6 card-premium">
+                <h3 className="font-semibold text-ink mb-4">Send Inquiry</h3>
                 <div className="space-y-4">
                   <div>
                     <Input
@@ -624,7 +633,7 @@ export default function ProductDetail() {
                     <Button
                       onClick={handleSendInquiry}
                       disabled={createInquiryMutation.isPending}
-                      className="bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                      className="btn-cta"
                     >
                       {createInquiryMutation.isPending ? 'Sending...' : 'Send Inquiry'}
                     </Button>
@@ -642,10 +651,10 @@ export default function ProductDetail() {
 
           {/* Seller Profile Sidebar */}
           <div className="sticky top-24">
-            <Card className="p-6 border-0 shadow-lg">
+            <Card className="card-premium p-6 border-0 shadow-none">
               {sellerLoading ? (
                 <div className="flex items-center justify-center py-8">
-                  <Loader2 className="w-6 h-6 animate-spin text-[#7A9D7A]" />
+                  <Loader2 className="w-6 h-6 animate-spin text-moss-600" />
                 </div>
               ) : sellerProfile ? (
                 <div>
@@ -657,9 +666,9 @@ export default function ProductDetail() {
                     />
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">
-                        <h3 className="font-semibold text-gray-900">{sellerProfile.display_name}</h3>
+                        <h3 className="font-semibold text-ink">{sellerProfile.display_name}</h3>
                         {sellerProfile.seller_verified && (
-                          <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center" title="Verified Seller">
+                          <div className="w-5 h-5 rounded-full bg-moss-500 flex items-center justify-center" title="Verified Seller">
                             <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                               <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                             </svg>
@@ -667,7 +676,7 @@ export default function ProductDetail() {
                         )}
                       </div>
                       {sellerProfile.farm_name && (
-                        <p className="text-sm text-gray-600">{sellerProfile.farm_name}</p>
+                        <p className="text-sm text-ink/65">{sellerProfile.farm_name}</p>
                           )}
                           <ReviewSummary sellerEmail={sellerProfile.user_email} />
                         </div>
@@ -677,25 +686,25 @@ export default function ProductDetail() {
                     {sellerProfile.subdomain && (
                       <Link 
                         to={createPageUrl('SellerShop') + `?shop=${sellerProfile.subdomain}`}
-                        className="block text-[#7A9D7A] hover:text-[#6A8D6A] font-medium hover:underline"
+                        className="block text-moss-700 hover:text-moss-800 font-medium hover:underline"
                       >
                         Visit Shop →
                       </Link>
                     )}
                     {(sellerProfile.city || sellerProfile.province) && (
-                      <div className="flex items-start gap-3 text-gray-600">
+                      <div className="flex items-start gap-3 text-ink/65">
                         <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0" />
                         <span>{[sellerProfile.city, sellerProfile.province].filter(Boolean).join(', ')}</span>
                       </div>
                     )}
                     {sellerProfile.business_hours && (
-                      <div className="flex items-start gap-3 text-gray-600">
+                      <div className="flex items-start gap-3 text-ink/65">
                         <Clock className="w-4 h-4 mt-0.5 flex-shrink-0" />
                         <span>{sellerProfile.business_hours}</span>
                       </div>
                     )}
                     {sellerProfile.bio && (
-                      <p className="text-gray-600 leading-relaxed">{sellerProfile.bio}</p>
+                      <p className="text-ink/65 leading-relaxed">{sellerProfile.bio}</p>
                     )}
                   </div>
 
@@ -731,10 +740,10 @@ export default function ProductDetail() {
                 </div>
               ) : (
                 <div className="text-center">
-                  <p className="text-sm text-gray-500 mb-4">Seller: {listing.created_by?.split('@')[0]}</p>
+                  <p className="text-sm text-ink/50 mb-4">Seller: {listing.created_by?.split('@')[0]}</p>
                   <Button
                     onClick={() => setShowInquiryForm(true)}
-                    className="w-full bg-[#7A9D7A] hover:bg-[#6A8D6A]"
+                    className="w-full btn-cta"
                   >
                     Contact Seller
                   </Button>
@@ -746,12 +755,12 @@ export default function ProductDetail() {
 
         {relatedListings.length > 0 && (
           <div className="mt-16">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">Related Listings</h2>
+            <h2 className="font-display text-2xl font-bold text-ink mb-6">Related Listings</h2>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
               {relatedListings.filter(l => l.id !== listing.id).slice(0, 4).map((related) => (
                 <Link key={related.id} to={createPageUrl('ProductDetail') + `?id=${related.id}`}>
                   <Card className="overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className="aspect-square overflow-hidden bg-gray-100">
+                    <div className="aspect-square overflow-hidden bg-cream-deep">
                       <img
                         src={related.images?.[0] || 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=400'}
                         alt={related.title}
@@ -759,10 +768,10 @@ export default function ProductDetail() {
                       />
                     </div>
                     <div className="p-4">
-                      <h3 className="font-semibold text-gray-900 mb-1 line-clamp-1">
+                      <h3 className="font-semibold text-ink mb-1 line-clamp-1">
                         {related.title}
                       </h3>
-                      <p className="text-lg font-bold text-[#E07A5F]">
+                      <p className="text-lg font-bold text-moss-700 font-display">
                         R{related.price}
                       </p>
                     </div>

@@ -44,7 +44,7 @@ function CountdownTimer({ endTime }) {
   }, [endTime]);
 
   return (
-    <div className={`flex items-center gap-1 text-sm font-medium ${isUrgent ? 'text-red-600' : 'text-gray-600'}`}>
+    <div className={`flex items-center gap-1 text-sm font-medium ${isUrgent ? 'text-terracotta-600' : 'text-ink/65'}`}>
       <Clock className="w-4 h-4" />
       {timeLeft}
     </div>
@@ -65,24 +65,24 @@ export default function AuctionCard({ auction }) {
 
   return (
     <Link to={createPageUrl('AuctionDetail') + `?id=${auction.id}`}>
-      <Card className="group overflow-hidden hover:shadow-xl transition-all duration-300 border-0 bg-white">
-        <div className="relative aspect-[4/3] overflow-hidden bg-gray-100">
+      <Card className="group overflow-hidden hover:shadow-lift transition-all duration-300 border-0 bg-white">
+        <div className="relative aspect-[4/3] overflow-hidden bg-cream-deep">
           <img
             src={primaryImage}
             alt={auction.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
           <div className="absolute top-3 left-3 flex gap-2">
-            <Badge className="bg-[#E07A5F] text-white border-0">
+            <Badge className="bg-terracotta-500 text-white border-0">
               <Gavel className="w-3 h-3 mr-1" />
               Auction
             </Badge>
-            <Badge className="bg-white/95 text-gray-800 backdrop-blur-sm border-0">
+            <Badge className="bg-white/95 text-ink backdrop-blur-sm border-0">
               {poultryLabels[auction.poultry_type]}
             </Badge>
           </div>
           {!hasStarted && (
-            <div className="absolute bottom-3 left-3 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+            <div className="absolute bottom-3 left-3 bg-moss-500 text-white text-xs px-2 py-1 rounded">
               Starts {moment(auction.start_time).fromNow()}
             </div>
           )}
@@ -94,36 +94,36 @@ export default function AuctionCard({ auction }) {
         </div>
 
         <div className="p-4">
-          <h3 className="font-semibold text-gray-900 text-lg mb-1 group-hover:text-[#E07A5F] transition-colors line-clamp-1">
+          <h3 className="font-semibold text-ink text-lg mb-1 group-hover:text-terracotta-600 transition-colors line-clamp-1">
             {auction.title}
           </h3>
           {auction.breed && (
-            <p className="text-sm text-gray-600 mb-2">{auction.breed}</p>
+            <p className="text-sm text-ink/65 mb-2">{auction.breed}</p>
           )}
 
           <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center gap-2 text-sm text-ink/55">
               <MapPin className="w-4 h-4" />
               <span>{auction.city}, {auction.province}</span>
             </div>
             {auction.quantity > 1 && (
-              <span className="text-sm text-gray-500">Qty: {auction.quantity}</span>
+              <span className="text-sm text-ink/55">Qty: {auction.quantity}</span>
             )}
           </div>
 
-          <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+          <div className="flex items-center justify-between pt-3 border-t border-border">
             <div>
-              <p className="text-xs text-gray-500 mb-1">
+              <p className="text-xs text-ink/55 mb-1">
                 {auction.bid_count > 0 ? 'Current Bid' : 'Starting Bid'}
               </p>
-              <span className="text-2xl font-bold text-[#E07A5F]">
+              <span className="text-2xl font-bold text-terracotta-600">
                 R{currentBid.toLocaleString()}
               </span>
             </div>
             <div className="text-right">
               {!hasEnded && hasStarted && <CountdownTimer endTime={auction.end_time} />}
               {auction.bid_count > 0 && (
-                <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+                <div className="flex items-center gap-1 text-xs text-ink/55 mt-1">
                   <Users className="w-3 h-3" />
                   {auction.bid_count} bids
                 </div>

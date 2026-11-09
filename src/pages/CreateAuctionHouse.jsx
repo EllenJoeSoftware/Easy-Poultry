@@ -89,16 +89,16 @@ export default function CreateAuctionHouse() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[80vh] bg-cream">
       <div className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <Link to={createPageUrl('Auctions')} className="inline-flex items-center text-gray-600 hover:text-gray-900">
+          <Link to={createPageUrl('Auctions')} className="inline-flex items-center text-ink/65 hover:text-ink">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Auctions
           </Link>
@@ -107,19 +107,19 @@ export default function CreateAuctionHouse() {
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-[#E07A5F]/10 flex items-center justify-center">
-            <Building2 className="w-6 h-6 text-[#E07A5F]" />
+          <div className="w-12 h-12 rounded-xl bg-terracotta-500/10 flex items-center justify-center">
+            <Building2 className="w-6 h-6 text-terracotta-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Create Auction House</h1>
-            <p className="text-gray-600">Set up your auction house to host unlimited auctions</p>
+            <h1 className="font-display text-2xl font-bold text-ink">Create Auction House</h1>
+            <p className="text-ink/65">Set up your auction house to host unlimited auctions</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Tier Selection */}
-          <Card className="p-6 border-0 shadow-lg">
-            <h2 className="font-semibold text-gray-900 mb-4">Select Your Plan</h2>
+          <Card className="p-6 card-premium">
+            <h2 className="font-semibold text-ink mb-4">Select Your Plan</h2>
             <div className="grid sm:grid-cols-3 gap-4">
               {tiers.map((tier) => (
                 <div
@@ -127,42 +127,42 @@ export default function CreateAuctionHouse() {
                   onClick={() => setSelectedTier(tier)}
                   className={`relative p-6 rounded-xl border-2 cursor-pointer transition-all ${
                     selectedTier?.id === tier.id 
-                      ? 'border-[#E07A5F] bg-[#E07A5F]/5' 
-                      : 'border-gray-200 hover:border-gray-300'
+                      ? 'border-terracotta-500 bg-terracotta-500/5' 
+                      : 'border-border hover:border-border'
                   }`}
                 >
                   {selectedTier?.id === tier.id && (
-                    <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-[#E07A5F] flex items-center justify-center">
+                    <div className="absolute top-3 right-3 w-6 h-6 rounded-full bg-terracotta-500 flex items-center justify-center">
                       <Check className="w-4 h-4 text-white" />
                     </div>
                   )}
                   {tier.featured_placement && (
-                    <div className="absolute -top-3 left-4 bg-[#E07A5F] text-white text-xs font-bold px-2 py-1 rounded">
+                    <div className="absolute -top-3 left-4 bg-terracotta-500 text-white text-xs font-bold px-2 py-1 rounded">
                       POPULAR
                     </div>
                   )}
-                  <h3 className="text-xl font-bold text-gray-900 mb-1">{tier.name}</h3>
-                  <p className="text-3xl font-bold text-[#E07A5F] mb-4">
-                    R{tier.monthly_price}<span className="text-sm font-normal text-gray-500">/month</span>
+                  <h3 className="text-xl font-bold text-ink mb-1">{tier.name}</h3>
+                  <p className="text-3xl font-bold text-terracotta-600 mb-4">
+                    R{tier.monthly_price}<span className="text-sm font-normal text-ink/55">/month</span>
                   </p>
-                  <ul className="space-y-2 text-sm text-gray-600">
+                  <ul className="space-y-2 text-sm text-ink/65">
                     <li className="flex items-center gap-2">
-                      <Gavel className="w-4 h-4 text-[#7A9D7A]" />
+                      <Gavel className="w-4 h-4 text-moss-600" />
                       {tier.max_live_auctions} live auction{tier.max_live_auctions > 1 ? 's' : ''} at a time
                     </li>
                     <li className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-[#7A9D7A]" />
+                      <Check className="w-4 h-4 text-moss-600" />
                       Up to {tier.max_items_per_auction} items per auction
                     </li>
                     {tier.featured_placement && (
                       <li className="flex items-center gap-2">
-                        <Star className="w-4 h-4 text-yellow-500" />
+                        <Star className="w-4 h-4 text-yolk-500" />
                         Featured placement
                       </li>
                     )}
                     {tier.priority_support && (
                       <li className="flex items-center gap-2">
-                        <Check className="w-4 h-4 text-[#7A9D7A]" />
+                        <Check className="w-4 h-4 text-moss-600" />
                         Priority support
                       </li>
                     )}
@@ -171,26 +171,26 @@ export default function CreateAuctionHouse() {
               ))}
             </div>
             {tiers.length === 0 && (
-              <p className="text-gray-500 text-center py-8">No tiers available. Please contact admin.</p>
+              <p className="text-ink/55 text-center py-8">No tiers available. Please contact admin.</p>
             )}
           </Card>
 
-          <Card className="p-6 border-0 shadow-lg">
-            <h2 className="font-semibold text-gray-900 mb-4">Branding</h2>
+          <Card className="p-6 card-premium">
+            <h2 className="font-semibold text-ink mb-4">Branding</h2>
             <div className="grid sm:grid-cols-2 gap-6">
               <div>
                 <Label>Logo</Label>
                 {logoUrl ? (
                   <div className="relative w-32 h-32 mt-2">
                     <img src={logoUrl} alt="Logo" className="w-full h-full object-cover rounded-lg" />
-                    <button type="button" onClick={() => setLogoUrl('')} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center">
+                    <button type="button" onClick={() => setLogoUrl('')} className="absolute -top-2 -right-2 w-6 h-6 bg-terracotta-500 text-white rounded-full flex items-center justify-center">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <label className="mt-2 w-32 h-32 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-[#7A9D7A]">
-                    {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6 text-gray-400" />}
-                    <span className="text-xs text-gray-500 mt-1">Upload</span>
+                  <label className="mt-2 w-32 h-32 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-moss-600">
+                    {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6 text-ink/40" />}
+                    <span className="text-xs text-ink/55 mt-1">Upload</span>
                     <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'logo')} className="hidden" />
                   </label>
                 )}
@@ -200,14 +200,14 @@ export default function CreateAuctionHouse() {
                 {coverUrl ? (
                   <div className="relative w-full h-32 mt-2">
                     <img src={coverUrl} alt="Cover" className="w-full h-full object-cover rounded-lg" />
-                    <button type="button" onClick={() => setCoverUrl('')} className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center">
+                    <button type="button" onClick={() => setCoverUrl('')} className="absolute -top-2 -right-2 w-6 h-6 bg-terracotta-500 text-white rounded-full flex items-center justify-center">
                       <X className="w-4 h-4" />
                     </button>
                   </div>
                 ) : (
-                  <label className="mt-2 w-full h-32 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-[#7A9D7A]">
-                    {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6 text-gray-400" />}
-                    <span className="text-xs text-gray-500 mt-1">Upload cover</span>
+                  <label className="mt-2 w-full h-32 rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-moss-600">
+                    {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6 text-ink/40" />}
+                    <span className="text-xs text-ink/55 mt-1">Upload cover</span>
                     <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'cover')} className="hidden" />
                   </label>
                 )}
@@ -215,8 +215,8 @@ export default function CreateAuctionHouse() {
             </div>
           </Card>
 
-          <Card className="p-6 border-0 shadow-lg">
-            <h2 className="font-semibold text-gray-900 mb-4">Details</h2>
+          <Card className="p-6 card-premium">
+            <h2 className="font-semibold text-ink mb-4">Details</h2>
             <div className="grid gap-4">
               <div>
                 <Label>Auction House Name *</Label>
@@ -249,13 +249,13 @@ export default function CreateAuctionHouse() {
             </div>
           </Card>
 
-          <Card className="p-6 border-0 shadow-lg">
-            <h2 className="font-semibold text-gray-900 mb-4">Default Terms & Conditions</h2>
+          <Card className="p-6 card-premium">
+            <h2 className="font-semibold text-ink mb-4">Default Terms & Conditions</h2>
             <Textarea value={form.terms_conditions} onChange={(e) => setForm({ ...form, terms_conditions: e.target.value })} placeholder="Default terms for your auctions..." rows={4} />
           </Card>
 
           <div className="flex gap-4">
-            <Button type="submit" disabled={createMutation.isPending} className="bg-[#E07A5F] hover:bg-[#D06A4F] px-8">
+            <Button type="submit" disabled={createMutation.isPending} className="bg-terracotta-500 hover:bg-terracotta-600 text-white px-8">
               {createMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Create & Proceed to Payment
             </Button>

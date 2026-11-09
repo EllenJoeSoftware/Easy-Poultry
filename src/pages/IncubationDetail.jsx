@@ -143,7 +143,7 @@ export default function IncubationDetail() {
   if (!user || isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
@@ -151,7 +151,7 @@ export default function IncubationDetail() {
   if (!incubation) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-600">Incubation batch not found</p>
+        <p className="text-ink/65">Incubation batch not found</p>
       </div>
     );
   }
@@ -165,7 +165,7 @@ export default function IncubationDetail() {
   const recentCandling = candlingSchedule.filter(c => c.day <= currentDay).pop();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[80vh] bg-cream">
       <div className="bg-gradient-to-r from-orange-500 to-amber-600 text-white py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Link to={createPageUrl('IncubationManagement')} className="inline-flex items-center text-white/80 hover:text-white mb-4">
@@ -174,12 +174,12 @@ export default function IncubationDetail() {
           </Link>
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2">{incubation.batch_name}</h1>
+              <h1 className="font-display text-3xl font-bold mb-2">{incubation.batch_name}</h1>
               <p className="text-white/90">Day {currentDay} of {incubation.incubation_days}</p>
             </div>
             <Button
               onClick={() => setShowLogForm(true)}
-              className="bg-white text-orange-600 hover:bg-gray-50"
+              className="bg-white text-yolk-600 hover:bg-cream"
             >
               Add Daily Log
             </Button>
@@ -189,16 +189,16 @@ export default function IncubationDetail() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Progress Overview */}
-        <Card className="p-6 mb-8 border-0 shadow-lg">
+        <Card className="p-6 mb-8 card-premium">
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Incubation Progress</h3>
+              <h3 className="font-semibold text-ink mb-4">Incubation Progress</h3>
               <div className="space-y-3">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Current Day</span>
+                  <span className="text-ink/65">Current Day</span>
                   <span className="font-semibold">Day {currentDay}</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-3">
+                <div className="w-full bg-cream-deep rounded-full h-3">
                   <div
                     className="bg-orange-600 h-3 rounded-full transition-all"
                     style={{ width: `${progress}%` }}
@@ -206,33 +206,33 @@ export default function IncubationDetail() {
                 </div>
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div className="flex items-center gap-2">
-                    <Thermometer className="w-4 h-4 text-orange-600" />
+                    <Thermometer className="w-4 h-4 text-yolk-600" />
                     <span className="text-sm">Target: {incubation.temperature_celsius}°C</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Droplets className="w-4 h-4 text-blue-600" />
+                    <Droplets className="w-4 h-4 text-moss-700" />
                     <span className="text-sm">Target: {incubation.humidity_percent}%</span>
                   </div>
                 </div>
               </div>
             </div>
             <div>
-              <h3 className="font-semibold text-gray-900 mb-4">Batch Details</h3>
+              <h3 className="font-semibold text-ink mb-4">Batch Details</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Eggs Count</span>
+                  <span className="text-ink/65">Eggs Count</span>
                   <span className="font-semibold">{incubation.egg_count}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Breed</span>
+                  <span className="text-ink/65">Breed</span>
                   <span className="font-semibold">{incubation.breed || 'Mixed'}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Started</span>
+                  <span className="text-ink/65">Started</span>
                   <span className="font-semibold">{moment(incubation.incubation_start_date).format('MMM DD, YYYY')}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Expected Hatch</span>
+                  <span className="text-ink/65">Expected Hatch</span>
                   <span className="font-semibold">{moment(incubation.expected_hatch_date).format('MMM DD, YYYY')}</span>
                 </div>
               </div>
@@ -241,15 +241,15 @@ export default function IncubationDetail() {
         </Card>
 
         {/* Candling Schedule & Guidance */}
-        <Card className="p-6 mb-8 border-0 shadow-lg">
-          <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Eye className="w-5 h-5 text-orange-600" />
+        <Card className="p-6 mb-8 card-premium">
+          <h3 className="font-semibold text-ink mb-4 flex items-center gap-2">
+            <Eye className="w-5 h-5 text-yolk-600" />
             Candling Schedule & Guide
           </h3>
           {nextCandling && (
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+            <div className="bg-yolk-50 border border-yolk-200 rounded-lg p-4 mb-4">
               <div className="flex items-start gap-3">
-                <Calendar className="w-5 h-5 text-orange-600 mt-0.5" />
+                <Calendar className="w-5 h-5 text-yolk-600 mt-0.5" />
                 <div>
                   <h4 className="font-semibold text-orange-900">Next Candling: Day {nextCandling.day}</h4>
                   <p className="text-sm text-orange-800 mt-1">{nextCandling.description}</p>
@@ -267,20 +267,20 @@ export default function IncubationDetail() {
                 <Card key={schedule.day} className={`p-4 ${isCurrent ? 'border-2 border-orange-500' : ''}`}>
                   <div className="flex items-start justify-between mb-2">
                     <div>
-                      <h4 className="font-semibold text-gray-900">Day {schedule.day}</h4>
+                      <h4 className="font-semibold text-ink">Day {schedule.day}</h4>
                       <Badge variant={isPast ? 'default' : 'outline'} className="mt-1">
                         {isPast ? 'Past' : isCurrent ? 'Today' : 'Upcoming'}
                       </Badge>
                     </div>
-                    {logForDay && <CheckCircle className="w-5 h-5 text-green-600" />}
+                    {logForDay && <CheckCircle className="w-5 h-5 text-moss-700" />}
                   </div>
                   <img
                     src={schedule.imageUrl}
                     alt={schedule.title}
                     className="w-full h-32 object-cover rounded-lg mb-2"
                   />
-                  <h5 className="font-medium text-sm text-gray-900 mb-1">{schedule.title}</h5>
-                  <p className="text-xs text-gray-600 mb-2">{schedule.guidance}</p>
+                  <h5 className="font-medium text-sm text-ink mb-1">{schedule.title}</h5>
+                  <p className="text-xs text-ink/65 mb-2">{schedule.guidance}</p>
                 </Card>
               );
             })}
@@ -288,15 +288,15 @@ export default function IncubationDetail() {
         </Card>
 
         {/* Daily Logs */}
-        <Card className="border-0 shadow-lg">
+        <Card className="card-premium">
           <div className="p-6 border-b">
-            <h3 className="text-lg font-semibold text-gray-900">Daily Logs</h3>
+            <h3 className="font-display text-lg font-semibold text-ink">Daily Logs</h3>
           </div>
           <div className="p-6">
             {logs.length === 0 ? (
               <div className="text-center py-12">
-                <Egg className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-                <p className="text-gray-600 mb-4">No logs yet. Start tracking daily!</p>
+                <Egg className="w-16 h-16 text-ink/25 mx-auto mb-4" />
+                <p className="text-ink/65 mb-4">No logs yet. Start tracking daily!</p>
                 <Button onClick={() => setShowLogForm(true)} className="bg-orange-600 hover:bg-orange-700">
                   Add First Log
                 </Button>
@@ -310,8 +310,8 @@ export default function IncubationDetail() {
                     <Card key={log.id} className="p-4">
                       <div className="flex items-start justify-between mb-3">
                         <div>
-                          <h4 className="font-semibold text-gray-900">Day {log.day_number}</h4>
-                          <p className="text-sm text-gray-600">{moment(log.log_date).format('MMM DD, YYYY')}</p>
+                          <h4 className="font-semibold text-ink">Day {log.day_number}</h4>
+                          <p className="text-sm text-ink/65">{moment(log.log_date).format('MMM DD, YYYY')}</p>
                         </div>
                         {log.candling_performed && (
                           <Badge className="bg-orange-600">
@@ -323,25 +323,25 @@ export default function IncubationDetail() {
 
                       <div className="grid grid-cols-3 gap-4 mb-3">
                         <div className="flex items-center gap-2 text-sm">
-                          <Thermometer className="w-4 h-4 text-orange-600" />
+                          <Thermometer className="w-4 h-4 text-yolk-600" />
                           <span>{log.temperature_celsius}°C</span>
                         </div>
                         <div className="flex items-center gap-2 text-sm">
-                          <Droplets className="w-4 h-4 text-blue-600" />
+                          <Droplets className="w-4 h-4 text-moss-700" />
                           <span>{log.humidity_percent}%</span>
                         </div>
                         <div className="text-sm">
                           {log.eggs_turned ? (
-                            <CheckCircle className="w-4 h-4 text-green-600 inline mr-1" />
+                            <CheckCircle className="w-4 h-4 text-moss-700 inline mr-1" />
                           ) : (
-                            <AlertTriangle className="w-4 h-4 text-orange-600 inline mr-1" />
+                            <AlertTriangle className="w-4 h-4 text-yolk-600 inline mr-1" />
                           )}
                           <span>{log.eggs_turned ? 'Turned' : 'Not turned'}</span>
                         </div>
                       </div>
 
                       {log.candling_performed && (
-                        <div className="bg-orange-50 rounded-lg p-3 mb-3">
+                        <div className="bg-yolk-50 rounded-lg p-3 mb-3">
                           {candlingDay && (
                             <p className="text-sm font-medium text-orange-900 mb-2">{candlingDay.title}</p>
                           )}
@@ -353,20 +353,20 @@ export default function IncubationDetail() {
                             />
                           )}
                           {log.candling_results && (
-                            <p className="text-sm text-gray-700">{log.candling_results}</p>
+                            <p className="text-sm text-ink/75">{log.candling_results}</p>
                           )}
                         </div>
                       )}
 
                       {log.eggs_removed > 0 && (
-                        <div className="flex items-center gap-2 text-sm text-red-600 mb-2">
+                        <div className="flex items-center gap-2 text-sm text-terracotta-600 mb-2">
                           <AlertTriangle className="w-4 h-4" />
                           <span>{log.eggs_removed} eggs removed</span>
                         </div>
                       )}
 
                       {log.notes && (
-                        <p className="text-sm text-gray-600 italic">{log.notes}</p>
+                        <p className="text-sm text-ink/65 italic">{log.notes}</p>
                       )}
                     </Card>
                   );
@@ -428,7 +428,7 @@ export default function IncubationDetail() {
                     type="checkbox"
                     checked={logFormData.eggs_turned}
                     onChange={(e) => setLogFormData({ ...logFormData, eggs_turned: e.target.checked })}
-                    className="w-4 h-4 text-orange-600"
+                    className="w-4 h-4 text-yolk-600"
                   />
                   <span className="text-sm font-medium">Eggs Turned</span>
                 </label>
@@ -441,7 +441,7 @@ export default function IncubationDetail() {
                   type="checkbox"
                   checked={logFormData.candling_performed}
                   onChange={(e) => setLogFormData({ ...logFormData, candling_performed: e.target.checked })}
-                  className="w-4 h-4 text-orange-600"
+                  className="w-4 h-4 text-yolk-600"
                 />
                 <span className="text-sm font-medium">Candling Performed</span>
               </label>

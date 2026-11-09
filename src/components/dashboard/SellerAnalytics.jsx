@@ -54,92 +54,92 @@ export default function SellerAnalytics({ userEmail }) {
     count: reviews.filter(r => r.rating === rating).length
   }));
 
-  const COLORS = ['#7A9D7A', '#E07A5F', '#3D405B', '#81B29A', '#F2CC8F'];
+  const COLORS = ['#174D35', '#E5A23C', '#287A4C', '#83AA62', '#C8673D'];
 
   return (
     <div className="space-y-6">
       {/* Key Metrics */}
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
-        <Card className="p-4 border-0 shadow-lg">
+        <Card className="p-4 card-premium">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#7A9D7A]/10 flex items-center justify-center">
-              <Package className="w-5 h-5 text-[#7A9D7A]" />
+            <div className="w-10 h-10 rounded-lg bg-moss-50 flex items-center justify-center">
+              <Package className="w-5 h-5 text-moss-600" />
             </div>
             <div>
               <p className="text-2xl font-bold">{activeListings.length}</p>
-              <p className="text-xs text-gray-500">Active</p>
+              <p className="text-xs text-ink/55">Active</p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-4 border-0 shadow-lg">
+        <Card className="p-4 card-premium">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-              <DollarSign className="w-5 h-5 text-green-600" />
+              <DollarSign className="w-5 h-5 text-moss-700" />
             </div>
             <div>
               <p className="text-2xl font-bold">{soldListings.length}</p>
-              <p className="text-xs text-gray-500">Sold</p>
+              <p className="text-xs text-ink/55">Sold</p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-4 border-0 shadow-lg">
+        <Card className="p-4 card-premium">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-[#E07A5F]/10 flex items-center justify-center">
-              <Eye className="w-5 h-5 text-[#E07A5F]" />
+            <div className="w-10 h-10 rounded-lg bg-terracotta-500/10 flex items-center justify-center">
+              <Eye className="w-5 h-5 text-terracotta-600" />
             </div>
             <div>
               <p className="text-2xl font-bold">{totalViews}</p>
-              <p className="text-xs text-gray-500">Views</p>
+              <p className="text-xs text-ink/55">Views</p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-4 border-0 shadow-lg">
+        <Card className="p-4 card-premium">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-              <MessageCircle className="w-5 h-5 text-blue-600" />
+              <MessageCircle className="w-5 h-5 text-moss-700" />
             </div>
             <div>
               <p className="text-2xl font-bold">{totalInquiries}</p>
-              <p className="text-xs text-gray-500">Inquiries</p>
+              <p className="text-xs text-ink/55">Inquiries</p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-4 border-0 shadow-lg">
+        <Card className="p-4 card-premium">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center">
-              <Star className="w-5 h-5 text-yellow-600" />
+              <Star className="w-5 h-5 text-yolk-600" />
             </div>
             <div>
               <p className="text-2xl font-bold">{avgRating}</p>
-              <p className="text-xs text-gray-500">Avg Rating</p>
+              <p className="text-xs text-ink/55">Avg Rating</p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-4 border-0 shadow-lg">
+        <Card className="p-4 card-premium">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-purple-600" />
+              <TrendingUp className="w-5 h-5 text-moss-700" />
             </div>
             <div>
               <p className="text-2xl font-bold">{conversionRate}%</p>
-              <p className="text-xs text-gray-500">Conversion</p>
+              <p className="text-xs text-ink/55">Conversion</p>
             </div>
           </div>
         </Card>
 
-        <Card className="p-4 border-0 shadow-lg">
+        <Card className="p-4 card-premium">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
               <BarChart3 className="w-5 h-5 text-emerald-600" />
             </div>
             <div>
               <p className="text-2xl font-bold">R{totalSales.toLocaleString()}</p>
-              <p className="text-xs text-gray-500">Total Sales</p>
+              <p className="text-xs text-ink/55">Total Sales</p>
             </div>
           </div>
         </Card>
@@ -148,8 +148,8 @@ export default function SellerAnalytics({ userEmail }) {
       {/* Charts Row */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Top Listings by Views */}
-        <Card className="p-6 border-0 shadow-lg">
-          <h3 className="font-semibold text-gray-900 mb-4">Top Listings Performance</h3>
+        <Card className="p-6 card-premium">
+          <h3 className="font-semibold text-ink mb-4">Top Listings Performance</h3>
           {viewsData.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               <BarChart data={viewsData}>
@@ -157,20 +157,20 @@ export default function SellerAnalytics({ userEmail }) {
                 <XAxis dataKey="name" tick={{ fontSize: 10 }} />
                 <YAxis tick={{ fontSize: 12 }} />
                 <Tooltip />
-                <Bar dataKey="views" fill="#7A9D7A" name="Views" radius={[4, 4, 0, 0]} />
-                <Bar dataKey="inquiries" fill="#E07A5F" name="Inquiries" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="views" fill="#174D35" name="Views" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="inquiries" fill="#E5A23C" name="Inquiries" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[250px] flex items-center justify-center text-gray-400">
+            <div className="h-[250px] flex items-center justify-center text-ink/40">
               No data yet
             </div>
           )}
         </Card>
 
         {/* Category Distribution */}
-        <Card className="p-6 border-0 shadow-lg">
-          <h3 className="font-semibold text-gray-900 mb-4">Listings by Category</h3>
+        <Card className="p-6 card-premium">
+          <h3 className="font-semibold text-ink mb-4">Listings by Category</h3>
           {categoryData.length > 0 ? (
             <ResponsiveContainer width="100%" height={250}>
               <PieChart>
@@ -193,7 +193,7 @@ export default function SellerAnalytics({ userEmail }) {
               </PieChart>
             </ResponsiveContainer>
           ) : (
-            <div className="h-[250px] flex items-center justify-center text-gray-400">
+            <div className="h-[250px] flex items-center justify-center text-ink/40">
               No data yet
             </div>
           )}
@@ -202,8 +202,8 @@ export default function SellerAnalytics({ userEmail }) {
 
       {/* Rating Distribution */}
       {reviews.length > 0 && (
-        <Card className="p-6 border-0 shadow-lg">
-          <h3 className="font-semibold text-gray-900 mb-4">Rating Distribution</h3>
+        <Card className="p-6 card-premium">
+          <h3 className="font-semibold text-ink mb-4">Rating Distribution</h3>
           <ResponsiveContainer width="100%" height={200}>
             <BarChart data={ratingDistribution} layout="vertical">
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />

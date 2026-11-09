@@ -116,16 +116,16 @@ export default function CreateAuction() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[80vh] bg-cream">
       <div className="bg-white border-b">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <Link to={createPageUrl('Auctions')} className="inline-flex items-center text-gray-600 hover:text-gray-900">
+          <Link to={createPageUrl('Auctions')} className="inline-flex items-center text-ink/65 hover:text-ink">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Auctions
           </Link>
@@ -134,36 +134,36 @@ export default function CreateAuction() {
 
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-[#E07A5F]/10 flex items-center justify-center">
-            <Gavel className="w-6 h-6 text-[#E07A5F]" />
+          <div className="w-12 h-12 rounded-xl bg-terracotta-500/10 flex items-center justify-center">
+            <Gavel className="w-6 h-6 text-terracotta-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Create Auction</h1>
-            <p className="text-gray-600">Set up your poultry auction house</p>
+            <h1 className="font-display text-2xl font-bold text-ink">Create Auction</h1>
+            <p className="text-ink/65">Set up your poultry auction house</p>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Images */}
-          <Card className="p-6 border-0 shadow-lg">
-            <h2 className="font-semibold text-gray-900 mb-4">Photos</h2>
+          <Card className="p-6 card-premium">
+            <h2 className="font-semibold text-ink mb-4">Photos</h2>
             <div className="grid grid-cols-5 gap-3">
               {images.map((img, i) => (
-                <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-gray-100">
+                <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-cream-deep">
                   <img src={img} alt="" className="w-full h-full object-cover" />
                   <button
                     type="button"
                     onClick={() => removeImage(i)}
-                    className="absolute top-1 right-1 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center"
+                    className="absolute top-1 right-1 w-6 h-6 bg-terracotta-500 text-white rounded-full flex items-center justify-center"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               ))}
               {images.length < 10 && (
-                <label className="aspect-square rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-[#7A9D7A]">
-                  {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6 text-gray-400" />}
-                  <span className="text-xs text-gray-500 mt-1">Upload</span>
+                <label className="aspect-square rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-moss-600">
+                  {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6 text-ink/40" />}
+                  <span className="text-xs text-ink/55 mt-1">Upload</span>
                   <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
                 </label>
               )}
@@ -171,8 +171,8 @@ export default function CreateAuction() {
           </Card>
 
           {/* Basic Info */}
-          <Card className="p-6 border-0 shadow-lg">
-            <h2 className="font-semibold text-gray-900 mb-4">Auction Details</h2>
+          <Card className="p-6 card-premium">
+            <h2 className="font-semibold text-ink mb-4">Auction Details</h2>
             <div className="grid gap-4">
               <div>
                 <Label>Title *</Label>
@@ -230,8 +230,8 @@ export default function CreateAuction() {
           </Card>
 
           {/* Location */}
-          <Card className="p-6 border-0 shadow-lg">
-            <h2 className="font-semibold text-gray-900 mb-4">Location</h2>
+          <Card className="p-6 card-premium">
+            <h2 className="font-semibold text-ink mb-4">Location</h2>
             <div className="grid sm:grid-cols-2 gap-4">
               <div>
                 <Label>Province</Label>
@@ -245,8 +245,8 @@ export default function CreateAuction() {
           </Card>
 
           {/* Auction Settings */}
-          <Card className="p-6 border-0 shadow-lg">
-            <h2 className="font-semibold text-gray-900 mb-4">Auction Settings</h2>
+          <Card className="p-6 card-premium">
+            <h2 className="font-semibold text-ink mb-4">Auction Settings</h2>
             <div className="grid gap-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div>
@@ -292,8 +292,8 @@ export default function CreateAuction() {
           </Card>
 
           {/* Terms */}
-          <Card className="p-6 border-0 shadow-lg">
-            <h2 className="font-semibold text-gray-900 mb-4">Terms & Conditions</h2>
+          <Card className="p-6 card-premium">
+            <h2 className="font-semibold text-ink mb-4">Terms & Conditions</h2>
             <Textarea
               value={form.terms_conditions}
               onChange={(e) => setForm({ ...form, terms_conditions: e.target.value })}
@@ -303,7 +303,7 @@ export default function CreateAuction() {
           </Card>
 
           <div className="flex gap-4">
-            <Button type="submit" disabled={createAuctionMutation.isPending} className="bg-[#E07A5F] hover:bg-[#D06A4F] px-8">
+            <Button type="submit" disabled={createAuctionMutation.isPending} className="bg-terracotta-500 hover:bg-terracotta-600 text-white px-8">
               {createAuctionMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
               Create & Proceed to Payment
             </Button>

@@ -22,14 +22,14 @@ export default function SellerReviews() {
   if (!user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-[#7A9D7A]" />
+        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-[#7A9D7A] to-[#6A8D6A] text-white py-8">
+    <div className="min-h-[80vh] bg-cream">
+      <div className="bg-moss-gradient text-white py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
             <Star className="w-8 h-8" />
@@ -42,7 +42,7 @@ export default function SellerReviews() {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <Card className="p-6 border-0 shadow-lg">
+        <Card className="p-6 card-premium">
           <ReviewList sellerEmail={user.email} isOwner={true} />
         </Card>
       </div>
