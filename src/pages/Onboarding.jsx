@@ -81,7 +81,7 @@ export default function Onboarding({ embedded = false, onComplete } = {}) {
       toast.success('Welcome to Easy Poultry!');
       try { await refreshUser?.(); } catch { /* ignore */ }
       if (embedded) onComplete?.();
-      else navigate(createPageUrl('Home'));
+      else navigate('/');
     },
     onError: (e) => toast.error(e?.message || 'Something went wrong')
   });

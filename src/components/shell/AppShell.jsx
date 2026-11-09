@@ -107,7 +107,7 @@ export default function AppShell({ children, currentPageName }) {
     >
       {/* Brand */}
       <div className={`flex items-center gap-3 px-4 h-16 border-b border-sidebar-border ${collapsed && !mobile ? 'justify-center' : ''}`}>
-        <Link to={createPageUrl('Home')} className="flex items-center gap-3 min-w-0">
+        <Link to={'/'} className="flex items-center gap-3 min-w-0">
           <LogoMark className="w-9 h-9 flex-shrink-0" showAccent={false} />
           {(!collapsed || mobile) && (
             <span className="font-display font-bold text-base tracking-tight truncate">Easy Poultry</span>

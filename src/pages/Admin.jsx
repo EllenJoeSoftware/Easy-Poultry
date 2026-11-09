@@ -55,7 +55,7 @@ export default function Admin() {
         const currentUser = await api.auth.me();
         if (currentUser.role !== 'admin') {
           toast.error('Access denied. Admin only.');
-          navigate(createPageUrl('Home'));
+          navigate('/');
           return;
         }
         setUser(currentUser);

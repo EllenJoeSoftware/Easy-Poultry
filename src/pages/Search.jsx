@@ -98,7 +98,7 @@ export default function Search() {
       {/* Top bar — back link only */}
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <Link
-          to={createPageUrl('Home')}
+          to={'/'}
           className="inline-flex items-center gap-1.5 text-sm text-ink/60 hover:text-moss-700 transition-colors group"
         >
           <ArrowLeft className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" />
@@ -116,7 +116,7 @@ export default function Search() {
           layout
           className="flex flex-col items-center text-center"
         >
-          <Link to={createPageUrl('Home')} className="group">
+          <Link to={'/'} className="group">
             <LogoMark className={isCompact ? 'w-12 h-12' : 'w-20 h-20'} />
           </Link>
           {!isCompact && (

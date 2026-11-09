@@ -84,7 +84,7 @@ export default function Layout({ children, currentPageName }) {
           <div className="flex justify-between items-center h-20">
             {/* Logo lockup */}
             <div className="flex items-center gap-10">
-              <Link to={createPageUrl('Home')} className="flex items-center gap-3 group">
+              <Link to={'/'} className="flex items-center gap-3 group">
                 <div className="transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3">
                   <LogoMark className="w-11 h-11 drop-shadow-sm" />
                 </div>

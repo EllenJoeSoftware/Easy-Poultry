@@ -142,7 +142,7 @@ export default function PrivacyPolicy() {
       eyebrow="Legal"
       title={<>Privacy <span className="italic text-moss-700">policy</span>.</>}
       subtitle={`How we collect, use and protect your data. Last updated ${LAST_UPDATED}.`}
-      breadcrumb={[{ label: 'Home', href: createPageUrl('Home') }, { label: 'Privacy policy' }]}
+      breadcrumb={[{ label: 'Home', href: '/' }, { label: 'Privacy policy' }]}
       action={
         <Link to={createPageUrl('TermsOfService')} className="btn-ghost border border-border bg-white px-5 py-2.5 text-sm inline-flex items-center gap-1.5">
           <FileText className="w-4 h-4" /> Terms of service <ArrowUpRight className="w-3.5 h-3.5" />

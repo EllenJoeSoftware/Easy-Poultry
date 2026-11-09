@@ -399,7 +399,7 @@ export default function ProductDetail() {
       <div className="border-b border-border bg-cream/80 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
           <nav className="text-xs text-ink/55 flex items-center gap-1.5 min-w-0">
-            <Link to={createPageUrl('Home')} className="hover:text-moss-700">Home</Link>
+            <Link to={'/'} className="hover:text-moss-700">Home</Link>
             <span>/</span>
             <Link to={createPageUrl('Marketplace')} className="hover:text-moss-700">Marketplace</Link>
             {listing.category && (<><span>/</span>

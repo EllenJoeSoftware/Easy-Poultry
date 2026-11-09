@@ -194,7 +194,7 @@ export default function TermsOfService() {
       eyebrow="Legal"
       title={<>Terms of <span className="italic text-moss-700">service</span>.</>}
       subtitle={`The rules of the marketplace for buyers and sellers. Last updated ${LAST_UPDATED}.`}
-      breadcrumb={[{ label: 'Home', href: createPageUrl('Home') }, { label: 'Terms of service' }]}
+      breadcrumb={[{ label: 'Home', href: '/' }, { label: 'Terms of service' }]}
       action={
         <Link to={createPageUrl('PrivacyPolicy')} className="btn-ghost border border-border bg-white px-5 py-2.5 text-sm inline-flex items-center gap-1.5">
           <ShieldCheck className="w-4 h-4" /> Privacy policy <ArrowUpRight className="w-3.5 h-3.5" />
