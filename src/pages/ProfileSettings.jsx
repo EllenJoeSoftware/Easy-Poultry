@@ -5,11 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import PageShell from '@/components/shell/PageShell';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, Loader2, User, Store, LogOut, TrendingUp, Share2 } from 'lucide-react';
+import { Upload, Loader2, User, Store, LogOut, TrendingUp, Share2, Image as ImageIcon, ShieldCheck, Lock, Check, Clock, ExternalLink, FileCheck, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
 import { createPageUrl } from '../utils';
@@ -221,101 +219,134 @@ export default function ProfileSettings() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-[60vh] flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
       </div>
     );
   }
 
   const isSeller = formData.user_type === 'seller' || formData.user_type === 'both';
+  const tierLabel = (user?.seller_tier || 'basic').charAt(0).toUpperCase() + (user?.seller_tier || 'basic').slice(1);
+
+  const SECTIONS = [
+    { id: 'profile', label: 'Profile', icon: User },
+    ...(isSeller ? [
+      { id: 'plan', label: 'Plan & tier', icon: TrendingUp },
+      { id: 'branding', label: 'Branding', icon: ImageIcon },
+      { id: 'business', label: 'Business', icon: Store },
+      { id: 'verification', label: 'Verification', icon: ShieldCheck },
+    ] : []),
+    { id: 'security', label: 'Security', icon: Lock },
+  ];
+
+  const scrollTo = (id) => {
+    const el = document.getElementById(`section-${id}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
 
   return (
-    <div className="min-h-[80vh] bg-cream py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-ink mb-2">Profile Settings</h1>
-            <p className="text-ink/65">Manage your account information</p>
+    <PageShell
+      variant="compact"
+      eyebrow="Account"
+      title="Settings"
+      subtitle="Your profile, shop branding, business details and security — all in one place."
+      breadcrumb={[{ label: 'App', href: createPageUrl('Dashboard') }, { label: 'Settings' }]}
+      action={
+        <Button onClick={handleLogout} variant="outline" className="rounded-full gap-1.5 text-terracotta-600 hover:text-terracotta-700">
+          <LogOut className="w-4 h-4" /> Sign out
+        </Button>
+      }
+    >
+      <div className="lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-8 lg:items-start">
+        {/* Section nav */}
+        <nav className="mb-5 lg:mb-0 lg:sticky lg:top-24">
+          <div className="card-premium p-2 flex lg:flex-col gap-1 overflow-x-auto scrollbar-none">
+            {SECTIONS.map(s => (
+              <button key={s.id} type="button" onClick={() => scrollTo(s.id)}
+                className="whitespace-nowrap flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm text-ink/70 hover:bg-moss-50 hover:text-moss-700 transition-colors text-left">
+                <s.icon className="w-4 h-4 flex-shrink-0" strokeWidth={1.75} />
+                <span>{s.label}</span>
+              </button>
+            ))}
           </div>
-          <Button onClick={handleLogout} variant="outline" className="text-terracotta-600 hover:text-terracotta-700">
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
-        </div>
+          <div className="hidden lg:block mt-4 card-premium p-4">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-full overflow-hidden bg-cream-deep border border-border flex-shrink-0">
+                {formData.profile_photo_url ? <img src={formData.profile_photo_url} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-ink/35"><User className="w-5 h-5" /></div>}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-ink truncate">{formData.full_name || user.full_name || 'Your account'}</p>
+                <p className="text-xs text-ink/50 truncate">{user.email}</p>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-1.5 mt-3">
+              <span className="chip text-[11px] capitalize">{formData.user_type || 'buyer'}</span>
+              {isSeller && <span className="chip chip-accent text-[11px]">{tierLabel} tier</span>}
+              {user.seller_verified && <span className="chip text-[11px] bg-fresh-50 text-moss-700 border-fresh-200 gap-1"><ShieldCheck className="w-3 h-3" /> Verified</span>}
+            </div>
+          </div>
+        </nav>
 
-        <form onSubmit={handleSubmit}>
-          <Tabs defaultValue="basic" className="space-y-6">
-            <TabsList className="bg-white border shadow-sm">
-              <TabsTrigger value="basic">
-                <User className="w-4 h-4 mr-2" />
-                Basic Info
-              </TabsTrigger>
-              {isSeller && (
-                <TabsTrigger value="seller">
-                  <Store className="w-4 h-4 mr-2" />
-                  Seller Info
-                </TabsTrigger>
-              )}
-            </TabsList>
-
-            <TabsContent value="basic">
-              <Card className="p-6 card-premium space-y-6">
-                <div className="flex items-center gap-6">
-                  <div className="relative">
-                    <div className="w-24 h-24 rounded-full overflow-hidden bg-cream-deep">
+        <div className="min-w-0 space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            {/* ===== Profile ===== */}
+            <SectionCard id="profile" title="Profile" description="Your public identity and how people can reach you." icon={User}>
+              <div className="space-y-6">
+                <div className="flex items-center gap-5 rounded-2xl bg-cream border border-border p-4">
+                  <div className="relative flex-shrink-0">
+                    <div className="w-20 h-20 rounded-full overflow-hidden bg-cream-deep border-4 border-white shadow-soft">
                       {formData.profile_photo_url ? (
-                        <img
-                          src={formData.profile_photo_url}
-                          alt="Profile"
-                          className="w-full h-full object-cover"
-                        />
+                        <img src={formData.profile_photo_url} alt="Profile" className="w-full h-full object-cover" />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-ink/40">
-                          <User className="w-12 h-12" />
-                        </div>
+                        <div className="w-full h-full flex items-center justify-center text-ink/35"><User className="w-9 h-9" /></div>
                       )}
                     </div>
-                    <label className="absolute bottom-0 right-0 w-8 h-8 bg-moss-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-moss-700 shadow-lg">
-                      <Upload className="w-4 h-4 text-white" />
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                        disabled={uploading}
-                      />
+                    <label className="absolute -bottom-1 -right-1 w-8 h-8 bg-moss-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-moss-700 shadow-soft" title="Upload photo">
+                      {uploading ? <Loader2 className="w-4 h-4 text-cream animate-spin" /> : <Upload className="w-4 h-4 text-cream" />}
+                      <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploading} />
                     </label>
                   </div>
                   <div>
-                    <h3 className="font-semibold text-ink mb-1">Profile Photo</h3>
-                    <p className="text-sm text-ink/65">Upload a profile picture</p>
+                    <h3 className="font-medium text-ink">Profile photo</h3>
+                    <p className="text-sm text-ink/55">Square image works best. JPG or PNG.</p>
                   </div>
                 </div>
 
                 <div>
+                  <Label htmlFor="full_name">Full name</Label>
+                  <Input className="mt-1.5 rounded-xl"
+                    id="full_name"
+                    value={formData.full_name}
+                    onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                    placeholder="Your name"
+                  />
+                </div>
+
+                <div>
                   <Label htmlFor="user_type">I am a *</Label>
-                  <div className="grid grid-cols-3 gap-4 mt-2">
-                    {['buyer', 'seller', 'both'].map((type) => (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() => setFormData({ ...formData, user_type: type })}
-                        className={`p-4 rounded-lg border-2 transition-all ${
-                          formData.user_type === type
-                            ? 'border-moss-600 bg-moss-600/5'
-                            : 'border-border hover:border-border'
-                        }`}
-                      >
-                        <p className="font-medium capitalize">{type}</p>
-                      </button>
-                    ))}
+                  <div className="grid grid-cols-3 gap-3 mt-2">
+                    {['buyer', 'seller', 'both'].map((type) => {
+                      const on = formData.user_type === type;
+                      return (
+                        <button
+                          key={type}
+                          type="button"
+                          onClick={() => setFormData({ ...formData, user_type: type })}
+                          className={`relative p-3.5 rounded-xl border-2 text-sm font-medium capitalize transition-all ${on ? 'border-moss-600 bg-moss-50/60 text-moss-800' : 'border-border bg-white text-ink/70 hover:border-moss-200'}`}
+                        >
+                          {on && <Check className="absolute top-2 right-2 w-3.5 h-3.5 text-moss-600" />}
+                          {type === 'both' ? 'Buy & sell' : type}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="contact_number">Contact Number *</Label>
-                    <Input
+                    <Input className="mt-1.5 rounded-xl"
                       id="contact_number"
                       value={formData.contact_number}
                       onChange={(e) => setFormData({ ...formData, contact_number: e.target.value })}
@@ -323,10 +354,9 @@ export default function ProfileSettings() {
                       required
                     />
                   </div>
-
                   <div>
                     <Label htmlFor="whatsapp_number">WhatsApp Number</Label>
-                    <Input
+                    <Input className="mt-1.5 rounded-xl"
                       id="whatsapp_number"
                       value={formData.whatsapp_number}
                       onChange={(e) => setFormData({ ...formData, whatsapp_number: e.target.value })}
@@ -335,14 +365,14 @@ export default function ProfileSettings() {
                   </div>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="province">Province/State *</Label>
                     <Select
                       value={formData.province}
                       onValueChange={(value) => setFormData({ ...formData, province: value })}
                     >
-                      <SelectTrigger id="province">
+                      <SelectTrigger id="province" className="mt-1.5 rounded-xl">
                         <SelectValue placeholder="Select province" />
                       </SelectTrigger>
                       <SelectContent>
@@ -358,10 +388,9 @@ export default function ProfileSettings() {
                       </SelectContent>
                     </Select>
                   </div>
-
                   <div>
                     <Label htmlFor="city">City/Town *</Label>
-                    <Input
+                    <Input className="mt-1.5 rounded-xl"
                       id="city"
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
@@ -373,258 +402,255 @@ export default function ProfileSettings() {
 
                 <div>
                   <Label htmlFor="exact_location">Exact Location/Address</Label>
-                  <Input
+                  <Input className="mt-1.5 rounded-xl"
                     id="exact_location"
                     value={formData.exact_location}
                     onChange={(e) => setFormData({ ...formData, exact_location: e.target.value })}
                     placeholder="Street address or landmark"
                   />
                 </div>
-              </Card>
-            </TabsContent>
+              </div>
+            </SectionCard>
 
             {isSeller && (
-              <TabsContent value="seller">
-                <Card className="p-6 card-premium mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div>
-                      <h3 className="font-display text-lg font-semibold text-ink">Current Tier</h3>
-                      <p className="text-2xl font-bold text-moss-600 mt-1">
-                        {(user?.seller_tier || 'basic').charAt(0).toUpperCase() + (user?.seller_tier || 'basic').slice(1)}
-                      </p>
+              <>
+                {/* ===== Plan ===== */}
+                <section id="section-plan" className="relative overflow-hidden rounded-2xl bg-moss-gradient text-cream p-6 scroll-mt-24">
+                  <div className="absolute inset-0 grain opacity-50" />
+                  <div className="relative flex flex-col sm:flex-row sm:items-center gap-4">
+                    <div className="flex-1">
+                      <p className="eyebrow text-cream/60 mb-1">Current plan</p>
+                      <p className="font-display text-3xl">{tierLabel}</p>
+                      <p className="text-sm text-cream/70 mt-1">Upgrade for more listings, images, CRM prospects and farm batches.</p>
                     </div>
-                    <Button onClick={() => setShowTierUpgrade(true)} className="btn-cta">
-                      <TrendingUp className="w-4 h-4 mr-2" />
-                      Upgrade Tier
+                    <Button type="button" onClick={() => setShowTierUpgrade(true)} className="btn-accent px-5 py-2.5 text-sm gap-1.5">
+                      <TrendingUp className="w-4 h-4" /> Upgrade tier
                     </Button>
                   </div>
-                </Card>
+                </section>
 
-                {/* ============ Shop branding (banner + logo) ============ */}
-                <Card className="p-6 card-premium space-y-6">
-                  <div>
-                    <h3 className="font-display text-lg font-semibold text-ink mb-1">Shop branding</h3>
-                    <p className="text-sm text-ink/55">Your banner and logo appear on your shop page and in the shops directory.</p>
-                  </div>
-
-                  {/* Banner upload */}
-                  <div>
-                    <Label>Shop banner</Label>
-                    <p className="text-xs text-ink/55 mb-2">Recommended: <strong>1500×500px</strong> (3:1 ratio). Wider images will be cropped on the shops directory cards. Important text/logos should sit in the center.</p>
-                    <div className="relative aspect-[3/1] rounded-2xl overflow-hidden border-2 border-dashed border-border hover:border-moss-600 bg-cream-gradient group transition-colors">
-                      {formData.cover_image_url ? (
-                        <>
-                          <img
-                            src={formData.cover_image_url}
-                            alt="Shop banner"
-                            className="absolute inset-0 w-full h-full object-cover"
-                          />
-                          <button
-                            type="button"
-                            onClick={removeCover}
-                            className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-sm hover:bg-white text-xs font-medium text-terracotta-600 shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            Remove
-                          </button>
-                        </>
-                      ) : (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-ink/55">
-                          {uploadingCover ? (
-                            <Loader2 className="w-7 h-7 animate-spin" />
-                          ) : (
-                            <>
-                              <Upload className="w-7 h-7 mb-2" strokeWidth={1.5} />
-                              <p className="text-sm font-medium">Click to upload banner</p>
-                              <p className="text-xs mt-1">JPG or PNG, up to 8MB</p>
-                            </>
-                          )}
-                        </div>
-                      )}
-                      <label className="absolute inset-0 cursor-pointer">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleCoverUpload}
-                          className="hidden"
-                          disabled={uploadingCover}
-                        />
-                      </label>
-                    </div>
-                  </div>
-
-                  {/* Logo upload */}
-                  <div>
-                    <Label>Shop logo</Label>
-                    <p className="text-xs text-ink/55 mb-2">Recommended: square, 256×256px or larger. Shown on your shop page and in the directory.</p>
-                    <div className="flex items-center gap-5">
-                      <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-dashed border-border bg-cream-gradient group">
-                        {formData.profile_photo_url ? (
-                          <img
-                            src={formData.profile_photo_url}
-                            alt="Shop logo"
-                            className="absolute inset-0 w-full h-full object-cover"
-                          />
+                {/* ===== Shop branding (banner + logo) ===== */}
+                <SectionCard id="branding" title="Shop branding" description="Your banner and logo appear on your shop page and in the shops directory." icon={ImageIcon}>
+                  <div className="space-y-6">
+                    {/* Banner upload */}
+                    <div>
+                      <Label>Shop banner</Label>
+                      <p className="text-xs text-ink/55 mb-2">Recommended: <strong>1500×500px</strong> (3:1 ratio). Wider images will be cropped on the shops directory cards. Important text/logos should sit in the center.</p>
+                      <div className="relative aspect-[3/1] rounded-2xl overflow-hidden border-2 border-dashed border-border hover:border-moss-600 bg-cream-gradient group transition-colors">
+                        {formData.cover_image_url ? (
+                          <>
+                            <img
+                              src={formData.cover_image_url}
+                              alt="Shop banner"
+                              className="absolute inset-0 w-full h-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={removeCover}
+                              className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-white/95 backdrop-blur-sm hover:bg-white text-xs font-medium text-terracotta-600 shadow-soft opacity-0 group-hover:opacity-100 transition-opacity"
+                            >
+                              Remove
+                            </button>
+                          </>
                         ) : (
-                          <div className="absolute inset-0 flex items-center justify-center text-ink/40">
-                            {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-6 h-6" strokeWidth={1.5} />}
+                          <div className="absolute inset-0 flex flex-col items-center justify-center text-ink/55">
+                            {uploadingCover ? (
+                              <Loader2 className="w-7 h-7 animate-spin" />
+                            ) : (
+                              <>
+                                <Upload className="w-7 h-7 mb-2" strokeWidth={1.5} />
+                                <p className="text-sm font-medium">Click to upload banner</p>
+                                <p className="text-xs mt-1">JPG or PNG, up to 8MB</p>
+                              </>
+                            )}
                           </div>
                         )}
                         <label className="absolute inset-0 cursor-pointer">
                           <input
                             type="file"
                             accept="image/*"
-                            onChange={handleImageUpload}
+                            onChange={handleCoverUpload}
                             className="hidden"
-                            disabled={uploading}
+                            disabled={uploadingCover}
                           />
                         </label>
                       </div>
-                      <div>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.currentTarget.previousElementSibling?.querySelector('input')?.click();
-                          }}
-                          className="h-9"
-                        >
-                          {formData.profile_photo_url ? 'Change logo' : 'Upload logo'}
-                        </Button>
-                        {formData.profile_photo_url && (
-                          <button
+                    </div>
+
+                    {/* Logo upload */}
+                    <div>
+                      <Label>Shop logo</Label>
+                      <p className="text-xs text-ink/55 mb-2">Recommended: square, 256×256px or larger. Shown on your shop page and in the directory.</p>
+                      <div className="flex items-center gap-5">
+                        <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-dashed border-border bg-cream-gradient group">
+                          {formData.profile_photo_url ? (
+                            <img
+                              src={formData.profile_photo_url}
+                              alt="Shop logo"
+                              className="absolute inset-0 w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="absolute inset-0 flex items-center justify-center text-ink/40">
+                              {uploading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Upload className="w-6 h-6" strokeWidth={1.5} />}
+                            </div>
+                          )}
+                          <label className="absolute inset-0 cursor-pointer">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                              disabled={uploading}
+                            />
+                          </label>
+                        </div>
+                        <div>
+                          <Button
                             type="button"
-                            onClick={() => setFormData((p) => ({ ...p, profile_photo_url: '' }))}
-                            className="ml-2 text-xs text-terracotta-600 hover:underline"
+                            variant="outline"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.currentTarget.previousElementSibling?.querySelector('input')?.click();
+                            }}
+                            className="rounded-full h-9"
                           >
-                            Remove
-                          </button>
-                        )}
+                            {formData.profile_photo_url ? 'Change logo' : 'Upload logo'}
+                          </Button>
+                          {formData.profile_photo_url && (
+                            <button
+                              type="button"
+                              onClick={() => setFormData((p) => ({ ...p, profile_photo_url: '' }))}
+                              className="ml-3 text-xs text-terracotta-600 hover:underline"
+                            >
+                              Remove
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
-                </Card>
+                </SectionCard>
 
-                <Card className="p-6 card-premium space-y-6">
-                  <div>
-                    <Label htmlFor="farm_name">Farm/Business Name</Label>
-                    <Input
-                      id="farm_name"
-                      value={formData.farm_name}
-                      onChange={(e) => setFormData({ ...formData, farm_name: e.target.value })}
-                      placeholder="Your farm or business name"
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="subdomain">Shop Subdomain (Your Unique Shop URL)</Label>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-sm text-ink/55 whitespace-nowrap">Shop URL: SellerShop?shop=</span>
-                      <Input
-                        id="subdomain"
-                        value={sellerInfo.subdomain}
-                        onChange={(e) => setSellerInfo({ ...sellerInfo, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
-                        placeholder="your-shop-name"
-                        className="flex-1"
+                {/* ===== Business ===== */}
+                <SectionCard id="business" title="Business details" description="What buyers see on your shop page." icon={Store}>
+                  <div className="space-y-6">
+                    <div>
+                      <Label htmlFor="farm_name">Farm/Business Name</Label>
+                      <Input className="mt-1.5 rounded-xl"
+                        id="farm_name"
+                        value={formData.farm_name}
+                        onChange={(e) => setFormData({ ...formData, farm_name: e.target.value })}
+                        placeholder="Your farm or business name"
                       />
                     </div>
-                    <p className="text-xs text-ink/55 mt-1">Choose a unique name for your shop URL (letters, numbers, hyphens only)</p>
-                    {sellerInfo.subdomain && (
-                      <div className="flex items-center gap-2 mt-2">
-                        <a 
-                          href={`${window.location.origin}${createPageUrl('SellerShop')}?shop=${sellerInfo.subdomain}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-moss-600 hover:underline"
-                        >
-                          Preview: {window.location.origin}{createPageUrl('SellerShop')}?shop={sellerInfo.subdomain} →
-                        </a>
-                        <Button
-                          type="button"
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            const url = `${window.location.origin}${createPageUrl('SellerShop')}?shop=${sellerInfo.subdomain}`;
-                            navigator.clipboard.writeText(url);
-                            toast.success('Shop URL copied to clipboard!');
-                          }}
-                          className="h-7"
-                        >
-                          <Share2 className="w-3 h-3 mr-1" />
-                          Copy Shop URL
-                        </Button>
+
+                    <div>
+                      <Label htmlFor="subdomain">Shop Subdomain (Your Unique Shop URL)</Label>
+                      <div className="flex items-center mt-1.5 rounded-xl border border-border bg-cream overflow-hidden focus-within:ring-2 focus-within:ring-moss-300">
+                        <span className="pl-3 pr-2 text-xs text-ink/50 whitespace-nowrap font-mono">SellerShop?shop=</span>
+                        <Input
+                          id="subdomain"
+                          value={sellerInfo.subdomain}
+                          onChange={(e) => setSellerInfo({ ...sellerInfo, subdomain: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '') })}
+                          placeholder="your-shop-name"
+                          className="flex-1 border-0 bg-white rounded-none focus-visible:ring-0"
+                        />
                       </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <Label htmlFor="seller_description">About Your Farm/Business</Label>
-                    <Textarea
-                      id="seller_description"
-                      value={formData.seller_description}
-                      onChange={(e) => setFormData({ ...formData, seller_description: e.target.value })}
-                      placeholder="Tell buyers about your farm, experience, and what you offer..."
-                      rows={5}
-                    />
-                  </div>
-
-                  <div>
-                    <Label htmlFor="business_hours">Business Hours</Label>
-                    <Input
-                      id="business_hours"
-                      value={formData.business_hours}
-                      onChange={(e) => setFormData({ ...formData, business_hours: e.target.value })}
-                      placeholder="e.g., Mon-Sat 8AM-6PM"
-                    />
-                  </div>
-
-                  <div className="border-t pt-6">
-                    <h3 className="font-display text-lg font-semibold text-ink mb-4">Seller Verification</h3>
-                    
-                    {user.seller_verified ? (
-                      <div className="bg-fresh-50 border border-fresh-200 rounded-lg p-4 flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-fresh-500 flex items-center justify-center">
-                          <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
+                      <p className="text-xs text-ink/55 mt-1">Choose a unique name for your shop URL (letters, numbers, hyphens only)</p>
+                      {sellerInfo.subdomain && (
+                        <div className="flex flex-wrap items-center gap-2 mt-2">
+                          <a
+                            href={`${window.location.origin}${createPageUrl('SellerShop')}?shop=${sellerInfo.subdomain}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-moss-700 hover:underline inline-flex items-center gap-1 truncate max-w-full"
+                          >
+                            <ExternalLink className="w-3 h-3 flex-shrink-0" /> {window.location.origin}{createPageUrl('SellerShop')}?shop={sellerInfo.subdomain}
+                          </a>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              const url = `${window.location.origin}${createPageUrl('SellerShop')}?shop=${sellerInfo.subdomain}`;
+                              navigator.clipboard.writeText(url);
+                              toast.success('Shop URL copied to clipboard!');
+                            }}
+                            className="rounded-full h-7 text-xs gap-1"
+                          >
+                            <Share2 className="w-3 h-3" /> Copy shop URL
+                          </Button>
                         </div>
-                        <div>
-                          <p className="font-semibold text-green-900">Verified Seller</p>
-                          <p className="text-sm text-moss-700">Your account is verified</p>
-                        </div>
+                      )}
+                    </div>
+
+                    <div>
+                      <Label htmlFor="seller_description">About Your Farm/Business</Label>
+                      <Textarea className="mt-1.5 rounded-xl"
+                        id="seller_description"
+                        value={formData.seller_description}
+                        onChange={(e) => setFormData({ ...formData, seller_description: e.target.value })}
+                        placeholder="Tell buyers about your farm, experience, and what you offer..."
+                        rows={5}
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="business_hours">Business Hours</Label>
+                      <Input className="mt-1.5 rounded-xl"
+                        id="business_hours"
+                        value={formData.business_hours}
+                        onChange={(e) => setFormData({ ...formData, business_hours: e.target.value })}
+                        placeholder="e.g., Mon-Sat 8AM-6PM"
+                      />
+                    </div>
+                  </div>
+                </SectionCard>
+
+                {/* ===== Verification ===== */}
+                <SectionCard id="verification" title="Seller verification" description="Verified sellers can show their contact number to buyers and earn a trust badge." icon={ShieldCheck}>
+                  {user.seller_verified ? (
+                    <div className="bg-fresh-50 border border-fresh-200 rounded-xl p-4 flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-moss-600 text-cream flex items-center justify-center flex-shrink-0">
+                        <Check className="w-5 h-5" />
                       </div>
-                    ) : user.verification_payment_pending ? (
-                      <div className="bg-yolk-50 border border-yolk-200 rounded-lg p-4">
-                        <p className="font-semibold text-yellow-900 mb-1">Payment Under Review</p>
-                        <p className="text-sm text-yolk-700">Your verification payment is being reviewed by admin</p>
+                      <div>
+                        <p className="font-semibold text-moss-800">Verified seller</p>
+                        <p className="text-sm text-moss-700">Your account is verified</p>
                       </div>
-                    ) : user.verification_submitted ? (
-                      <div className="bg-yolk-50 border border-yolk-200 rounded-lg p-4">
-                        <p className="font-semibold text-yellow-900 mb-1">Verification Pending</p>
-                        <p className="text-sm text-yolk-700">Your documents are under review by admin</p>
+                    </div>
+                  ) : user.verification_payment_pending ? (
+                    <div className="bg-yolk-50 border border-yolk-200 rounded-xl p-4 flex items-center gap-3">
+                      <Clock className="w-5 h-5 text-yolk-600 flex-shrink-0" />
+                      <div>
+                        <p className="font-semibold text-yolk-700">Payment under review</p>
+                        <p className="text-sm text-yolk-700/80">Your verification payment is being reviewed by admin</p>
                       </div>
-                    ) : (
-                      <div className="space-y-4">
-                        <p className="text-ink/65 text-sm">Upload your ID and proof of address, then pay the verification fee to get verified. Verified sellers can show their contact number to buyers.</p>
-                        
+                    </div>
+                  ) : user.verification_submitted ? (
+                    <div className="bg-yolk-50 border border-yolk-200 rounded-xl p-4 flex items-center gap-3">
+                      <Clock className="w-5 h-5 text-yolk-600 flex-shrink-0" />
+                      <div>
+                        <p className="font-semibold text-yolk-700">Verification pending</p>
+                        <p className="text-sm text-yolk-700/80">Your documents are under review by admin</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <p className="text-ink/65 text-sm">Upload your ID and proof of address, then pay the verification fee to get verified.</p>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                           <Label>ID Document</Label>
-                          <div className="mt-2 flex items-center gap-4">
+                          <div className="mt-2">
                             {formData.id_document_url ? (
-                              <div className="flex-1 flex items-center gap-3 bg-cream rounded-lg p-3">
-                                <span className="text-sm text-ink/75">Document uploaded</span>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => setFormData({ ...formData, id_document_url: '' })}
-                                >
-                                  Remove
-                                </Button>
+                              <div className="flex items-center justify-between gap-3 bg-fresh-50 border border-fresh-200 rounded-xl p-3">
+                                <span className="text-sm text-moss-800 inline-flex items-center gap-2"><FileCheck className="w-4 h-4" /> Document uploaded</span>
+                                <Button type="button" variant="ghost" size="sm" className="rounded-full h-7 text-xs" onClick={() => setFormData({ ...formData, id_document_url: '' })}>Remove</Button>
                               </div>
                             ) : (
-                              <label className="flex-1 cursor-pointer">
-                                <div className="border-2 border-dashed border-border rounded-lg p-4 hover:border-moss-600 transition-colors text-center">
+                              <label className="block cursor-pointer">
+                                <div className="border-2 border-dashed border-border rounded-xl p-5 hover:border-moss-600 bg-cream transition-colors text-center">
                                   <Upload className="w-6 h-6 text-ink/40 mx-auto mb-2" />
                                   <span className="text-sm text-ink/65">Upload ID</span>
                                 </div>
@@ -656,22 +682,15 @@ export default function ProfileSettings() {
 
                         <div>
                           <Label>Proof of Address</Label>
-                          <div className="mt-2 flex items-center gap-4">
+                          <div className="mt-2">
                             {formData.proof_of_address_url ? (
-                              <div className="flex-1 flex items-center gap-3 bg-cream rounded-lg p-3">
-                                <span className="text-sm text-ink/75">Document uploaded</span>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => setFormData({ ...formData, proof_of_address_url: '' })}
-                                >
-                                  Remove
-                                </Button>
+                              <div className="flex items-center justify-between gap-3 bg-fresh-50 border border-fresh-200 rounded-xl p-3">
+                                <span className="text-sm text-moss-800 inline-flex items-center gap-2"><FileCheck className="w-4 h-4" /> Document uploaded</span>
+                                <Button type="button" variant="ghost" size="sm" className="rounded-full h-7 text-xs" onClick={() => setFormData({ ...formData, proof_of_address_url: '' })}>Remove</Button>
                               </div>
                             ) : (
-                              <label className="flex-1 cursor-pointer">
-                                <div className="border-2 border-dashed border-border rounded-lg p-4 hover:border-moss-600 transition-colors text-center">
+                              <label className="block cursor-pointer">
+                                <div className="border-2 border-dashed border-border rounded-xl p-5 hover:border-moss-600 bg-cream transition-colors text-center">
                                   <Upload className="w-6 h-6 text-ink/40 mx-auto mb-2" />
                                   <span className="text-sm text-ink/65">Upload Proof of Address</span>
                                 </div>
@@ -700,57 +719,60 @@ export default function ProfileSettings() {
                             )}
                           </div>
                         </div>
-
-                        {formData.id_document_url && formData.proof_of_address_url && (
-                          <Button
-                            type="button"
-                            onClick={() => setShowVerificationPayment(true)}
-                            className="btn-cta"
-                          >
-                            Pay & Submit for Verification
-                          </Button>
-                        )}
                       </div>
-                    )}
-                  </div>
-                </Card>
-              </TabsContent>
+
+                      {formData.id_document_url && formData.proof_of_address_url && (
+                        <Button
+                          type="button"
+                          onClick={() => setShowVerificationPayment(true)}
+                          className="btn-cta px-5 py-2.5 text-sm gap-1.5"
+                        >
+                          <ShieldCheck className="w-4 h-4" /> Pay & submit for verification
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </SectionCard>
+              </>
             )}
-          </Tabs>
 
-          <div className="flex justify-end gap-4 mt-6">
-            <Button
-              type="submit"
-              disabled={updateProfileMutation.isPending}
-              className="btn-cta px-8 h-11"
-            >
-              {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
-            </Button>
-          </div>
-        </form>
+            {/* Sticky save bar */}
+            <div className="sticky bottom-4 z-10">
+              <div className="card-premium px-4 py-3 flex items-center justify-between gap-3 shadow-lift">
+                <p className="text-xs text-ink/55 hidden sm:block">Changes are saved to your profile{isSeller ? ' and shop page' : ''}.</p>
+                <Button
+                  type="submit"
+                  disabled={updateProfileMutation.isPending}
+                  className="btn-cta px-6 py-2.5 text-sm gap-1.5 ml-auto"
+                >
+                  {updateProfileMutation.isPending ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</> : <><Save className="w-4 h-4" /> Save changes</>}
+                </Button>
+              </div>
+            </div>
+          </form>
 
-        {/* ============ Password change ============ */}
-        <PasswordCard />
-
-
-        {showTierUpgrade && (
-          <TierUpgradeModal
-            isOpen={showTierUpgrade}
-            onClose={() => setShowTierUpgrade(false)}
-            currentUser={user}
-          />
-        )}
-
-        {showVerificationPayment && (
-          <VerificationPaymentModal
-            isOpen={showVerificationPayment}
-            onClose={() => setShowVerificationPayment(false)}
-            currentUser={user}
-            formData={formData}
-          />
-        )}
+          {/* ===== Security (own form — must stay outside the profile form) ===== */}
+          <PasswordCard />
+        </div>
       </div>
-    </div>
+
+      {showTierUpgrade && (
+        <TierUpgradeModal
+          isOpen={showTierUpgrade}
+          onClose={() => setShowTierUpgrade(false)}
+          currentUser={user}
+        />
+      )}
+
+      {showVerificationPayment && (
+        <VerificationPaymentModal
+          isOpen={showVerificationPayment}
+          onClose={() => setShowVerificationPayment(false)}
+          currentUser={user}
+          formData={formData}
+        />
+      )}
+    </PageShell>
   );
 }
 
@@ -785,36 +807,58 @@ function PasswordCard() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-      <Card className="p-6 card-premium">
-        <div className="mb-5">
-          <h3 className="font-display text-lg font-semibold text-ink">Change password</h3>
-          <p className="text-sm text-ink/55 mt-0.5">You'll stay signed in on this device after the change.</p>
+    <section id="section-security" className="card-premium p-6 scroll-mt-24">
+      <div className="flex items-start gap-3 mb-6">
+        <div className="w-10 h-10 rounded-xl bg-moss-50 text-moss-700 flex items-center justify-center flex-shrink-0"><Lock className="w-5 h-5" /></div>
+        <div>
+          <h2 className="font-display text-lg font-semibold text-ink">Security</h2>
+          <p className="text-sm text-ink/55 mt-0.5">Change your password. You'll stay signed in on this device after the change.</p>
         </div>
-        <form onSubmit={submit} className="space-y-4 max-w-md">
-          <div>
-            <Label htmlFor="cur_pw">Current password</Label>
-            <Input id="cur_pw" type={show ? 'text' : 'password'} value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" required className="mt-1.5" />
-          </div>
+      </div>
+      <form onSubmit={submit} className="space-y-4 max-w-md">
+        <div>
+          <Label htmlFor="cur_pw">Current password</Label>
+          <Input id="cur_pw" type={show ? 'text' : 'password'} value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" required className="mt-1.5 rounded-xl" />
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="new_pw">New password</Label>
-            <Input id="new_pw" type={show ? 'text' : 'password'} value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" minLength={6} required className="mt-1.5" />
+            <Input id="new_pw" type={show ? 'text' : 'password'} value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" minLength={6} required className="mt-1.5 rounded-xl" />
           </div>
           <div>
             <Label htmlFor="cfm_pw">Confirm new password</Label>
-            <Input id="cfm_pw" type={show ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" minLength={6} required className="mt-1.5" />
+            <Input id="cfm_pw" type={show ? 'text' : 'password'} value={confirm} onChange={(e) => setConfirm(e.target.value)} autoComplete="new-password" minLength={6} required className="mt-1.5 rounded-xl" />
           </div>
-          <label className="flex items-center gap-2 text-xs text-ink/65 cursor-pointer">
-            <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} className="rounded" />
-            Show passwords
-          </label>
-          <div className="flex gap-2 pt-2">
-            <Button type="submit" disabled={busy || !current || !next || !confirm} className="btn-cta h-11 px-6">
-              {busy ? 'Updating…' : 'Update password'}
-            </Button>
-          </div>
-        </form>
-      </Card>
-    </div>
+        </div>
+        <label className="flex items-center gap-2 text-xs text-ink/65 cursor-pointer">
+          <input type="checkbox" checked={show} onChange={(e) => setShow(e.target.checked)} className="rounded accent-moss-600" />
+          Show passwords
+        </label>
+        <div className="flex gap-2 pt-2">
+          <Button type="submit" disabled={busy || !current || !next || !confirm} className="btn-cta px-6 py-2.5 text-sm gap-1.5">
+            {busy ? <><Loader2 className="w-4 h-4 animate-spin" /> Updating…</> : <><Lock className="w-4 h-4" /> Update password</>}
+          </Button>
+        </div>
+      </form>
+    </section>
   );
 }
+
+function SectionCard({ id, title, description, icon: Icon, children, action }) {
+  return (
+  <section id={`section-${id}`} className="card-premium p-6 scroll-mt-24">
+    <div className="flex items-start justify-between gap-4 mb-6">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-moss-50 text-moss-700 flex items-center justify-center flex-shrink-0"><Icon className="w-5 h-5" /></div>
+        <div>
+          <h2 className="font-display text-lg font-semibold text-ink">{title}</h2>
+          {description && <p className="text-sm text-ink/55 mt-0.5">{description}</p>}
+        </div>
+      </div>
+      {action}
+    </div>
+    {children}
+  </section>
+  );
+}
+

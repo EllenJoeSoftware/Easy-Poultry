@@ -105,36 +105,42 @@ export default function Payouts() {
           subtitle="Once you have available balance, click 'Request payout' to withdraw it to your bank account."
         />
       ) : (
-        <div className="card-premium overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-cream-deep text-xs uppercase tracking-wider text-ink/55">
-              <tr>
-                <th className="text-left p-4">Date</th>
-                <th className="text-left p-4">Amount</th>
-                <th className="text-left p-4">Bank</th>
-                <th className="text-left p-4">Status</th>
-                <th className="text-left p-4">Admin notes</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {payouts.map((p) => {
-                const s = STATUS[p.status] || STATUS.requested;
-                const Icon = s.icon;
-                return (
-                  <tr key={p.id} className="hover:bg-cream-deep/40">
-                    <td className="p-4 text-ink/75">{p.created_date ? new Date(p.created_date).toLocaleDateString('en-ZA') : '—'}</td>
-                    <td className="p-4 font-display font-bold text-ink">{fmt(p.amount)}</td>
-                    <td className="p-4 text-ink/65 text-xs">
-                      <div>{p.bank_name}</div>
-                      <div className="text-ink/45">{p.account_number?.slice(-4)?.padStart(p.account_number?.length || 0, '•')}</div>
-                    </td>
-                    <td className="p-4"><Badge className={`gap-1 ${s.tint} border`}><Icon className="w-3 h-3" />{s.label}</Badge></td>
-                    <td className="p-4 text-ink/55 text-xs max-w-xs">{p.admin_notes || '—'}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+        <div className="card-premium overflow-hidden text-sm">
+          {/* Header (desktop only) */}
+          <div className="hidden md:grid grid-cols-[1.2fr_1fr_1.4fr_1fr_1.6fr] gap-4 px-5 py-3 bg-cream-deep text-xs uppercase tracking-wider text-ink/55">
+            <span>Date</span>
+            <span>Amount</span>
+            <span>Bank</span>
+            <span>Status</span>
+            <span>Admin notes</span>
+          </div>
+          <div className="divide-y divide-border">
+            {payouts.map((p) => {
+              const s = STATUS[p.status] || STATUS.requested;
+              const Icon = s.icon;
+              const date = p.created_date ? new Date(p.created_date).toLocaleDateString('en-ZA') : '—';
+              const masked = p.account_number?.slice(-4)?.padStart(p.account_number?.length || 0, '•');
+              return (
+                <div key={p.id} className="md:grid md:grid-cols-[1.2fr_1fr_1.4fr_1fr_1.6fr] md:gap-4 md:items-center px-5 py-4 hover:bg-cream-deep/40 transition-colors">
+                  {/* Mobile meta row */}
+                  <div className="md:hidden flex items-center justify-between mb-2">
+                    <span className="text-xs text-ink/55">{date}</span>
+                    <Badge className={`gap-1 rounded-full ${s.tint} border`}><Icon className="w-3 h-3" />{s.label}</Badge>
+                  </div>
+                  <span className="hidden md:block text-ink/75">{date}</span>
+                  <span className="font-display font-bold text-ink text-lg md:text-base">{fmt(p.amount)}</span>
+                  <div className="text-ink/65 text-xs mt-1 md:mt-0">
+                    <div>{p.bank_name}</div>
+                    <div className="text-ink/45">{masked}</div>
+                  </div>
+                  <span className="hidden md:block"><Badge className={`gap-1 rounded-full ${s.tint} border`}><Icon className="w-3 h-3" />{s.label}</Badge></span>
+                  <p className="text-ink/55 text-xs mt-2 md:mt-0 md:max-w-xs">
+                    <span className="md:hidden text-ink/40">Notes: </span>{p.admin_notes || '—'}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
         </div>
       )}
 

@@ -1,15 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/api/client';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Plus, Thermometer, Droplets, RotateCw, Calendar, TrendingUp, Egg, ArrowLeft } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Loader2, Plus, Thermometer, Droplets, RotateCw, Calendar, TrendingUp, Egg, MoreHorizontal, Eye, Edit, CheckCircle2, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import PageShell from '@/components/shell/PageShell';
+import EmptyState from '@/components/shell/EmptyState';
+import StatCard from '@/components/shell/StatCard';
+import { StatSkeleton } from '@/components/shell/SkeletonCard';
 import { createPageUrl } from '../utils';
 import { toast } from 'sonner';
 import moment from 'moment';
@@ -155,211 +161,151 @@ export default function IncubationManagement() {
     : 0;
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
-      </div>
-    );
+    return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-moss-600" /></div>;
   }
 
+  const statusChip = (status) => status === 'hatching'
+    ? 'bg-terracotta-500 text-white border-0'
+    : status === 'completed'
+      ? 'bg-ink/70 text-cream border-0'
+      : status === 'failed'
+        ? 'bg-cream-deep text-ink/60 border-border'
+        : 'bg-fresh-50 text-moss-700 border-fresh-200';
+
+  const inputCls = 'w-full bg-cream border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-moss-300';
+
+  const IncubationCard = ({ incubation }) => {
+    const daysRemaining = calculateDaysRemaining(incubation.expected_hatch_date);
+    const daysElapsed = moment().diff(moment(incubation.incubation_start_date), 'days');
+    const progress = Math.min((daysElapsed / incubation.incubation_days) * 100, 100);
+    const lockdown = incubation.incubation_days - daysElapsed <= 3;
+    return (
+      <motion.article variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="card-premium p-5 flex flex-col">
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="font-display text-lg text-ink leading-snug truncate">{incubation.batch_name}</h3>
+              <span className={`chip capitalize ${statusChip(incubation.status)}`}>
+                {incubation.status === 'hatching' && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse mr-1.5" />}
+                {incubation.status}
+              </span>
+            </div>
+            <p className="text-xs text-ink/55 mt-0.5">{incubation.egg_count} eggs{incubation.breed ? ` · ${incubation.breed}` : ''}{incubation.incubator_type ? ` · ${incubation.incubator_type}` : ''}</p>
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-8 h-8 rounded-lg inline-flex items-center justify-center text-ink/55 hover:bg-moss-50 hover:text-moss-700 flex-shrink-0" aria-label="Incubation actions"><MoreHorizontal className="w-4 h-4" /></button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="rounded-xl w-56">
+              <DropdownMenuItem asChild><Link to={createPageUrl('IncubationDetail') + `?id=${incubation.id}`} className="gap-2"><Eye className="w-4 h-4" /> View details &amp; candling</Link></DropdownMenuItem>
+              <DropdownMenuItem onSelect={() => handleEdit(incubation)} className="gap-2"><Edit className="w-4 h-4" /> Update batch</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onSelect={() => handleEdit(incubation)} className="gap-2"><Sparkles className="w-4 h-4 text-yolk-500" /> Record hatch results</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
+        <div className="mt-4">
+          <div className="flex justify-between text-[11px] text-ink/55 mb-1">
+            <span>Day {Math.max(0, daysElapsed)} of {incubation.incubation_days}</span>
+            <span className={daysRemaining <= 3 ? 'text-terracotta-600 font-semibold' : ''}>{daysRemaining > 0 ? `${daysRemaining} days to hatch` : 'Hatching soon!'}</span>
+          </div>
+          <div className="h-2 rounded-full bg-cream-deep overflow-hidden"><div className={`h-full rounded-full transition-all ${lockdown ? 'bg-terracotta-500' : 'bg-yolk-500'}`} style={{ width: `${progress}%` }} /></div>
+          <div className="flex justify-between text-[11px] text-ink/50 mt-1">
+            <span className="inline-flex items-center gap-1"><Calendar className="w-3 h-3" />Set {moment(incubation.incubation_start_date).format('D MMM')}</span>
+            <span className="inline-flex items-center gap-1"><Egg className="w-3 h-3" />Hatch {moment(incubation.expected_hatch_date).format('D MMM')}</span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-2 mt-4">
+          <div className="rounded-xl bg-cream p-2.5 text-center"><Thermometer className="w-3.5 h-3.5 text-yolk-600 mx-auto mb-1" /><p className="font-display font-bold text-sm text-ink leading-none">{incubation.temperature_celsius}°C</p></div>
+          <div className="rounded-xl bg-cream p-2.5 text-center"><Droplets className="w-3.5 h-3.5 text-moss-700 mx-auto mb-1" /><p className="font-display font-bold text-sm text-ink leading-none">{incubation.humidity_percent}%</p></div>
+          <div className="rounded-xl bg-cream p-2.5 text-center"><RotateCw className="w-3.5 h-3.5 text-ink/50 mx-auto mb-1" /><p className="font-display font-bold text-sm text-ink leading-none">{incubation.turned_times_per_day}x/day</p></div>
+        </div>
+
+        <div className="mt-auto pt-4 flex gap-2">
+          <Link to={createPageUrl('IncubationDetail') + `?id=${incubation.id}`} className="btn-ghost flex-1 justify-center border border-border bg-white py-2 text-sm">Details</Link>
+          <button onClick={() => handleEdit(incubation)} className="btn-cta flex-1 justify-center py-2 text-sm">Update</button>
+        </div>
+      </motion.article>
+    );
+  };
+
   return (
-    <div className="min-h-[80vh] bg-cream">
-      <div className="bg-gradient-to-r from-orange-500 to-amber-600 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <Link to={createPageUrl('FarmDashboard')} className="inline-flex items-center text-white/80 hover:text-white mb-4">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Farm Dashboard
-              </Link>
-              <h1 className="font-display text-3xl font-bold mb-2">🥚 Egg Incubation Management</h1>
-              <p className="text-white/90">Track and manage your egg incubation batches</p>
-            </div>
-            <Button
-              onClick={() => setShowForm(true)}
-              className="bg-white text-yolk-600 hover:bg-cream"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              New Incubation
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="p-6 card-premium">
-            <Egg className="w-8 h-8 text-yolk-600 mb-2" />
-            <p className="text-3xl font-bold text-ink">{activeIncubations.length}</p>
-            <p className="text-sm text-ink/65">Active Batches</p>
-          </Card>
-
-          <Card className="p-6 card-premium">
-            <Egg className="w-8 h-8 text-amber-600 mb-2" />
-            <p className="text-3xl font-bold text-ink">{totalEggsIncubating}</p>
-            <p className="text-sm text-ink/65">Eggs Incubating</p>
-          </Card>
-
-          <Card className="p-6 card-premium">
-            <TrendingUp className="w-8 h-8 text-moss-700 mb-2" />
-            <p className="text-3xl font-bold text-ink">{avgHatchRate.toFixed(1)}%</p>
-            <p className="text-sm text-ink/65">Avg Hatch Rate</p>
-          </Card>
-
-          <Card className="p-6 card-premium">
-            <Egg className="w-8 h-8 text-moss-700 mb-2" />
-            <p className="text-3xl font-bold text-ink">{completedIncubations.length}</p>
-            <p className="text-sm text-ink/65">Completed</p>
-          </Card>
-        </div>
-
-        {/* Active Incubations */}
-        <Card className="card-premium mb-8">
-          <div className="p-6 border-b">
-            <h3 className="font-display text-lg font-semibold text-ink">Active Incubations</h3>
-          </div>
-          <div className="p-6">
-            {activeIncubations.length === 0 ? (
-              <div className="text-center py-12">
-                <Egg className="w-16 h-16 text-ink/25 mx-auto mb-4" />
-                <p className="text-ink/65 mb-4">No active incubations</p>
-                <Button onClick={() => setShowForm(true)} className="bg-orange-600 hover:bg-orange-700">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Start First Incubation
-                </Button>
-              </div>
-            ) : (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {activeIncubations.map(incubation => {
-                  const daysRemaining = calculateDaysRemaining(incubation.expected_hatch_date);
-                  const daysElapsed = moment().diff(moment(incubation.incubation_start_date), 'days');
-                  const progress = Math.min((daysElapsed / incubation.incubation_days) * 100, 100);
-
-                  return (
-                    <Card key={incubation.id} className="p-4 hover:shadow-md transition-shadow">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <h4 className="font-semibold text-ink">{incubation.batch_name}</h4>
-                          <Badge variant={incubation.status === 'hatching' ? 'default' : 'secondary'} className="mt-1">
-                            {incubation.status}
-                          </Badge>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2 text-sm mb-3">
-                        <div className="flex items-center gap-2 text-ink/65">
-                          <Egg className="w-4 h-4" />
-                          <span>{incubation.egg_count} eggs</span>
-                        </div>
-                        {incubation.breed && (
-                          <p className="text-ink/65">Breed: {incubation.breed}</p>
-                        )}
-                        <div className="flex items-center gap-2 text-ink/65">
-                          <Calendar className="w-4 h-4" />
-                          <span>Started: {moment(incubation.incubation_start_date).format('MMM DD, YYYY')}</span>
-                        </div>
-                        <div className="flex items-center gap-2 text-ink/65">
-                          <Calendar className="w-4 h-4" />
-                          <span className={daysRemaining <= 3 ? 'text-yolk-600 font-semibold' : ''}>
-                            {daysRemaining > 0 ? `${daysRemaining} days to hatch` : 'Hatching soon!'}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="mb-3">
-                        <div className="flex justify-between text-xs text-ink/65 mb-1">
-                          <span>Day {daysElapsed}</span>
-                          <span>{progress.toFixed(0)}%</span>
-                        </div>
-                        <div className="w-full bg-cream-deep rounded-full h-2">
-                          <div
-                            className="bg-orange-600 h-2 rounded-full transition-all"
-                            style={{ width: `${progress}%` }}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-2 text-xs text-ink/65 mb-3">
-                        <div className="flex items-center gap-1">
-                          <Thermometer className="w-3 h-3" />
-                          <span>{incubation.temperature_celsius}°C</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Droplets className="w-3 h-3" />
-                          <span>{incubation.humidity_percent}%</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <RotateCw className="w-3 h-3" />
-                          <span>{incubation.turned_times_per_day}x/day</span>
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <Link to={createPageUrl('IncubationDetail') + `?id=${incubation.id}`}>
-                          <Button variant="outline" size="sm" className="w-full">
-                            View Details
-                          </Button>
-                        </Link>
-                        <Button
-                          onClick={() => handleEdit(incubation)}
-                          variant="outline"
-                          size="sm"
-                          className="w-full"
-                        >
-                          Update
-                        </Button>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </Card>
-
-        {/* Completed Incubations */}
-        {completedIncubations.length > 0 && (
-          <Card className="card-premium">
-            <div className="p-6 border-b">
-              <h3 className="font-display text-lg font-semibold text-ink">Completed Incubations</h3>
-            </div>
-            <div className="p-6">
-              <div className="space-y-3">
-                {completedIncubations.map(incubation => (
-                  <Card key={incubation.id} className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-semibold text-ink">{incubation.batch_name}</h4>
-                        <p className="text-sm text-ink/65">{incubation.breed}</p>
-                      </div>
-                      <div className="text-right">
-                        <p className="text-lg font-bold text-moss-700">
-                          {incubation.eggs_hatched} hatched
-                        </p>
-                        <p className="text-sm text-ink/65">
-                          {incubation.hatch_rate_percent?.toFixed(1)}% success rate
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            </div>
-          </Card>
+    <PageShell
+      variant="compact"
+      eyebrow="Farm"
+      title="Incubation"
+      subtitle="Track every setting from egg to chick — day progress, candling checkpoints and hatch results."
+      breadcrumb={[{ label: 'Farm', href: createPageUrl('FarmDashboard') }, { label: 'Incubation' }]}
+      action={<Button onClick={() => setShowForm(true)} className="btn-cta px-5 py-2.5 text-sm gap-1.5"><Plus className="w-4 h-4" /> New incubation</Button>}
+    >
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {isLoading ? [...Array(4)].map((_, i) => <StatSkeleton key={i} />) : (
+          <>
+            <StatCard icon={Egg} label="Active settings" value={activeIncubations.length} tint="yolk" />
+            <StatCard icon={Egg} label="Eggs incubating" value={totalEggsIncubating.toLocaleString()} tint="moss" />
+            <StatCard icon={TrendingUp} label="Avg hatch rate" value={`${avgHatchRate.toFixed(1)}%`} deltaLabel="completed batches" tint="sage" />
+            <StatCard icon={CheckCircle2} label="Completed" value={completedIncubations.length} tint="moss" />
+          </>
         )}
       </div>
 
+      <Tabs defaultValue="active" className="space-y-6">
+        <TabsList className="bg-white border border-border rounded-full p-1 h-auto inline-flex">
+          <TabsTrigger value="active" className="rounded-full px-4 py-2 data-[state=active]:bg-moss-600 data-[state=active]:text-cream">Active ({activeIncubations.length})</TabsTrigger>
+          <TabsTrigger value="completed" className="rounded-full px-4 py-2 data-[state=active]:bg-moss-600 data-[state=active]:text-cream">Completed ({completedIncubations.length})</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="active">
+          {isLoading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">{[...Array(3)].map((_, i) => <div key={i} className="card-premium h-72 animate-pulse" />)}</div>
+          ) : activeIncubations.length === 0 ? (
+            <EmptyState icon={Egg} title="No active incubations" subtitle="Set your first batch of eggs and we will track the days to hatch, candling checkpoints and results." action={<Button onClick={() => setShowForm(true)} className="btn-cta px-5 py-2.5 text-sm gap-1.5"><Plus className="w-4 h-4" /> Start incubation</Button>} />
+          ) : (
+            <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.05 } } }} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              {activeIncubations.map(incubation => <IncubationCard key={incubation.id} incubation={incubation} />)}
+            </motion.div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="completed">
+          {completedIncubations.length === 0 ? (
+            <EmptyState icon={CheckCircle2} title="No completed incubations" subtitle="Once a batch hatches and you record results, it will be kept here with its hatch rate." />
+          ) : (
+            <section className="card-premium overflow-hidden">
+              <div className="hidden md:grid grid-cols-12 gap-3 px-6 py-2.5 bg-cream text-[11px] uppercase tracking-wider text-ink/50 font-semibold">
+                <span className="col-span-4">Batch</span><span className="col-span-2">Set</span><span className="col-span-2">Hatched</span><span className="col-span-2">Eggs</span><span className="col-span-2 text-right">Hatch rate</span>
+              </div>
+              <motion.ul initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.05 } } }} className="divide-y divide-border">
+                {completedIncubations.map(incubation => (
+                  <motion.li key={incubation.id} variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="px-6 py-3 grid grid-cols-2 md:grid-cols-12 gap-1 md:gap-3 md:items-center hover:bg-cream/70">
+                    <div className="col-span-2 md:col-span-4 min-w-0">
+                      <Link to={createPageUrl('IncubationDetail') + `?id=${incubation.id}`} className="font-medium text-ink hover:text-moss-700 truncate block">{incubation.batch_name}</Link>
+                      <p className="text-xs text-ink/55">{incubation.breed || 'Mixed'}</p>
+                    </div>
+                    <p className="md:col-span-2 text-xs md:text-sm text-ink/60"><span className="md:hidden text-ink/40">Set </span>{moment(incubation.incubation_start_date).format('D MMM YYYY')}</p>
+                    <p className="md:col-span-2 text-xs md:text-sm text-ink/60 text-right md:text-left"><span className="md:hidden text-ink/40">Hatched </span>{incubation.actual_hatch_date ? moment(incubation.actual_hatch_date).format('D MMM YYYY') : '—'}</p>
+                    <p className="md:col-span-2 text-sm text-ink/70"><span className="font-semibold text-moss-700">{incubation.eggs_hatched || 0}</span> of {incubation.egg_count}</p>
+                    <p className="md:col-span-2 text-right font-display font-bold text-ink tabular-nums">{(incubation.hatch_rate_percent || 0).toFixed(1)}%</p>
+                  </motion.li>
+                ))}
+              </motion.ul>
+            </section>
+          )}
+        </TabsContent>
+      </Tabs>
+
       {/* Form Dialog */}
       <Dialog open={showForm} onOpenChange={(open) => !open && resetForm()}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl">
           <DialogHeader>
-            <DialogTitle>{editingIncubation ? 'Update' : 'New'} Incubation Batch</DialogTitle>
+            <DialogTitle className="font-display">{editingIncubation ? 'Update incubation' : 'New incubation'}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-1 block">Batch Name *</label>
+                <Label>Batch Name *</Label>
                 <Input
                   value={formData.batch_name}
                   onChange={(e) => setFormData({ ...formData, batch_name: e.target.value })}
@@ -367,7 +313,7 @@ export default function IncubationManagement() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">Number of Eggs *</label>
+                <Label>Number of Eggs *</Label>
                 <Input
                   type="number"
                   value={formData.egg_count}
@@ -376,9 +322,9 @@ export default function IncubationManagement() {
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-1 block">Breed</label>
+                <Label>Breed</Label>
                 <Input
                   value={formData.breed}
                   onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
@@ -386,7 +332,7 @@ export default function IncubationManagement() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">Incubator Type</label>
+                <Label>Incubator Type</Label>
                 <Input
                   value={formData.incubator_type}
                   onChange={(e) => setFormData({ ...formData, incubator_type: e.target.value })}
@@ -395,9 +341,9 @@ export default function IncubationManagement() {
               </div>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-sm font-medium mb-1 block">Start Date</label>
+                <Label>Start Date</Label>
                 <Input
                   type="date"
                   value={formData.incubation_start_date}
@@ -405,60 +351,69 @@ export default function IncubationManagement() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1 block">Incubation Days</label>
+                <Label>Incubation Days</Label>
                 <Input
                   type="number"
                   value={formData.incubation_days}
                   onChange={(e) => setFormData({ ...formData, incubation_days: parseInt(e.target.value) || 21 })}
                 />
+                <p className="text-xs text-ink/55 mt-1">Expected hatch {moment(formData.incubation_start_date).add(formData.incubation_days, 'days').format('D MMM YYYY')}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div>
-                <label className="text-sm font-medium mb-1 block">Temperature (°C)</label>
-                <Input
-                  type="number"
-                  step="0.1"
-                  value={formData.temperature_celsius}
-                  onChange={(e) => setFormData({ ...formData, temperature_celsius: parseFloat(e.target.value) })}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1 block">Humidity (%)</label>
-                <Input
-                  type="number"
-                  value={formData.humidity_percent}
-                  onChange={(e) => setFormData({ ...formData, humidity_percent: parseInt(e.target.value) })}
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1 block">Turns/Day</label>
-                <Input
-                  type="number"
-                  value={formData.turned_times_per_day}
-                  onChange={(e) => setFormData({ ...formData, turned_times_per_day: parseInt(e.target.value) })}
-                />
+            <div className="rounded-2xl bg-cream border border-border p-4">
+              <p className="eyebrow mb-3">Incubator settings</p>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <Label className="inline-flex items-center gap-1"><Thermometer className="w-3.5 h-3.5 text-yolk-600" /> Temp (°C)</Label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    className={inputCls}
+                    value={formData.temperature_celsius}
+                    onChange={(e) => setFormData({ ...formData, temperature_celsius: parseFloat(e.target.value) })}
+                  />
+                </div>
+                <div>
+                  <Label className="inline-flex items-center gap-1"><Droplets className="w-3.5 h-3.5 text-moss-700" /> Humidity (%)</Label>
+                  <input
+                    type="number"
+                    className={inputCls}
+                    value={formData.humidity_percent}
+                    onChange={(e) => setFormData({ ...formData, humidity_percent: parseInt(e.target.value) })}
+                  />
+                </div>
+                <div>
+                  <Label className="inline-flex items-center gap-1"><RotateCw className="w-3.5 h-3.5 text-ink/50" /> Turns/day</Label>
+                  <input
+                    type="number"
+                    className={inputCls}
+                    value={formData.turned_times_per_day}
+                    onChange={(e) => setFormData({ ...formData, turned_times_per_day: parseInt(e.target.value) })}
+                  />
+                </div>
               </div>
             </div>
 
             {editingIncubation && (
-              <>
-                <div className="grid grid-cols-3 gap-4">
+              <div className="rounded-2xl bg-yolk-50 border border-yolk-200 p-4 space-y-4">
+                <p className="eyebrow text-yolk-700">Hatch results</p>
+                <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Hatched</label>
-                    <Input
+                    <Label>Hatched</Label>
+                    <input
                       type="number"
+                      className={inputCls}
                       value={formData.eggs_hatched || 0}
                       onChange={(e) => {
                         const hatched = parseInt(e.target.value) || 0;
                         const infertile = formData.eggs_infertile || 0;
                         const dead = formData.eggs_dead_in_shell || 0;
-                        const hatchRate = editingIncubation.egg_count > 0 
-                          ? (hatched / editingIncubation.egg_count) * 100 
+                        const hatchRate = editingIncubation.egg_count > 0
+                          ? (hatched / editingIncubation.egg_count) * 100
                           : 0;
-                        setFormData({ 
-                          ...formData, 
+                        setFormData({
+                          ...formData,
                           eggs_hatched: hatched,
                           hatch_rate_percent: hatchRate
                         });
@@ -466,28 +421,30 @@ export default function IncubationManagement() {
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Infertile</label>
-                    <Input
+                    <Label>Infertile</Label>
+                    <input
                       type="number"
+                      className={inputCls}
                       value={formData.eggs_infertile || 0}
                       onChange={(e) => setFormData({ ...formData, eggs_infertile: parseInt(e.target.value) || 0 })}
                     />
                   </div>
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Dead in Shell</label>
-                    <Input
+                    <Label>Dead in Shell</Label>
+                    <input
                       type="number"
+                      className={inputCls}
                       value={formData.eggs_dead_in_shell || 0}
                       onChange={(e) => setFormData({ ...formData, eggs_dead_in_shell: parseInt(e.target.value) || 0 })}
                     />
                   </div>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Status</label>
+                    <Label>Status</Label>
                     <Select value={formData.status} onValueChange={(value) => setFormData({ ...formData, status: value })}>
-                      <SelectTrigger>
+                      <SelectTrigger className="bg-white rounded-xl">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -499,19 +456,20 @@ export default function IncubationManagement() {
                     </Select>
                   </div>
                   <div>
-                    <label className="text-sm font-medium mb-1 block">Actual Hatch Date</label>
-                    <Input
+                    <Label>Actual Hatch Date</Label>
+                    <input
                       type="date"
+                      className={inputCls}
                       value={formData.actual_hatch_date || ''}
                       onChange={(e) => setFormData({ ...formData, actual_hatch_date: e.target.value })}
                     />
                   </div>
                 </div>
-              </>
+              </div>
             )}
 
             <div>
-              <label className="text-sm font-medium mb-1 block">Notes</label>
+              <Label>Notes</Label>
               <Textarea
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
@@ -520,19 +478,20 @@ export default function IncubationManagement() {
               />
             </div>
 
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={resetForm}>Cancel</Button>
+            <div className="flex gap-3 justify-end pt-2">
+              <Button variant="outline" className="rounded-full" onClick={resetForm}>Cancel</Button>
               <Button
                 onClick={handleSubmit}
                 disabled={createMutation.isPending || updateMutation.isPending}
-                className="bg-orange-600 hover:bg-orange-700"
+                className="btn-cta px-5"
               >
-                {editingIncubation ? 'Update' : 'Create'} Batch
+                {(createMutation.isPending || updateMutation.isPending) && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                {editingIncubation ? 'Update' : 'Create'} batch
               </Button>
             </div>
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </PageShell>
   );
 }

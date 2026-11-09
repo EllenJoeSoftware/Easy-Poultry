@@ -1,16 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { api } from '@/api/client';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Gavel, Plus, Clock, CheckCircle2, XCircle, Eye, Users, Loader2, Edit, Trash2, MessageCircle } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import { createPageUrl } from '../utils';
-import { toast } from 'sonner';
+import { motion } from 'framer-motion';
+import { Gavel, Plus, Clock, CheckCircle2, XCircle, Eye, Users, Loader2, Trophy, CreditCard, Layers, TrendingUp, MoreHorizontal, Package } from 'lucide-react';
 import moment from 'moment';
+import { toast } from 'sonner';
+import { api } from '@/api/client';
+import PageShell from '@/components/shell/PageShell';
+import EmptyState from '@/components/shell/EmptyState';
+import StatCard from '@/components/shell/StatCard';
+import { StatSkeleton } from '@/components/shell/SkeletonCard';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { createPageUrl } from '../utils';
 import ChatButton from '../components/chat/ChatButton';
+
+const STATUS_CHIP = {
+  draft: 'bg-cream-deep text-ink/60 border-border',
+  pending_payment: 'bg-yolk-50 text-yolk-700 border-yolk-200',
+  awaiting_verification: 'bg-yolk-50 text-yolk-700 border-yolk-200',
+  active: 'bg-fresh-50 text-moss-700 border-fresh-200',
+  ended: 'bg-ink/70 text-cream border-0',
+  cancelled: 'bg-terracotta-50 text-terracotta-600 border-terracotta-100',
+  rejected: 'bg-terracotta-50 text-terracotta-600 border-terracotta-100'
+};
+const STATUS_LABEL = {
+  draft: 'Draft',
+  pending_payment: 'Pending payment',
+  awaiting_verification: 'Awaiting verification',
+  active: 'Active',
+  ended: 'Ended',
+  cancelled: 'Cancelled',
+  rejected: 'Rejected'
+};
+
+const TAB_TRIGGER = 'rounded-full px-4 py-2 data-[state=active]:bg-moss-600 data-[state=active]:text-cream';
 
 export default function MyAuctions() {
   const [user, setUser] = useState(null);
@@ -46,229 +71,193 @@ export default function MyAuctions() {
     onSuccess: () => {
       queryClient.invalidateQueries(['my-auctions']);
       toast.success('Auction cancelled');
-    }
+    },
+    onError: (e) => toast.error(e?.message || 'Something went wrong')
   });
 
   const markCollectedMutation = useMutation({
-    mutationFn: (auctionId) => api.entities.Auction.update(auctionId, { 
+    mutationFn: (auctionId) => api.entities.Auction.update(auctionId, {
       item_collected: true,
       collection_date: new Date().toISOString()
     }),
     onSuccess: () => {
       queryClient.invalidateQueries(['my-auctions']);
       toast.success('Marked as collected');
-    }
+    },
+    onError: (e) => toast.error(e?.message || 'Something went wrong')
   });
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
-      </div>
-    );
+    return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-moss-600" /></div>;
   }
-
-  const getStatusBadge = (status) => {
-    const styles = {
-      draft: 'bg-cream-deep text-ink/70',
-      pending_payment: 'bg-yolk-50 text-yolk-700',
-      awaiting_verification: 'bg-moss-100 text-moss-800',
-      active: 'bg-fresh-50 text-moss-700',
-      ended: 'bg-cream-deep text-ink/70',
-      cancelled: 'bg-terracotta-50 text-terracotta-600',
-      rejected: 'bg-terracotta-50 text-terracotta-600'
-    };
-    const labels = {
-      draft: 'Draft',
-      pending_payment: 'Pending Payment',
-      awaiting_verification: 'Awaiting Verification',
-      active: 'Active',
-      ended: 'Ended',
-      cancelled: 'Cancelled',
-      rejected: 'Rejected'
-    };
-    return <Badge className={styles[status]}>{labels[status]}</Badge>;
-  };
 
   const activeAuctions = auctions.filter(a => a.status === 'active');
   const pendingAuctions = auctions.filter(a => ['draft', 'pending_payment', 'awaiting_verification'].includes(a.status));
   const endedAuctions = auctions.filter(a => ['ended', 'cancelled', 'rejected'].includes(a.status));
 
-  const AuctionItem = ({ auction, showActions = true }) => {
-    const auctionRegs = registrations.filter(r => r.auction_id === auction.id);
-    const hasEnded = moment().isAfter(auction.end_time);
+  const totalBids = auctions.reduce((s, a) => s + (a.bid_count || 0), 0);
+  const totalViews = auctions.reduce((s, a) => s + (a.view_count || 0), 0);
+  const totalSales = auctions.filter(a => a.status === 'ended' && a.final_price).reduce((s, a) => s + (a.final_price || 0), 0);
 
+  const renderList = (list, emptyIcon, emptyTitle, emptySubtitle, showActions = true, withCta = false) => {
+    if (isLoading) {
+      return (
+        <div className="space-y-4">{[...Array(3)].map((_, i) => (
+          <div key={i} className="card-premium p-5 flex gap-5 animate-pulse"><div className="w-28 h-28 rounded-xl bg-cream-deep flex-shrink-0" /><div className="flex-1 space-y-3"><div className="h-5 bg-cream-deep rounded w-1/3" /><div className="h-3 bg-cream-deep rounded w-1/5" /><div className="h-3 bg-cream-deep rounded w-2/5" /></div></div>
+        ))}</div>
+      );
+    }
+    if (list.length === 0) {
+      return (
+        <EmptyState icon={emptyIcon} title={emptyTitle} subtitle={emptySubtitle}
+          action={withCta && <Link to={createPageUrl('CreateAuction')}><Button className="btn-cta px-5 py-2.5 text-sm gap-1.5"><Plus className="w-4 h-4" /> Create auction</Button></Link>} />
+      );
+    }
     return (
-      <Card key={auction.id} className="p-6 card-premium">
-        <div className="flex gap-6">
-          <img
-            src={auction.images?.[0] || 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=200'}
-            alt={auction.title}
-            className="w-32 h-32 rounded-lg object-cover"
-          />
-          <div className="flex-1">
-            <div className="flex items-start justify-between mb-2">
-              <div>
-                <h3 className="font-display text-xl font-semibold text-ink">{auction.title}</h3>
-                {auction.breed && <p className="text-ink/65">{auction.breed}</p>}
-              </div>
-              {getStatusBadge(auction.status)}
-            </div>
-            
-            <div className="flex items-center gap-6 text-sm text-ink/65 mb-4">
-              <span className="flex items-center gap-1">
-                <Eye className="w-4 h-4" />
-                {auction.view_count || 0} views
-              </span>
-              <span className="flex items-center gap-1">
-                <Users className="w-4 h-4" />
-                {auction.bid_count || 0} bids
-              </span>
-              <span className="font-semibold text-terracotta-600">
-                R{(auction.current_bid || auction.starting_bid).toLocaleString()}
-              </span>
-            </div>
-
-            {auction.status === 'active' && !hasEnded && (
-              <p className="text-sm text-ink/55 mb-4">
-                Ends: {moment(auction.end_time).format('MMM D, h:mm A')} ({moment(auction.end_time).fromNow()})
-              </p>
-            )}
-
-            {auction.status === 'ended' && auction.winner_email && (
-              <div className="bg-fresh-50 rounded-lg p-3 mb-4">
-                <p className="text-sm text-ink/65">Winner: <span className="font-semibold">{auction.winner_name}</span></p>
-                <p className="text-sm text-ink/65">Final Price: <span className="font-bold text-moss-700">R{auction.final_price?.toLocaleString()}</span></p>
-                {!auction.item_collected && (
-                  <div className="flex items-center gap-2 mt-2">
-                    <ChatButton sellerEmail={auction.winner_email} variant="outline" className="text-sm h-8" />
-                    <Button size="sm" onClick={() => markCollectedMutation.mutate(auction.id)} className="bg-moss-600 hover:bg-moss-700 h-8">
-                      <CheckCircle2 className="w-4 h-4 mr-1" />
-                      Mark Collected
-                    </Button>
-                  </div>
-                )}
-                {auction.item_collected && (
-                  <Badge className="bg-fresh-50 text-moss-700 mt-2">
-                    <CheckCircle2 className="w-3 h-3 mr-1" />
-                    Collected
-                  </Badge>
-                )}
-              </div>
-            )}
-
-            {showActions && (
-              <div className="flex gap-3 flex-wrap">
-                <Link to={createPageUrl('AuctionDetail') + `?id=${auction.id}`}>
-                  <Button variant="outline" size="sm">View</Button>
-                </Link>
-                {auction.status === 'pending_payment' && (
-                  <Link to={createPageUrl('AuctionPayment') + `?auctionId=${auction.id}`}>
-                    <Button size="sm" className="bg-terracotta-500 hover:bg-terracotta-600 text-white">
-                      Complete Payment
-                    </Button>
-                  </Link>
-                )}
-                {['draft', 'pending_payment'].includes(auction.status) && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => cancelAuctionMutation.mutate(auction.id)}
-                    className="text-terracotta-600 hover:text-terracotta-700"
-                  >
-                    <XCircle className="w-4 h-4 mr-1" />
-                    Cancel
-                  </Button>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      </Card>
+      <motion.div initial="hidden" animate="show" variants={{ show: { transition: { staggerChildren: 0.05 } } }} className="space-y-4">
+        {list.map((auction) => (
+          <AuctionRow key={auction.id} auction={auction} registrations={registrations} showActions={showActions}
+            onCancel={() => cancelAuctionMutation.mutate(auction.id)} cancelling={cancelAuctionMutation.isPending}
+            onCollected={() => markCollectedMutation.mutate(auction.id)} collecting={markCollectedMutation.isPending} />
+        ))}
+      </motion.div>
     );
   };
 
   return (
-    <div className="min-h-[80vh] bg-cream">
-      <div className="bg-terracotta-gradient text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="font-display text-3xl font-bold mb-2">My Auctions</h1>
-              <p className="text-white/90">Manage your auction houses</p>
+    <PageShell
+      variant="compact"
+      eyebrow="Sell"
+      title="My auctions"
+      subtitle="Track bids, complete payments and hand over to winners — all your standalone auctions in one place."
+      breadcrumb={[{ label: 'Live auctions', href: createPageUrl('Auctions') }, { label: 'My auctions' }]}
+      action={
+        <Link to={createPageUrl('CreateAuction')}>
+          <Button className="btn-cta px-5 py-2.5 text-sm gap-1.5"><Plus className="w-4 h-4" /> Create auction</Button>
+        </Link>
+      }
+    >
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        {isLoading ? [...Array(4)].map((_, i) => <StatSkeleton key={i} />) : (
+          <>
+            <StatCard icon={Layers} label="Active auctions" value={activeAuctions.length} tint="moss" />
+            <StatCard icon={Gavel} label="Total bids" value={totalBids.toLocaleString()} tint="yolk" />
+            <StatCard icon={Eye} label="Total views" value={totalViews.toLocaleString()} tint="sage" />
+            <StatCard icon={TrendingUp} label="Sales" value={`R${totalSales.toLocaleString()}`} tint="terracotta" />
+          </>
+        )}
+      </div>
+
+      <Tabs defaultValue="active" className="space-y-6">
+        <TabsList className="bg-white border border-border rounded-full p-1 h-auto inline-flex">
+          <TabsTrigger value="active" className={TAB_TRIGGER}>Active ({activeAuctions.length})</TabsTrigger>
+          <TabsTrigger value="pending" className={TAB_TRIGGER}>Pending ({pendingAuctions.length})</TabsTrigger>
+          <TabsTrigger value="ended" className={TAB_TRIGGER}>Ended ({endedAuctions.length})</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="active">
+          {renderList(activeAuctions, Gavel, 'No active auctions', 'Create your first auction to start receiving bids.', true, true)}
+        </TabsContent>
+        <TabsContent value="pending">
+          {renderList(pendingAuctions, Clock, 'No pending auctions', 'Drafts and auctions awaiting payment or verification will appear here.')}
+        </TabsContent>
+        <TabsContent value="ended">
+          {renderList(endedAuctions, CheckCircle2, 'No ended auctions', 'Completed, cancelled and rejected auctions will be listed here.', false)}
+        </TabsContent>
+      </Tabs>
+    </PageShell>
+  );
+}
+
+function AuctionRow({ auction, registrations, showActions, onCancel, cancelling, onCollected, collecting }) {
+  const auctionRegs = registrations.filter(r => r.auction_id === auction.id);
+  const hasEnded = moment().isAfter(auction.end_time);
+  const chip = STATUS_CHIP[auction.status] || STATUS_CHIP.draft;
+  const img = auction.images?.[0];
+  const canCancel = ['draft', 'pending_payment'].includes(auction.status);
+
+  return (
+    <motion.article variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }} className="card-premium p-4 sm:p-5">
+      <div className="flex flex-col sm:flex-row gap-4 sm:gap-5">
+        <div className="w-full sm:w-28 h-40 sm:h-28 rounded-xl overflow-hidden bg-cream-deep border border-border flex-shrink-0 flex items-center justify-center text-moss-600">
+          {img ? <img src={img} alt={auction.title} className="w-full h-full object-cover" /> : <Package className="w-8 h-8" />}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <Link to={createPageUrl('AuctionDetail') + `?id=${auction.id}`} className="font-display text-lg text-ink hover:text-moss-700 line-clamp-1">{auction.title}</Link>
+              {auction.breed && <p className="text-sm text-ink/55">{auction.breed}</p>}
             </div>
-            <Link to={createPageUrl('CreateAuction')}>
-              <Button className="bg-white text-terracotta-600 hover:bg-cream-deep">
-                <Plus className="w-4 h-4 mr-2" />
-                Create Auction
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-full border text-[11px] font-medium ${chip}`}>{STATUS_LABEL[auction.status] || auction.status}</span>
+              {showActions && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="w-8 h-8 rounded-lg inline-flex items-center justify-center text-ink/55 hover:bg-moss-50 hover:text-moss-700" aria-label="More actions"><MoreHorizontal className="w-4 h-4" /></button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="rounded-xl w-52">
+                    <DropdownMenuItem asChild><Link to={createPageUrl('AuctionDetail') + `?id=${auction.id}`} className="gap-2"><Eye className="w-4 h-4" /> View auction</Link></DropdownMenuItem>
+                    {auction.status === 'pending_payment' && (
+                      <DropdownMenuItem asChild><Link to={createPageUrl('AuctionPayment') + `?auctionId=${auction.id}`} className="gap-2"><CreditCard className="w-4 h-4 text-yolk-600" /> Complete payment</Link></DropdownMenuItem>
+                    )}
+                    {canCancel && (
+                      <>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onSelect={onCancel} disabled={cancelling} className="gap-2 text-terracotta-600 focus:text-terracotta-600"><XCircle className="w-4 h-4" /> Cancel auction</DropdownMenuItem>
+                      </>
+                    )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
+            </div>
           </div>
+
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-xs text-ink/55">
+            <span className="inline-flex items-center gap-1"><Eye className="w-3.5 h-3.5" />{auction.view_count || 0} views</span>
+            <span className="inline-flex items-center gap-1"><Gavel className="w-3.5 h-3.5" />{auction.bid_count || 0} bids</span>
+            {auctionRegs.length > 0 && <span className="inline-flex items-center gap-1"><Users className="w-3.5 h-3.5" />{auctionRegs.length} registered</span>}
+            <span className="font-display font-bold text-sm text-terracotta-600 tabular-nums">R{(auction.current_bid || auction.starting_bid).toLocaleString()}</span>
+            {auction.status === 'active' && !hasEnded && (
+              <span className="inline-flex items-center gap-1"><Clock className="w-3.5 h-3.5" />Ends {moment(auction.end_time).format('D MMM, HH:mm')} ({moment(auction.end_time).fromNow()})</span>
+            )}
+          </div>
+
+          {auction.status === 'ended' && auction.winner_email && (
+            <div className="bg-fresh-50 border border-fresh-200 rounded-xl p-3 mt-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-white border border-fresh-200 flex items-center justify-center text-moss-700"><Trophy className="w-4 h-4" /></div>
+                <div>
+                  <p className="text-xs text-ink/55">Winner <span className="font-medium text-ink">{auction.winner_name}</span></p>
+                  <p className="text-sm">Final price <span className="font-display font-bold text-moss-700">R{auction.final_price?.toLocaleString()}</span></p>
+                </div>
+              </div>
+              {auction.item_collected ? (
+                <span className="chip bg-fresh-50 text-moss-700 border-fresh-200 gap-1 w-fit"><CheckCircle2 className="w-3 h-3" /> Collected</span>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <ChatButton sellerEmail={auction.winner_email} variant="outline" className="text-sm h-8 rounded-full" />
+                  <Button size="sm" onClick={onCollected} disabled={collecting} className="btn-cta h-8 px-3 text-xs gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Mark collected</Button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {showActions && (auction.status === 'pending_payment' || canCancel) && (
+            <div className="flex flex-wrap gap-2 mt-3">
+              {auction.status === 'pending_payment' && (
+                <Link to={createPageUrl('AuctionPayment') + `?auctionId=${auction.id}`}>
+                  <Button size="sm" className="btn-cta h-8 px-4 text-xs gap-1.5"><CreditCard className="w-3.5 h-3.5" /> Complete payment</Button>
+                </Link>
+              )}
+              {canCancel && (
+                <Button size="sm" variant="outline" onClick={onCancel} disabled={cancelling} className="rounded-full h-8 text-xs text-terracotta-600 hover:text-terracotta-700 gap-1"><XCircle className="w-3.5 h-3.5" /> Cancel</Button>
+              )}
+            </div>
+          )}
         </div>
       </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <Tabs defaultValue="active" className="space-y-6">
-          <TabsList className="bg-white border shadow-sm">
-            <TabsTrigger value="active">Active ({activeAuctions.length})</TabsTrigger>
-            <TabsTrigger value="pending">Pending ({pendingAuctions.length})</TabsTrigger>
-            <TabsTrigger value="ended">Ended ({endedAuctions.length})</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="active">
-            {isLoading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 animate-spin text-terracotta-600" />
-              </div>
-            ) : activeAuctions.length === 0 ? (
-              <Card className="p-12 text-center card-premium">
-                <Gavel className="w-16 h-16 text-ink/25 mx-auto mb-4" />
-                <h3 className="font-display text-xl font-semibold text-ink mb-2">No active auctions</h3>
-                <p className="text-ink/65 mb-6">Create your first auction to get started</p>
-                <Link to={createPageUrl('CreateAuction')}>
-                  <Button className="bg-terracotta-500 hover:bg-terracotta-600 text-white">Create Auction</Button>
-                </Link>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {activeAuctions.map((auction) => (
-                  <AuctionItem key={auction.id} auction={auction} />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="pending">
-            {pendingAuctions.length === 0 ? (
-              <Card className="p-12 text-center card-premium">
-                <Clock className="w-16 h-16 text-ink/25 mx-auto mb-4" />
-                <h3 className="font-display text-xl font-semibold text-ink mb-2">No pending auctions</h3>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {pendingAuctions.map((auction) => (
-                  <AuctionItem key={auction.id} auction={auction} />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="ended">
-            {endedAuctions.length === 0 ? (
-              <Card className="p-12 text-center card-premium">
-                <CheckCircle2 className="w-16 h-16 text-ink/25 mx-auto mb-4" />
-                <h3 className="font-display text-xl font-semibold text-ink mb-2">No ended auctions</h3>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {endedAuctions.map((auction) => (
-                  <AuctionItem key={auction.id} auction={auction} showActions={false} />
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
-      </div>
-    </div>
+    </motion.article>
   );
 }

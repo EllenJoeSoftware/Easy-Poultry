@@ -1,17 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { Link, useNavigate } from 'react-router-dom';
+import { Upload, X, Loader2, Gavel, ImagePlus, FileText, MapPin, Settings2, ScrollText, Info } from 'lucide-react';
+import { toast } from 'sonner';
 import { api } from '@/api/client';
+import PageShell from '@/components/shell/PageShell';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Upload, X, Loader2, Gavel } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
-import { toast } from 'sonner';
+
+function FormSection({ icon: Icon, title, hint, children }) {
+  return (
+    <section className="card-premium p-5 sm:p-6">
+      <div className="flex items-start gap-3 mb-5">
+        <div className="w-10 h-10 rounded-xl bg-moss-50 border border-moss-100 flex items-center justify-center text-moss-700 flex-shrink-0"><Icon className="w-4 h-4" /></div>
+        <div>
+          <h2 className="font-display text-lg text-ink leading-tight">{title}</h2>
+          {hint && <p className="text-xs text-ink/55 mt-0.5">{hint}</p>}
+        </div>
+      </div>
+      {children}
+    </section>
+  );
+}
 
 export default function CreateAuction() {
   const [user, setUser] = useState(null);
@@ -64,7 +79,8 @@ export default function CreateAuction() {
     onSuccess: (auction) => {
       toast.success('Auction created! Please complete payment to activate.');
       navigate(createPageUrl('AuctionPayment') + `?auctionId=${auction.id}`);
-    }
+    },
+    onError: (e) => toast.error(e?.message || 'Something went wrong')
   });
 
   const handleImageUpload = async (e) => {
@@ -114,205 +130,169 @@ export default function CreateAuction() {
   ];
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
-      </div>
-    );
+    return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-moss-600" /></div>;
   }
 
+  const inputCls = 'mt-1.5 rounded-xl';
+
   return (
-    <div className="min-h-[80vh] bg-cream">
-      <div className="bg-white border-b">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <Link to={createPageUrl('Auctions')} className="inline-flex items-center text-ink/65 hover:text-ink">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Auctions
-          </Link>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-12 h-12 rounded-xl bg-terracotta-500/10 flex items-center justify-center">
-            <Gavel className="w-6 h-6 text-terracotta-600" />
-          </div>
-          <div>
-            <h1 className="font-display text-2xl font-bold text-ink">Create Auction</h1>
-            <p className="text-ink/65">Set up your poultry auction house</p>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Images */}
-          <Card className="p-6 card-premium">
-            <h2 className="font-semibold text-ink mb-4">Photos</h2>
-            <div className="grid grid-cols-5 gap-3">
+    <PageShell
+      variant="compact"
+      eyebrow="Sell"
+      title="Create auction"
+      subtitle="List a single lot for timed bidding. A small verification fee applies before it goes live."
+      breadcrumb={[{ label: 'Live auctions', href: createPageUrl('Auctions') }, { label: 'My auctions', href: createPageUrl('MyAuctions') }, { label: 'Create auction' }]}
+    >
+      <form onSubmit={handleSubmit} className="grid lg:grid-cols-3 gap-6 items-start">
+        <div className="lg:col-span-2 space-y-6">
+          {/* Photos */}
+          <FormSection icon={ImagePlus} title="Photos" hint="Up to 10 images. The first one is used as the cover.">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
               {images.map((img, i) => (
-                <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-cream-deep">
+                <div key={i} className="relative aspect-square rounded-xl overflow-hidden bg-cream-deep border border-border group">
                   <img src={img} alt="" className="w-full h-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(i)}
-                    className="absolute top-1 right-1 w-6 h-6 bg-terracotta-500 text-white rounded-full flex items-center justify-center"
-                  >
-                    <X className="w-4 h-4" />
+                  {i === 0 && <span className="absolute bottom-1.5 left-1.5 chip chip-yolk !py-0 !px-2 text-[10px]">Cover</span>}
+                  <button type="button" onClick={() => removeImage(i)} aria-label="Remove image"
+                    className="absolute top-1.5 right-1.5 w-6 h-6 bg-terracotta-500 hover:bg-terracotta-600 text-white rounded-full flex items-center justify-center shadow-sm">
+                    <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
               ))}
               {images.length < 10 && (
-                <label className="aspect-square rounded-lg border-2 border-dashed border-border flex flex-col items-center justify-center cursor-pointer hover:border-moss-600">
-                  {uploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Upload className="w-6 h-6 text-ink/40" />}
+                <label className="aspect-square rounded-xl border-2 border-dashed border-border bg-cream flex flex-col items-center justify-center cursor-pointer hover:border-moss-400 hover:bg-moss-50/40 transition-colors">
+                  {uploading ? <Loader2 className="w-6 h-6 animate-spin text-moss-600" /> : <Upload className="w-6 h-6 text-ink/40" />}
                   <span className="text-xs text-ink/55 mt-1">Upload</span>
                   <input type="file" accept="image/*" multiple onChange={handleImageUpload} className="hidden" />
                 </label>
               )}
             </div>
-          </Card>
+          </FormSection>
 
-          {/* Basic Info */}
-          <Card className="p-6 card-premium">
-            <h2 className="font-semibold text-ink mb-4">Auction Details</h2>
+          {/* Details */}
+          <FormSection icon={FileText} title="Auction details" hint="What you are selling and why bidders should care.">
             <div className="grid gap-4">
               <div>
                 <Label>Title *</Label>
-                <Input
-                  value={form.title}
-                  onChange={(e) => setForm({ ...form, title: e.target.value })}
-                  placeholder="e.g., Premium Rhode Island Red Roosters"
-                />
+                <Input className={inputCls} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} placeholder="e.g., Premium Rhode Island Red Roosters" />
               </div>
               <div>
                 <Label>Description</Label>
-                <Textarea
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  placeholder="Detailed description of what's being auctioned..."
-                  rows={4}
-                />
+                <Textarea className={inputCls} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Detailed description of what's being auctioned..." rows={4} />
               </div>
-              <div className="grid sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <Label>Poultry Type *</Label>
+                  <Label>Poultry type *</Label>
                   <Select value={form.poultry_type} onValueChange={(v) => setForm({ ...form, poultry_type: v })}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {poultryTypes.map(t => (
-                        <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                      ))}
+                    <SelectTrigger className={inputCls}><SelectValue /></SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      {poultryTypes.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
                 <div>
                   <Label>Breed</Label>
-                  <Input value={form.breed} onChange={(e) => setForm({ ...form, breed: e.target.value })} placeholder="e.g., Rhode Island Red" />
+                  <Input className={inputCls} value={form.breed} onChange={(e) => setForm({ ...form, breed: e.target.value })} placeholder="e.g., Rhode Island Red" />
                 </div>
                 <div>
                   <Label>Age</Label>
-                  <Input value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} placeholder="e.g., 6 months" />
+                  <Input className={inputCls} value={form.age} onChange={(e) => setForm({ ...form, age: e.target.value })} placeholder="e.g., 6 months" />
                 </div>
               </div>
-              <div className="grid sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <Label>Quantity</Label>
-                  <Input type="number" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} min="1" />
+                  <Input className={inputCls} type="number" value={form.quantity} onChange={(e) => setForm({ ...form, quantity: e.target.value })} min="1" />
                 </div>
                 <div>
-                  <Label>Health Details</Label>
-                  <Input value={form.health_details} onChange={(e) => setForm({ ...form, health_details: e.target.value })} placeholder="Vaccinations, health status..." />
+                  <Label>Health details</Label>
+                  <Input className={inputCls} value={form.health_details} onChange={(e) => setForm({ ...form, health_details: e.target.value })} placeholder="Vaccinations, health status..." />
                 </div>
               </div>
               <div>
                 <Label>Video URL (optional)</Label>
-                <Input value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="YouTube or direct video link" />
+                <Input className={inputCls} value={form.video_url} onChange={(e) => setForm({ ...form, video_url: e.target.value })} placeholder="YouTube or direct video link" />
               </div>
             </div>
-          </Card>
+          </FormSection>
 
           {/* Location */}
-          <Card className="p-6 card-premium">
-            <h2 className="font-semibold text-ink mb-4">Location</h2>
-            <div className="grid sm:grid-cols-2 gap-4">
+          <FormSection icon={MapPin} title="Location" hint="Where the birds can be collected.">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label>Province</Label>
-                <Input value={form.province} onChange={(e) => setForm({ ...form, province: e.target.value })} />
+                <Input className={inputCls} value={form.province} onChange={(e) => setForm({ ...form, province: e.target.value })} />
               </div>
               <div>
                 <Label>City</Label>
-                <Input value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
+                <Input className={inputCls} value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} />
               </div>
             </div>
-          </Card>
-
-          {/* Auction Settings */}
-          <Card className="p-6 card-premium">
-            <h2 className="font-semibold text-ink mb-4">Auction Settings</h2>
-            <div className="grid gap-4">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <Label>Start Time *</Label>
-                  <Input type="datetime-local" value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} />
-                </div>
-                <div>
-                  <Label>End Time *</Label>
-                  <Input type="datetime-local" value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} />
-                </div>
-              </div>
-              <div className="grid sm:grid-cols-3 gap-4">
-                <div>
-                  <Label>Starting Bid (R) *</Label>
-                  <Input type="number" value={form.starting_bid} onChange={(e) => setForm({ ...form, starting_bid: e.target.value })} min="1" />
-                </div>
-                <div>
-                  <Label>Reserve Price (R)</Label>
-                  <Input type="number" value={form.reserve_price} onChange={(e) => setForm({ ...form, reserve_price: e.target.value })} placeholder="Optional minimum" />
-                </div>
-                <div>
-                  <Label>Min Increment (R)</Label>
-                  <Input type="number" value={form.min_increment} onChange={(e) => setForm({ ...form, min_increment: e.target.value })} min="1" />
-                </div>
-              </div>
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div>
-                  <Label>Max Bidders (optional)</Label>
-                  <Input type="number" value={form.max_bidders} onChange={(e) => setForm({ ...form, max_bidders: e.target.value })} placeholder="Leave empty for unlimited" />
-                </div>
-                <div className="flex items-center gap-4 pt-6">
-                  <Switch checked={form.auto_extend} onCheckedChange={(v) => setForm({ ...form, auto_extend: v })} />
-                  <Label>Auto-extend on last-minute bids</Label>
-                </div>
-              </div>
-              {form.auto_extend && (
-                <div className="sm:w-1/3">
-                  <Label>Extend by (minutes)</Label>
-                  <Input type="number" value={form.auto_extend_minutes} onChange={(e) => setForm({ ...form, auto_extend_minutes: e.target.value })} min="1" max="10" />
-                </div>
-              )}
-            </div>
-          </Card>
+          </FormSection>
 
           {/* Terms */}
-          <Card className="p-6 card-premium">
-            <h2 className="font-semibold text-ink mb-4">Terms & Conditions</h2>
-            <Textarea
-              value={form.terms_conditions}
-              onChange={(e) => setForm({ ...form, terms_conditions: e.target.value })}
-              placeholder="Payment terms, collection details, buyer responsibilities..."
-              rows={4}
-            />
-          </Card>
+          <FormSection icon={ScrollText} title="Terms & conditions" hint="Payment terms, collection details, buyer responsibilities.">
+            <Textarea className="rounded-xl" value={form.terms_conditions} onChange={(e) => setForm({ ...form, terms_conditions: e.target.value })}
+              placeholder="Payment terms, collection details, buyer responsibilities..." rows={4} />
+          </FormSection>
+        </div>
 
-          <div className="flex gap-4">
-            <Button type="submit" disabled={createAuctionMutation.isPending} className="bg-terracotta-500 hover:bg-terracotta-600 text-white px-8">
-              {createAuctionMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
-              Create & Proceed to Payment
+        {/* Right rail — settings + submit */}
+        <aside className="space-y-6 lg:sticky lg:top-24">
+          <FormSection icon={Settings2} title="Auction settings" hint="Timing and pricing rules.">
+            <div className="grid gap-4">
+              <div>
+                <Label>Start time *</Label>
+                <Input className={inputCls} type="datetime-local" value={form.start_time} onChange={(e) => setForm({ ...form, start_time: e.target.value })} />
+              </div>
+              <div>
+                <Label>End time *</Label>
+                <Input className={inputCls} type="datetime-local" value={form.end_time} onChange={(e) => setForm({ ...form, end_time: e.target.value })} />
+              </div>
+              <div className="pt-2 border-t border-border grid grid-cols-2 gap-4">
+                <div>
+                  <Label>Starting bid (R) *</Label>
+                  <Input className={inputCls} type="number" value={form.starting_bid} onChange={(e) => setForm({ ...form, starting_bid: e.target.value })} min="1" />
+                </div>
+                <div>
+                  <Label>Min increment (R)</Label>
+                  <Input className={inputCls} type="number" value={form.min_increment} onChange={(e) => setForm({ ...form, min_increment: e.target.value })} min="1" />
+                </div>
+              </div>
+              <div>
+                <Label>Reserve price (R)</Label>
+                <Input className={inputCls} type="number" value={form.reserve_price} onChange={(e) => setForm({ ...form, reserve_price: e.target.value })} placeholder="Optional minimum" />
+              </div>
+              <div>
+                <Label>Max bidders (optional)</Label>
+                <Input className={inputCls} type="number" value={form.max_bidders} onChange={(e) => setForm({ ...form, max_bidders: e.target.value })} placeholder="Leave empty for unlimited" />
+              </div>
+              <div className="pt-2 border-t border-border">
+                <div className="flex items-center justify-between gap-3">
+                  <Label className="leading-snug">Auto-extend on last-minute bids</Label>
+                  <Switch checked={form.auto_extend} onCheckedChange={(v) => setForm({ ...form, auto_extend: v })} />
+                </div>
+                {form.auto_extend && (
+                  <div className="mt-3">
+                    <Label>Extend by (minutes)</Label>
+                    <Input className={inputCls} type="number" value={form.auto_extend_minutes} onChange={(e) => setForm({ ...form, auto_extend_minutes: e.target.value })} min="1" max="10" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </FormSection>
+
+          <div className="card-premium p-5 space-y-3">
+            <Button type="submit" disabled={createAuctionMutation.isPending} className="w-full btn-cta py-3 gap-2">
+              {createAuctionMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Gavel className="w-4 h-4" />}
+              Create & proceed to payment
             </Button>
-            <Link to={createPageUrl('Auctions')}>
-              <Button type="button" variant="outline">Cancel</Button>
+            <Link to={createPageUrl('Auctions')} className="block">
+              <Button type="button" variant="outline" className="w-full rounded-full">Cancel</Button>
             </Link>
+            <p className="text-xs text-ink/50 inline-flex items-start gap-1.5 pt-1"><Info className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" /> Your auction is saved as pending until the verification fee is confirmed.</p>
           </div>
-        </form>
-      </div>
-    </div>
+        </aside>
+      </form>
+    </PageShell>
   );
 }

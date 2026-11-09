@@ -1,4 +1,5 @@
 import Admin from './pages/Admin';
+import AdminDashboard from './pages/AdminDashboard';
 import AuctionDetail from './pages/AuctionDetail';
 import AuctionEventDetail from './pages/AuctionEventDetail';
 import AuctionHousePayment from './pages/AuctionHousePayment';
@@ -53,6 +54,7 @@ import __Layout from './Layout.jsx';
 
 export const PAGES = {
     "Admin": Admin,
+    "AdminDashboard": AdminDashboard,
     "AuctionDetail": AuctionDetail,
     "AuctionEventDetail": AuctionEventDetail,
     "AuctionHousePayment": AuctionHousePayment,

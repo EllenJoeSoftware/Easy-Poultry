@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
-import { Download, FileText, Loader2, Package, ExternalLink, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { Download, Loader2, Package, ExternalLink, CheckCircle2, XCircle, Clock } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { api } from '@/api/client';
 import PageShell from '@/components/shell/PageShell';
 import EmptyState from '@/components/shell/EmptyState';
@@ -12,7 +13,7 @@ const STATUS = {
   paid:      { label: 'Paid',      tint: 'bg-moss-50 text-moss-700 border-moss-100',           icon: CheckCircle2 },
   pending:   { label: 'Pending',   tint: 'bg-yolk-50 text-yolk-600 border-yolk-100',           icon: Clock },
   failed:    { label: 'Failed',    tint: 'bg-terracotta-50 text-terracotta-600 border-terracotta-100', icon: XCircle },
-  cancelled: { label: 'Cancelled', tint: 'bg-cream-deep text-ink/60 border-yolk-100',          icon: XCircle },
+  cancelled: { label: 'Cancelled', tint: 'bg-cream-deep text-ink/60 border-border',            icon: XCircle },
 };
 
 export default function MyOrders() {
@@ -44,9 +45,18 @@ export default function MyOrders() {
           action={<Link to={createPageUrl('Marketplace')}><button className="btn-cta px-5 py-2.5 text-sm">Browse marketplace</button></Link>}
         />
       ) : (
-        <div className="space-y-3">
-          {orders.map((o) => <OrderRow key={o.id} order={o} />)}
-        </div>
+        <motion.div
+          className="space-y-3"
+          initial="hidden"
+          animate="show"
+          variants={{ show: { transition: { staggerChildren: 0.05 } } }}
+        >
+          {orders.map((o) => (
+            <motion.div key={o.id} variants={{ hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } }}>
+              <OrderRow order={o} />
+            </motion.div>
+          ))}
+        </motion.div>
       )}
     </PageShell>
   );
@@ -81,7 +91,7 @@ function OrderRow({ order }) {
                 {isDigital && ' · Digital'}
               </p>
             </div>
-            <Badge className={`gap-1 ${s.tint} border`}>
+            <Badge className={`gap-1 rounded-full flex-shrink-0 ${s.tint} border`}>
               <Icon className="w-3 h-3" />
               {s.label}
             </Badge>

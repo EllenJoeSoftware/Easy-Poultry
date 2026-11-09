@@ -1,20 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/api/client';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Zap, Plus, Calendar, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react';
+import { Plus, Calendar, CheckCircle2, AlertCircle, Loader2, Syringe, Bird, Wallet, CalendarClock, User } from 'lucide-react';
+import { motion } from 'framer-motion';
 import PageShell from '@/components/shell/PageShell';
+import EmptyState from '@/components/shell/EmptyState';
+import StatCard from '@/components/shell/StatCard';
 import { toast } from 'sonner';
 import { createPageUrl } from '../utils';
 import moment from 'moment';
+
+const listVariants = { show: { transition: { staggerChildren: 0.05 } } };
+const rowVariants = { hidden: { opacity: 0, y: 10 }, show: { opacity: 1, y: 0 } };
+const tabCls = 'rounded-full px-4 py-2 data-[state=active]:bg-moss-600 data-[state=active]:text-cream';
 
 export default function VaccinationManagement() {
   const [user, setUser] = useState(null);
@@ -83,6 +88,7 @@ export default function VaccinationManagement() {
         });
       }
     },
+    onError: (e) => toast.error(e?.message || 'Something went wrong'),
     onSuccess: () => {
       queryClient.invalidateQueries(['vaccination-events']);
       queryClient.invalidateQueries(['batches-vac']);
@@ -115,15 +121,15 @@ export default function VaccinationManagement() {
   };
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
-      </div>
-    );
+    return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-moss-600" /></div>;
   }
 
   const completedEvents = events.filter(e => e.status === 'completed');
   const scheduledEvents = events.filter(e => e.status === 'scheduled');
+  const overdueEvents = scheduledEvents.filter(e => e.due_date && moment(e.due_date).isBefore(moment(), 'day'));
+  const upcomingEvents = scheduledEvents.filter(e => e.due_date && !moment(e.due_date).isBefore(moment(), 'day') && moment(e.due_date).diff(moment(), 'days') <= 14);
+  const birdsCovered = completedEvents.reduce((s, e) => s + (e.birds_vaccinated || 0), 0);
+  const totalCost = completedEvents.reduce((s, e) => s + (e.cost || 0), 0);
 
   return (
     <PageShell
@@ -134,79 +140,128 @@ export default function VaccinationManagement() {
       breadcrumb={[{ label: 'Farm', href: createPageUrl('FarmDashboard') }, { label: 'Vaccinations' }]}
       action={<Button onClick={() => setShowEventForm(true)} className="btn-cta px-5 py-2.5 text-sm gap-1.5"><Plus className="w-4 h-4" /> Record vaccination</Button>}
     >
-      <div>
-        <Tabs defaultValue="completed">
-          <TabsList>
-            <TabsTrigger value="completed">Completed ({completedEvents.length})</TabsTrigger>
-            <TabsTrigger value="scheduled">Scheduled ({scheduledEvents.length})</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="completed" className="mt-6">
-            {completedEvents.length === 0 ? (
-              <Card className="p-12 text-center">
-                <Zap className="w-16 h-16 text-ink/25 mx-auto mb-4" />
-                <p className="text-ink/65">No vaccination records yet</p>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {completedEvents.map(event => (
-                  <Card key={event.id} className="p-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <CheckCircle2 className="w-5 h-5 text-moss-700" />
-                          <h3 className="font-semibold text-ink">{event.vaccine_name}</h3>
-                          <Badge variant="outline">{event.batch_name}</Badge>
-                        </div>
-                        <div className="grid sm:grid-cols-3 gap-4 text-sm text-ink/65">
-                          <p>Date: {moment(event.vaccination_date).format('MMM D, YYYY')}</p>
-                          <p>Birds: {event.birds_vaccinated}</p>
-                          <p>Age: {event.batch_age_days} days</p>
-                          {event.cost > 0 && <p>Cost: R{event.cost}</p>}
-                          {event.administered_by && <p>By: {event.administered_by}</p>}
-                        </div>
-                        {event.notes && (
-                          <p className="text-sm text-ink/65 mt-2">{event.notes}</p>
-                        )}
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="scheduled" className="mt-6">
-            {scheduledEvents.length === 0 ? (
-              <Card className="p-12 text-center">
-                <Calendar className="w-16 h-16 text-ink/25 mx-auto mb-4" />
-                <p className="text-ink/65">No scheduled vaccinations</p>
-              </Card>
-            ) : (
-              <div className="space-y-4">
-                {scheduledEvents.map(event => (
-                  <Card key={event.id} className="p-6">
-                    <div className="flex items-center gap-3">
-                      <AlertCircle className="w-5 h-5 text-yolk-500" />
-                      <div>
-                        <h3 className="font-semibold">{event.vaccine_name}</h3>
-                        <p className="text-sm text-ink/65">
-                          Due: {moment(event.due_date).format('MMM D, YYYY')}
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <StatCard icon={Syringe} label="Vaccinations logged" value={completedEvents.length} tint="moss" />
+        <StatCard icon={Bird} label="Birds covered" value={birdsCovered.toLocaleString()} deltaLabel="across all records" tint="sage" />
+        <StatCard icon={CalendarClock} label="Scheduled" value={scheduledEvents.length} deltaLabel={overdueEvents.length ? `${overdueEvents.length} overdue` : 'none overdue'} tint={overdueEvents.length ? 'terracotta' : 'yolk'} />
+        <StatCard icon={Wallet} label="Vaccine spend" value={`R${Math.round(totalCost).toLocaleString()}`} tint="yolk" />
       </div>
 
+      {(overdueEvents.length > 0 || upcomingEvents.length > 0) && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+          {overdueEvents.length > 0 && (
+            <div className="rounded-2xl bg-terracotta-50 border border-terracotta-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-white border border-terracotta-200 flex items-center justify-center text-terracotta-600"><AlertCircle className="w-5 h-5" /></div>
+                <div><p className="eyebrow text-terracotta-600">Overdue</p><p className="font-display text-lg text-ink leading-snug">{overdueEvents.length} vaccination{overdueEvents.length === 1 ? '' : 's'} past due</p></div>
+              </div>
+              <ul className="space-y-1.5">
+                {overdueEvents.slice(0, 4).map(ev => (
+                  <li key={ev.id} className="flex items-center justify-between text-sm bg-white/70 rounded-xl px-3 py-2">
+                    <span className="font-medium text-ink truncate">{ev.vaccine_name}<span className="text-ink/50 font-normal"> · {ev.batch_name}</span></span>
+                    <span className="text-terracotta-600 font-semibold flex-shrink-0">{moment(ev.due_date).fromNow()}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {upcomingEvents.length > 0 && (
+            <div className="rounded-2xl bg-yolk-50 border border-yolk-200 p-5">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-white border border-yolk-200 flex items-center justify-center text-yolk-600"><CalendarClock className="w-5 h-5" /></div>
+                <div><p className="eyebrow text-yolk-700">Coming up</p><p className="font-display text-lg text-ink leading-snug">{upcomingEvents.length} due in the next 14 days</p></div>
+              </div>
+              <ul className="space-y-1.5">
+                {upcomingEvents.slice(0, 4).map(ev => (
+                  <li key={ev.id} className="flex items-center justify-between text-sm bg-white/70 rounded-xl px-3 py-2">
+                    <span className="font-medium text-ink truncate">{ev.vaccine_name}<span className="text-ink/50 font-normal"> · {ev.batch_name}</span></span>
+                    <span className="text-yolk-700 font-semibold flex-shrink-0">{moment(ev.due_date).format('D MMM')}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+
+      <Tabs defaultValue="completed" className="space-y-6">
+        <TabsList className="bg-white border border-border rounded-full p-1 h-auto inline-flex">
+          <TabsTrigger value="completed" className={tabCls}>Completed ({completedEvents.length})</TabsTrigger>
+          <TabsTrigger value="scheduled" className={tabCls}>Scheduled ({scheduledEvents.length})</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="completed">
+          {completedEvents.length === 0 ? (
+            <EmptyState icon={Syringe} title="No vaccination records yet" subtitle="Log each vaccination as you do it and the history for every batch builds up here." action={<Button onClick={() => setShowEventForm(true)} className="btn-cta px-5 py-2.5 text-sm gap-1.5"><Plus className="w-4 h-4" /> Record vaccination</Button>} />
+          ) : (
+            <section className="card-premium p-6">
+              <motion.ol initial="hidden" animate="show" variants={listVariants} className="relative">
+                <div className="absolute left-[1.1rem] top-3 bottom-3 w-px bg-border" aria-hidden />
+                {completedEvents.map((event, idx) => {
+                  const prev = completedEvents[idx - 1];
+                  const showMonth = !prev || moment(prev.vaccination_date).format('YYYY-MM') !== moment(event.vaccination_date).format('YYYY-MM');
+                  return (
+                    <React.Fragment key={event.id}>
+                      {showMonth && <li className="relative pl-12 pt-1 pb-2 first:pt-0"><span className="eyebrow">{moment(event.vaccination_date).format('MMMM YYYY')}</span></li>}
+                      <motion.li variants={rowVariants} className="relative flex gap-4 pb-4 last:pb-0">
+                        <div className="relative z-10 w-9 h-9 rounded-full bg-moss-600 text-cream flex items-center justify-center flex-shrink-0 border-2 border-white"><CheckCircle2 className="w-4 h-4" /></div>
+                        <div className="flex-1 min-w-0 rounded-xl bg-cream p-3.5 hover:bg-cream-deep/60 transition-colors">
+                          <div className="flex items-start justify-between gap-3 flex-wrap">
+                            <div className="min-w-0">
+                              <p className="font-semibold text-ink leading-snug">{event.vaccine_name}</p>
+                              <p className="text-xs text-ink/55 mt-0.5">{moment(event.vaccination_date).format('ddd, D MMM YYYY')} · <span className="text-moss-700 font-medium">{event.batch_name}</span></p>
+                            </div>
+                            {event.cost > 0 && <span className="font-semibold text-ink tabular-nums text-sm">R{Number(event.cost).toLocaleString()}</span>}
+                          </div>
+                          <div className="flex flex-wrap gap-1.5 mt-2.5">
+                            <span className="chip inline-flex items-center gap-1"><Bird className="w-3 h-3" />{event.birds_vaccinated} birds</span>
+                            <span className="chip bg-cream-deep text-ink/60 border-border">Day {event.batch_age_days}</span>
+                            {event.administered_by && <span className="chip bg-cream-deep text-ink/60 border-border inline-flex items-center gap-1"><User className="w-3 h-3" />{event.administered_by}</span>}
+                          </div>
+                          {event.notes && <p className="text-sm text-ink/60 italic mt-2">{event.notes}</p>}
+                        </div>
+                      </motion.li>
+                    </React.Fragment>
+                  );
+                })}
+              </motion.ol>
+            </section>
+          )}
+        </TabsContent>
+
+        <TabsContent value="scheduled">
+          {scheduledEvents.length === 0 ? (
+            <EmptyState icon={Calendar} title="No scheduled vaccinations" subtitle="Scheduled doses with a due date will appear here with overdue and upcoming reminders." />
+          ) : (
+            <section className="card-premium overflow-hidden">
+              <div className="hidden md:grid grid-cols-12 gap-3 px-6 py-2.5 bg-cream text-[11px] uppercase tracking-wider text-ink/50 font-semibold">
+                <span className="col-span-5">Vaccine</span><span className="col-span-3">Batch</span><span className="col-span-2">Due</span><span className="col-span-2 text-right">Status</span>
+              </div>
+              <motion.ul initial="hidden" animate="show" variants={listVariants} className="divide-y divide-border">
+                {scheduledEvents.map(event => {
+                  const overdue = event.due_date && moment(event.due_date).isBefore(moment(), 'day');
+                  return (
+                    <motion.li key={event.id} variants={rowVariants} className="px-6 py-3 grid grid-cols-2 md:grid-cols-12 gap-1 md:gap-3 md:items-center hover:bg-cream/70">
+                      <div className="col-span-2 md:col-span-5 min-w-0 flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${overdue ? 'bg-terracotta-50 text-terracotta-600' : 'bg-yolk-50 text-yolk-600'}`}><AlertCircle className="w-4 h-4" /></div>
+                        <div className="min-w-0"><p className="font-medium text-ink truncate">{event.vaccine_name}</p><p className="md:hidden text-xs text-ink/55">{event.batch_name}</p></div>
+                      </div>
+                      <p className="hidden md:block md:col-span-3 text-sm text-ink/70 truncate">{event.batch_name}</p>
+                      <p className="md:col-span-2 text-sm text-ink/60">{event.due_date ? moment(event.due_date).format('D MMM YYYY') : '—'}</p>
+                      <p className="md:col-span-2 md:text-right"><span className={`chip ${overdue ? 'bg-terracotta-50 text-terracotta-600 border-terracotta-200' : 'bg-yolk-50 text-yolk-700 border-yolk-200'}`}>{overdue ? 'Overdue' : 'Scheduled'}</span></p>
+                    </motion.li>
+                  );
+                })}
+              </motion.ul>
+            </section>
+          )}
+        </TabsContent>
+      </Tabs>
+
       <Dialog open={showEventForm} onOpenChange={(open) => !open && resetForm()}>
-        <DialogContent>
+        <DialogContent className="rounded-2xl">
           <DialogHeader>
-            <DialogTitle>Record Vaccination</DialogTitle>
+            <DialogTitle className="font-display">Record vaccination</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
@@ -239,6 +294,7 @@ export default function VaccinationManagement() {
                   ))}
                 </SelectContent>
               </Select>
+              {vaccines.length === 0 && <p className="text-xs text-ink/55 mt-1">No vaccine types set up yet.</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -291,8 +347,8 @@ export default function VaccinationManagement() {
             </div>
 
             <div className="flex justify-end gap-3">
-              <Button type="button" variant="outline" onClick={resetForm}>Cancel</Button>
-              <Button type="submit" className="bg-moss-600 hover:bg-moss-700">Record</Button>
+              <Button type="button" variant="outline" className="rounded-full" onClick={resetForm}>Cancel</Button>
+              <Button type="submit" disabled={createEventMutation.isPending} className="btn-cta px-5">Record</Button>
             </div>
           </form>
         </DialogContent>

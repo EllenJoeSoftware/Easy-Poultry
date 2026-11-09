@@ -1,10 +1,5 @@
 import React from 'react';
-import { Card } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
+import { X, RotateCcw } from 'lucide-react';
 
 const categories = [
   { value: 'all', label: 'All Categories' },
@@ -29,105 +24,133 @@ const categories = [
   { value: 'other', label: 'Other' }
 ];
 
-export default function FilterPanel({ filters, onChange, onClear, onClose }) {
+const provinces = [
+  'Eastern Cape',
+  'Free State',
+  'Gauteng',
+  'KwaZulu-Natal',
+  'Limpopo',
+  'Mpumalanga',
+  'Northern Cape',
+  'North West',
+  'Western Cape',
+];
+
+const inputCls = 'w-full bg-cream border border-border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-moss-300';
+
+function Chip({ active, onClick, children }) {
   return (
-    <Card className="p-6 card-premium">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="font-display text-lg font-semibold text-ink">Filters</h3>
+    <button
+      type="button"
+      onClick={onClick}
+      className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+        active
+          ? 'bg-moss-600 text-cream border-moss-600'
+          : 'bg-white text-ink/70 border-border hover:border-moss-300 hover:text-moss-700'
+      }`}
+    >
+      {children}
+    </button>
+  );
+}
+
+export default function FilterPanel({ filters, onChange, onClear, onClose }) {
+  const activeCategory = filters.category || 'all';
+  const activeProvince = filters.province || 'all';
+  const activeCount = [filters.category, filters.province, filters.city, filters.minPrice, filters.maxPrice].filter(Boolean).length;
+
+  return (
+    <div className="card-premium p-5 lg:p-6">
+      <div className="flex items-center justify-between mb-5">
+        <div>
+          <p className="eyebrow">Refine</p>
+          <h3 className="font-display text-lg text-ink mt-0.5">
+            Filters{activeCount > 0 && <span className="ml-2 chip text-[10px] !py-0.5 align-middle">{activeCount}</span>}
+          </h3>
+        </div>
         <button
+          type="button"
           onClick={onClose}
-          className="lg:hidden p-1 hover:bg-cream-deep rounded-full"
+          className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-cream-deep text-ink/60"
+          aria-label="Close filters"
         >
-          <X className="w-5 h-5" />
+          <X className="w-4 h-4" />
         </button>
       </div>
 
       <div className="space-y-6">
         <div>
-          <Label className="text-sm font-medium text-ink/75 mb-2 block">Category</Label>
-          <Select
-            value={filters.category || 'all'}
-            onValueChange={(value) => onChange({ ...filters, category: value === 'all' ? '' : value })}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select category" />
-            </SelectTrigger>
-            <SelectContent>
-              {categories.map((cat) => (
-                <SelectItem key={cat.value} value={cat.value}>
-                  {cat.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <p className="text-xs font-semibold text-ink/55 uppercase tracking-[0.14em] mb-2.5">Category</p>
+          <div className="flex flex-wrap gap-1.5">
+            {categories.map((cat) => (
+              <Chip
+                key={cat.value}
+                active={activeCategory === cat.value}
+                onClick={() => onChange({ ...filters, category: cat.value === 'all' ? '' : cat.value })}
+              >
+                {cat.label}
+              </Chip>
+            ))}
+          </div>
         </div>
 
         <div>
-          <Label className="text-sm font-medium text-ink/75 mb-2 block">Price Range</Label>
+          <p className="text-xs font-semibold text-ink/55 uppercase tracking-[0.14em] mb-2.5">Price range (R)</p>
           <div className="flex gap-2 items-center">
-            <Input
+            <input
               type="number"
               placeholder="Min"
               value={filters.minPrice || ''}
               onChange={(e) => onChange({ ...filters, minPrice: e.target.value })}
-              className="h-10"
+              className={inputCls}
             />
-            <span className="text-ink/40">-</span>
-            <Input
+            <span className="text-ink/40 text-sm">to</span>
+            <input
               type="number"
               placeholder="Max"
               value={filters.maxPrice || ''}
               onChange={(e) => onChange({ ...filters, maxPrice: e.target.value })}
-              className="h-10"
+              className={inputCls}
             />
           </div>
         </div>
 
         <div>
-          <Label className="text-sm font-medium text-ink/75 mb-2 block">Province/State</Label>
-          <Select
-            value={filters.province || 'all'}
-            onValueChange={(value) => onChange({ ...filters, province: value === 'all' ? '' : value })}
-          >
-            <SelectTrigger className="h-10">
-              <SelectValue placeholder="Select province" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Provinces</SelectItem>
-              <SelectItem value="Eastern Cape">Eastern Cape</SelectItem>
-              <SelectItem value="Free State">Free State</SelectItem>
-              <SelectItem value="Gauteng">Gauteng</SelectItem>
-              <SelectItem value="KwaZulu-Natal">KwaZulu-Natal</SelectItem>
-              <SelectItem value="Limpopo">Limpopo</SelectItem>
-              <SelectItem value="Mpumalanga">Mpumalanga</SelectItem>
-              <SelectItem value="Northern Cape">Northern Cape</SelectItem>
-              <SelectItem value="North West">North West</SelectItem>
-              <SelectItem value="Western Cape">Western Cape</SelectItem>
-            </SelectContent>
-          </Select>
+          <p className="text-xs font-semibold text-ink/55 uppercase tracking-[0.14em] mb-2.5">Province</p>
+          <div className="flex flex-wrap gap-1.5">
+            <Chip active={activeProvince === 'all'} onClick={() => onChange({ ...filters, province: '' })}>
+              All Provinces
+            </Chip>
+            {provinces.map((p) => (
+              <Chip key={p} active={activeProvince === p} onClick={() => onChange({ ...filters, province: p })}>
+                {p}
+              </Chip>
+            ))}
+          </div>
         </div>
 
         <div>
-          <Label className="text-sm font-medium text-ink/75 mb-2 block">City/Town</Label>
-          <Input
+          <p className="text-xs font-semibold text-ink/55 uppercase tracking-[0.14em] mb-2.5">City / Town</p>
+          <input
             type="text"
             placeholder="Enter city"
             value={filters.city || ''}
             onChange={(e) => onChange({ ...filters, city: e.target.value })}
-            className="h-10"
+            className={inputCls}
           />
         </div>
 
-        <div className="flex gap-2 pt-4">
-          <Button
+        <div className="pt-2 border-t border-border">
+          <button
+            type="button"
             onClick={onClear}
-            variant="outline"
-            className="flex-1"
+            className="btn-ghost border border-border bg-white w-full py-2.5 text-sm inline-flex items-center justify-center gap-1.5 rounded-full"
           >
-            Clear All
-          </Button>
+            <RotateCcw className="w-3.5 h-3.5" />
+            Clear all
+          </button>
         </div>
       </div>
-    </Card>
+    </div>
   );
 }

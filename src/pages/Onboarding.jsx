@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Card } from '@/components/ui/card';
+import PageShell from '@/components/shell/PageShell';
+import { motion } from 'framer-motion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Upload, CheckCircle2 } from 'lucide-react';
+import { Upload, CheckCircle2, Check, ArrowRight, ArrowLeft, Loader2, UserRound, MapPin, Store, ShoppingBag, Handshake } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
@@ -76,7 +77,8 @@ export default function Onboarding() {
     onSuccess: () => {
       toast.success('Welcome to Easy Poultry!');
       navigate(createPageUrl('Home'));
-    }
+    },
+    onError: (e) => toast.error(e?.message || 'Something went wrong')
   });
 
   const handleImageUpload = async (e) => {
@@ -112,198 +114,249 @@ export default function Onboarding() {
 
   const isSeller = formData.user_type === 'seller' || formData.user_type === 'both';
 
+  const STEPS = [
+    { n: 1, label: 'Account type', hint: 'How you will use Easy Poultry', icon: UserRound },
+    { n: 2, label: 'Contact & location', hint: 'So buyers and sellers can reach you', icon: MapPin },
+    ...(isSeller ? [{ n: 3, label: 'Your farm', hint: 'Tell buyers about your business', icon: Store }] : []),
+  ];
+  const total = STEPS.length;
+  const progress = Math.round(((step - 1) / total) * 100 + (100 / total) * 0.15);
+  const currentStep = STEPS.find(s => s.n === step) || STEPS[0];
+
+  const TYPE_OPTIONS = [
+    { value: 'buyer', label: 'Buy', desc: 'Browse the marketplace, bid in auctions and contact sellers.', icon: ShoppingBag },
+    { value: 'seller', label: 'Sell', desc: 'List birds, eggs, feed and equipment; manage your farm.', icon: Store },
+    { value: 'both', label: 'Buy & sell', desc: 'The full experience — the most popular choice.', icon: Handshake },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F4F1DE] to-white flex items-center justify-center p-4">
-      <Card className="max-w-2xl w-full p-8 border-0 shadow-2xl">
-        <div className="text-center mb-8">
-          <img 
-            src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69217b962ad6e0119f66201f/6a47c0425_CroppedLogo.png" 
-            alt="Easy Poultry Logo" 
-            className="w-16 h-16 object-contain mx-auto mb-4"
-          />
-          <h1 className="text-3xl font-bold text-ink mb-2">Welcome to Easy Poultry</h1>
-          <p className="text-ink/65">Let's set up your account in {isSeller ? '3' : '2'} quick steps</p>
-        </div>
-
-        <div className="flex items-center justify-center mb-8">
-          {[1, 2, isSeller && 3].filter(Boolean).map((s, i) => (
-            <React.Fragment key={s}>
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold ${
-                step >= s ? 'bg-moss-600 text-white' : 'bg-cream-deep text-ink/55'
-              }`}>
-                {step > s ? <CheckCircle2 className="w-5 h-5" /> : s}
-              </div>
-              {i < (isSeller ? 2 : 1) && (
-                <div className={`w-16 h-1 mx-2 ${step > s ? 'bg-moss-600' : 'bg-cream-deep'}`} />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-
-        {step === 1 && (
-          <div className="space-y-6">
-            <div>
-              <Label className="text-lg font-semibold mb-4 block">I want to:</Label>
-              <div className="grid grid-cols-3 gap-4">
-                {['buyer', 'seller', 'both'].map((type) => (
+    <PageShell
+      variant="compact"
+      eyebrow="Welcome"
+      title={<>Let's set up your <span className="italic text-moss-700">account</span>.</>}
+      subtitle={`${total} quick steps — you can change any of this later in Settings.`}
+    >
+      <div className="max-w-3xl mx-auto">
+        {/* Stepper */}
+        <div className="card-premium p-4 sm:p-5 mb-6">
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-ink/45">Step {step} of {total}</p>
+            <p className="text-xs text-ink/45 tabular-nums">{Math.min(100, progress)}%</p>
+          </div>
+          <div className="h-1.5 w-full rounded-full bg-cream-deep overflow-hidden">
+            <motion.div className="h-full rounded-full bg-moss-600" initial={false} animate={{ width: `${Math.min(100, progress)}%` }} transition={{ duration: 0.4, ease: [0.2, 0.7, 0.3, 1] }} />
+          </div>
+          <ol className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {STEPS.map((s) => {
+              const done = step > s.n;
+              const active = step === s.n;
+              return (
+                <li key={s.n}>
                   <button
-                    key={type}
-                    onClick={() => setFormData({ ...formData, user_type: type })}
-                    className={`p-6 rounded-xl border-2 transition-all ${
-                      formData.user_type === type
-                        ? 'border-moss-600 bg-moss-600/5 shadow-lg'
-                        : 'border-border hover:border-border'
-                    }`}
+                    type="button"
+                    onClick={() => done && setStep(s.n)}
+                    disabled={!done}
+                    className={`w-full flex items-center gap-3 rounded-full px-3 py-2 text-left transition-colors ${active ? 'bg-moss-600 text-cream' : done ? 'bg-moss-50 text-moss-700 hover:bg-moss-100' : 'bg-cream text-ink/45'}`}
                   >
-                    <div className="text-3xl mb-2">
-                      {type === 'buyer' ? '🛒' : type === 'seller' ? '🏪' : '🤝'}
-                    </div>
-                    <p className="font-semibold capitalize">{type === 'both' ? 'Buy & Sell' : type}</p>
+                    <span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold flex-shrink-0 ${active ? 'bg-white/15' : done ? 'bg-moss-600 text-cream' : 'bg-cream-deep text-ink/50'}`}>
+                      {done ? <Check className="w-3.5 h-3.5" /> : s.n}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-medium truncate">{s.label}</span>
+                      <span className={`block text-[11px] truncate ${active ? 'text-cream/70' : 'text-ink/45'}`}>{s.hint}</span>
+                    </span>
                   </button>
-                ))}
+                </li>
+              );
+            })}
+          </ol>
+        </div>
+
+        {/* Step body */}
+        <motion.div key={step} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }} className="card-premium p-6 sm:p-8">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-moss-50 text-moss-700 flex items-center justify-center"><currentStep.icon className="w-5 h-5" /></div>
+            <div>
+              <h2 className="font-display text-xl text-ink">{currentStep.label}</h2>
+              <p className="text-sm text-ink/55">{currentStep.hint}</p>
+            </div>
+          </div>
+
+          {step === 1 && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {TYPE_OPTIONS.map((opt) => {
+                  const on = formData.user_type === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, user_type: opt.value })}
+                      className={`relative text-left p-5 rounded-2xl border-2 transition-all ${on ? 'border-moss-600 bg-moss-50/60 shadow-soft' : 'border-border bg-white hover:border-moss-200'}`}
+                    >
+                      {on && <span className="absolute top-3 right-3 w-5 h-5 rounded-full bg-moss-600 text-cream flex items-center justify-center"><Check className="w-3 h-3" /></span>}
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${on ? 'bg-moss-600 text-cream' : 'bg-cream text-moss-700'}`}><opt.icon className="w-5 h-5" /></div>
+                      <p className="font-display font-semibold text-ink">{opt.label}</p>
+                      <p className="text-xs text-ink/55 mt-1 leading-relaxed">{opt.desc}</p>
+                      {opt.value === 'both' && <span className="chip chip-yolk !py-0 !px-2 text-[10px] mt-2">Popular</span>}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex justify-end">
+                <Button onClick={handleNext} className="btn-cta px-6 py-2.5 text-sm gap-1.5 w-full sm:w-auto">
+                  Continue <ArrowRight className="w-4 h-4" />
+                </Button>
               </div>
             </div>
-            <Button onClick={handleNext} className="w-full btn-cta h-12">
-              Continue
-            </Button>
-          </div>
-        )}
+          )}
 
-        {step === 2 && (
-          <div className="space-y-6">
-            <div className="flex items-center justify-center mb-4">
-              <div className="relative">
-                <div className="w-24 h-24 rounded-full overflow-hidden bg-cream-deep border-4 border-white shadow-lg">
-                  {formData.profile_photo_url ? (
-                    <img src={formData.profile_photo_url} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-ink/40 text-2xl">👤</div>
-                  )}
+          {step === 2 && (
+            <div className="space-y-6">
+              <div className="flex items-center gap-4 rounded-2xl bg-cream border border-border p-4">
+                <div className="relative flex-shrink-0">
+                  <div className="w-20 h-20 rounded-full overflow-hidden bg-cream-deep border-4 border-white shadow-soft">
+                    {formData.profile_photo_url ? (
+                      <img src={formData.profile_photo_url} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-ink/35"><UserRound className="w-8 h-8" /></div>
+                    )}
+                  </div>
+                  <label className="absolute -bottom-1 -right-1 w-8 h-8 bg-moss-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-moss-700 shadow-soft" title="Upload photo">
+                    {uploading ? <Loader2 className="w-4 h-4 text-cream animate-spin" /> : <Upload className="w-4 h-4 text-cream" />}
+                    <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploading} />
+                  </label>
                 </div>
-                <label className="absolute bottom-0 right-0 w-10 h-10 bg-moss-600 rounded-full flex items-center justify-center cursor-pointer hover:bg-moss-700 shadow-lg">
-                  <Upload className="w-5 h-5 text-white" />
-                  <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" disabled={uploading} />
-                </label>
+                <div>
+                  <p className="font-medium text-ink">Profile photo</p>
+                  <p className="text-xs text-ink/55 mt-0.5">Optional, but profiles with a photo get more replies.</p>
+                </div>
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="contact_number">Contact Number *</Label>
+                  <Input className="mt-1.5 rounded-xl"
+                    id="contact_number"
+                    value={formData.contact_number}
+                    onChange={(e) => setFormData({ ...formData, contact_number: e.target.value })}
+                    placeholder="+27..."
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="whatsapp_number">WhatsApp (Optional)</Label>
+                  <Input className="mt-1.5 rounded-xl"
+                    id="whatsapp_number"
+                    value={formData.whatsapp_number}
+                    onChange={(e) => setFormData({ ...formData, whatsapp_number: e.target.value })}
+                    placeholder="+27..."
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="province">Province *</Label>
+                  <Select value={formData.province} onValueChange={(value) => setFormData({ ...formData, province: value })}>
+                    <SelectTrigger className="mt-1.5 rounded-xl">
+                      <SelectValue placeholder="Select province" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Eastern Cape">Eastern Cape</SelectItem>
+                      <SelectItem value="Free State">Free State</SelectItem>
+                      <SelectItem value="Gauteng">Gauteng</SelectItem>
+                      <SelectItem value="KwaZulu-Natal">KwaZulu-Natal</SelectItem>
+                      <SelectItem value="Limpopo">Limpopo</SelectItem>
+                      <SelectItem value="Mpumalanga">Mpumalanga</SelectItem>
+                      <SelectItem value="Northern Cape">Northern Cape</SelectItem>
+                      <SelectItem value="North West">North West</SelectItem>
+                      <SelectItem value="Western Cape">Western Cape</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="city">City/Town *</Label>
+                  <Input className="mt-1.5 rounded-xl"
+                    id="city"
+                    value={formData.city}
+                    onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                    placeholder="e.g., Cape Town"
+                  />
+                </div>
+              </div>
+
               <div>
-                <Label htmlFor="contact_number">Contact Number *</Label>
-                <Input
-                  id="contact_number"
-                  value={formData.contact_number}
-                  onChange={(e) => setFormData({ ...formData, contact_number: e.target.value })}
-                  placeholder="+27..."
+                <Label htmlFor="exact_location">Address (Optional)</Label>
+                <Input className="mt-1.5 rounded-xl"
+                  id="exact_location"
+                  value={formData.exact_location}
+                  onChange={(e) => setFormData({ ...formData, exact_location: e.target.value })}
+                  placeholder="Street address or landmark"
                 />
               </div>
+
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 pt-2">
+                <Button onClick={() => setStep(1)} variant="outline" className="rounded-full gap-1.5">
+                  <ArrowLeft className="w-4 h-4" /> Back
+                </Button>
+                <Button onClick={isSeller ? handleNext : handleSubmit} disabled={!isSeller && updateProfileMutation.isPending} className="btn-cta px-6 py-2.5 text-sm gap-1.5">
+                  {isSeller ? <>Continue <ArrowRight className="w-4 h-4" /></> : updateProfileMutation.isPending ? <><Loader2 className="w-4 h-4 animate-spin" /> Setting up…</> : <>Complete setup <CheckCircle2 className="w-4 h-4" /></>}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && isSeller && (
+            <div className="space-y-6">
               <div>
-                <Label htmlFor="whatsapp_number">WhatsApp (Optional)</Label>
-                <Input
-                  id="whatsapp_number"
-                  value={formData.whatsapp_number}
-                  onChange={(e) => setFormData({ ...formData, whatsapp_number: e.target.value })}
-                  placeholder="+27..."
+                <Label htmlFor="farm_name">Farm/Business Name (Optional)</Label>
+                <Input className="mt-1.5 rounded-xl"
+                  id="farm_name"
+                  value={formData.farm_name}
+                  onChange={(e) => setFormData({ ...formData, farm_name: e.target.value })}
+                  placeholder="Your farm name"
                 />
               </div>
-            </div>
 
-            <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="province">Province *</Label>
-                <Select value={formData.province} onValueChange={(value) => setFormData({ ...formData, province: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select province" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Eastern Cape">Eastern Cape</SelectItem>
-                    <SelectItem value="Free State">Free State</SelectItem>
-                    <SelectItem value="Gauteng">Gauteng</SelectItem>
-                    <SelectItem value="KwaZulu-Natal">KwaZulu-Natal</SelectItem>
-                    <SelectItem value="Limpopo">Limpopo</SelectItem>
-                    <SelectItem value="Mpumalanga">Mpumalanga</SelectItem>
-                    <SelectItem value="Northern Cape">Northern Cape</SelectItem>
-                    <SelectItem value="North West">North West</SelectItem>
-                    <SelectItem value="Western Cape">Western Cape</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label htmlFor="city">City/Town *</Label>
-                <Input
-                  id="city"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  placeholder="e.g., Cape Town"
+                <Label htmlFor="seller_description">About Your Farm (Optional)</Label>
+                <Textarea className="mt-1.5 rounded-xl"
+                  id="seller_description"
+                  value={formData.seller_description}
+                  onChange={(e) => setFormData({ ...formData, seller_description: e.target.value })}
+                  placeholder="Tell buyers about your farm..."
+                  rows={4}
                 />
               </div>
-            </div>
 
-            <div>
-              <Label htmlFor="exact_location">Address (Optional)</Label>
-              <Input
-                id="exact_location"
-                value={formData.exact_location}
-                onChange={(e) => setFormData({ ...formData, exact_location: e.target.value })}
-                placeholder="Street address or landmark"
-              />
-            </div>
+              <div>
+                <Label htmlFor="business_hours">Business Hours (Optional)</Label>
+                <Input className="mt-1.5 rounded-xl"
+                  id="business_hours"
+                  value={formData.business_hours}
+                  onChange={(e) => setFormData({ ...formData, business_hours: e.target.value })}
+                  placeholder="e.g., Mon-Sat 8AM-6PM"
+                />
+              </div>
 
-            <div className="flex gap-3">
-              <Button onClick={() => setStep(1)} variant="outline" className="flex-1 h-12">
-                Back
-              </Button>
-              <Button onClick={isSeller ? handleNext : handleSubmit} className="flex-1 btn-cta h-12">
-                {isSeller ? 'Continue' : 'Complete Setup'}
-              </Button>
-            </div>
-          </div>
-        )}
+              {adminSettings?.require_account_approval && (
+                <div className="rounded-xl bg-yolk-50 border border-yolk-200 p-4 text-sm text-yolk-700">
+                  New seller accounts are reviewed by our team before listings go live. We'll notify you once approved.
+                </div>
+              )}
 
-        {step === 3 && isSeller && (
-          <div className="space-y-6">
-            <div>
-              <Label htmlFor="farm_name">Farm/Business Name (Optional)</Label>
-              <Input
-                id="farm_name"
-                value={formData.farm_name}
-                onChange={(e) => setFormData({ ...formData, farm_name: e.target.value })}
-                placeholder="Your farm name"
-              />
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-between gap-3 pt-2">
+                <Button onClick={() => setStep(2)} variant="outline" className="rounded-full gap-1.5">
+                  <ArrowLeft className="w-4 h-4" /> Back
+                </Button>
+                <Button onClick={handleSubmit} disabled={updateProfileMutation.isPending} className="btn-cta px-6 py-2.5 text-sm gap-1.5">
+                  {updateProfileMutation.isPending ? <><Loader2 className="w-4 h-4 animate-spin" /> Setting up…</> : <>Complete setup <CheckCircle2 className="w-4 h-4" /></>}
+                </Button>
+              </div>
             </div>
-
-            <div>
-              <Label htmlFor="seller_description">About Your Farm (Optional)</Label>
-              <Textarea
-                id="seller_description"
-                value={formData.seller_description}
-                onChange={(e) => setFormData({ ...formData, seller_description: e.target.value })}
-                placeholder="Tell buyers about your farm..."
-                rows={4}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="business_hours">Business Hours (Optional)</Label>
-              <Input
-                id="business_hours"
-                value={formData.business_hours}
-                onChange={(e) => setFormData({ ...formData, business_hours: e.target.value })}
-                placeholder="e.g., Mon-Sat 8AM-6PM"
-              />
-            </div>
-
-            <div className="flex gap-3">
-              <Button onClick={() => setStep(2)} variant="outline" className="flex-1 h-12">
-                Back
-              </Button>
-              <Button onClick={handleSubmit} disabled={updateProfileMutation.isPending} className="flex-1 btn-cta h-12">
-                {updateProfileMutation.isPending ? 'Setting up...' : 'Complete Setup'}
-              </Button>
-            </div>
-          </div>
-        )}
-      </Card>
-    </div>
+          )}
+        </motion.div>
+      </div>
+    </PageShell>
   );
 }

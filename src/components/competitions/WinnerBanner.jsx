@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { api } from '@/api/client';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Trophy, Star, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { createPageUrl } from '../../utils';
+import { motion } from 'framer-motion';
+import { Trophy, Star, ArrowRight, Users, Calendar } from 'lucide-react';
 import moment from 'moment';
 import confetti from 'canvas-confetti';
+import { api } from '@/api/client';
+import { createPageUrl } from '../../utils';
+
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=600';
 
 export default function WinnerBanner() {
   const { data: activeWinners = [] } = useQuery({
@@ -74,127 +75,82 @@ export default function WinnerBanner() {
 
   // Winner takes priority
   if (winner) {
-
-  return (
-    <div className="relative bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500 py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/10"></div>
-      <div className="max-w-7xl mx-auto relative z-10">
-        <Card className="overflow-hidden border-0 shadow-2xl bg-white animate-in zoom-in duration-700">
-          <div className="md:flex">
-            <div className="md:w-1/2 relative">
-              <div className="absolute top-4 left-4 bg-yolk-500 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 shadow-lg animate-bounce">
-                <Trophy className="w-5 h-5 fill-white" />
-                COMPETITION WINNER 🎉
+    return (
+      <section className="relative bg-amber-gradient py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <div className="absolute inset-0 grain opacity-40 pointer-events-none" />
+        <div className="max-w-7xl mx-auto relative">
+          <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, ease: [0.2, 0.7, 0.3, 1] }}
+            className="card-premium overflow-hidden grid md:grid-cols-2">
+            <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[320px] bg-cream-deep">
+              <img src={winner.image_url || FALLBACK_IMG} alt={winner.chicken_name} className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute top-4 left-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-yolk-500 text-white text-xs font-semibold uppercase tracking-wider shadow-lift">
+                <Trophy className="w-4 h-4" /> Competition winner
               </div>
-              <img
-                src={winner.image_url || 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?w=600'}
-                alt={winner.chicken_name}
-                className="w-full h-full object-cover min-h-[300px]"
-              />
             </div>
-            <div className="md:w-1/2 p-8 flex flex-col justify-center">
-              <div className="flex items-center gap-2 mb-4">
-                <Star className="w-6 h-6 text-yolk-500 fill-yolk-500" />
-                <span className="text-sm font-semibold text-yolk-600 uppercase tracking-wide">
-                  {winner.competition_name}
-                </span>
-              </div>
-              
-              <h2 className="text-4xl font-bold text-ink mb-2">
-                {winner.chicken_name}
-              </h2>
-              
-              <p className="text-xl text-ink/65 mb-6">
-                by {winner.owner_name}
-              </p>
+            <div className="p-7 lg:p-10 flex flex-col justify-center">
+              <p className="eyebrow text-yolk-600 mb-3 inline-flex items-center gap-2"><Star className="w-4 h-4 fill-yolk-500 text-yolk-500" />{winner.competition_name}</p>
+              <h2 className="font-display text-3xl lg:text-4xl text-ink leading-tight">{winner.chicken_name}</h2>
+              <p className="text-lg text-ink/65 mt-1">by {winner.owner_name}</p>
 
-              <div className="flex items-center gap-6 mb-6">
-                <div>
-                  <p className="text-sm text-ink/55">Final Score</p>
-                  <p className="text-3xl font-bold text-moss-600">
-                    {winner.final_score?.toFixed(1) || '0.0'}
-                  </p>
+              <div className="grid grid-cols-2 gap-3 mt-6 max-w-sm">
+                <div className="rounded-xl bg-cream p-4">
+                  <p className="text-[11px] uppercase tracking-wider text-ink/50">Final score</p>
+                  <p className="font-display font-bold text-3xl text-moss-700">{winner.final_score?.toFixed(1) || '0.0'}</p>
                 </div>
-                <div>
-                  <p className="text-sm text-ink/55">Total Votes</p>
-                  <p className="text-3xl font-bold text-ink">
-                    {winner.vote_count || 0}
-                  </p>
+                <div className="rounded-xl bg-cream p-4">
+                  <p className="text-[11px] uppercase tracking-wider text-ink/50">Total votes</p>
+                  <p className="font-display font-bold text-3xl text-ink">{winner.vote_count || 0}</p>
                 </div>
               </div>
 
-              <Link to={createPageUrl('WinnersHallOfFame')}>
-                <Button className="bg-moss-gradient hover:from-[#6A8D6A] hover:to-[#5A7D5A] text-white">
-                  View All Winners
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
-              </Link>
+              <div className="mt-7">
+                <Link to={createPageUrl('WinnersHallOfFame')} className="btn-cta px-6 py-3 text-sm gap-2 inline-flex">
+                  View all winners <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
             </div>
-          </div>
-        </Card>
-      </div>
-    </div>
-  );
+          </motion.div>
+        </div>
+      </section>
+    );
   }
 
   // Show active competition banner
   return (
-    <div className="bg-moss-gradient py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <Card className="overflow-hidden border-0 shadow-2xl bg-white">
-          <div className="md:flex">
-            <div className="md:w-1/2 relative">
-              <div className="absolute top-4 left-4 bg-moss-600 text-white px-4 py-2 rounded-full text-sm font-bold flex items-center gap-2 shadow-lg">
-                <Trophy className="w-5 h-5 fill-white" />
-                ACTIVE COMPETITION
-              </div>
-              <img
-                src={competition.banner_image_url}
-                alt={competition.name}
-                className="w-full h-full object-cover min-h-[300px]"
-              />
+    <section className="relative bg-moss-gradient py-12 px-4 sm:px-6 lg:px-8 overflow-hidden">
+      <div className="absolute inset-0 grain opacity-50 pointer-events-none" />
+      <div className="max-w-7xl mx-auto relative">
+        <div className="card-premium overflow-hidden grid md:grid-cols-2">
+          <div className="relative aspect-[4/3] md:aspect-auto md:min-h-[320px] bg-cream-deep">
+            <img src={competition.banner_image_url} alt={competition.name} className="absolute inset-0 w-full h-full object-cover" />
+            <div className="absolute top-4 left-4 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-fresh-500 text-white text-xs font-semibold uppercase tracking-wider shadow-lift">
+              <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> Open competition
             </div>
-            <div className="md:w-1/2 p-8 flex flex-col justify-center">
-              <div className="flex items-center gap-2 mb-4">
-                <Star className="w-6 h-6 text-moss-600 fill-moss-600" />
-                <span className="text-sm font-semibold text-moss-600 uppercase tracking-wide">
-                  COMPETE NOW
-                </span>
-              </div>
-              
-              <h2 className="text-4xl font-bold text-ink mb-2">
-                {competition.name}
-              </h2>
-              
-              <p className="text-xl text-ink/65 mb-6">
-                {competition.description}
-              </p>
+          </div>
+          <div className="p-7 lg:p-10 flex flex-col justify-center">
+            <p className="eyebrow mb-3 inline-flex items-center gap-2"><Trophy className="w-4 h-4 text-moss-600" />Compete now</p>
+            <h2 className="font-display text-3xl lg:text-4xl text-ink leading-tight">{competition.name}</h2>
+            {competition.description && <p className="text-lg text-ink/65 mt-2 line-clamp-3">{competition.description}</p>}
 
-              <div className="flex items-center gap-6 mb-6">
-                <div>
-                  <p className="text-sm text-ink/55">Current Entries</p>
-                  <p className="text-3xl font-bold text-moss-600">
-                    {competition.total_entries || 0}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-sm text-ink/55">Ends</p>
-                  <p className="text-lg font-bold text-ink">
-                    {moment(competition.end_date).format('MMM D, YYYY')}
-                  </p>
-                </div>
+            <div className="grid grid-cols-2 gap-3 mt-6 max-w-sm">
+              <div className="rounded-xl bg-cream p-4">
+                <p className="text-[11px] uppercase tracking-wider text-ink/50 inline-flex items-center gap-1"><Users className="w-3 h-3" />Entries</p>
+                <p className="font-display font-bold text-3xl text-moss-700">{competition.total_entries || 0}</p>
               </div>
+              <div className="rounded-xl bg-cream p-4">
+                <p className="text-[11px] uppercase tracking-wider text-ink/50 inline-flex items-center gap-1"><Calendar className="w-3 h-3" />Ends</p>
+                <p className="font-display font-bold text-lg text-ink leading-tight mt-1">{moment(competition.end_date).format('D MMM YYYY')}</p>
+              </div>
+            </div>
 
-              <Link to={createPageUrl('CompetitionDetail') + `?id=${competition.id}`}>
-                <Button className="bg-moss-gradient hover:from-[#6A8D6A] hover:to-[#5A7D5A] text-white">
-                  Enter Competition
-                  <ArrowRight className="w-4 h-4 ml-2" />
-                </Button>
+            <div className="mt-7">
+              <Link to={createPageUrl('CompetitionDetail') + `?id=${competition.id}`} className="btn-cta px-6 py-3 text-sm gap-2 inline-flex">
+                Enter competition <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
           </div>
-        </Card>
+        </div>
       </div>
-    </div>
+    </section>
   );
 }

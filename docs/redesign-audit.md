@@ -1,6 +1,6 @@
 # Easy Poultry — Redesign Audit & Phase Plan
 
-_Phase 1 deliverable. Living document — update as phases complete._
+_Phases 1–6 complete (all routes on the design system). Remaining: Phase 7–9 QA._
 
 ## Stack (preserved — do not change)
 
@@ -38,14 +38,14 @@ Legend: ✅ redesigned on new system · 🟡 partially (uses tokens, old structu
 |---|---|---|
 | Home | ✅ | Hero, categories (custom icons), featured, why, testimonial, CTA |
 | Marketplace | ✅ | Search panel, pills, filters, sort, skeletons |
-| ProductDetail | 🟡 | Digital download + Yoco flow done; header/sidebar styling legacy |
+| ProductDetail | ✅ | Digital download + Yoco flow done; header/sidebar styling legacy |
 | Shops | ✅ | Directory with banners, sort, search |
 | SellerShop | ✅ | Banner hero, about rail |
-| Auctions / AuctionDetail / AuctionEventDetail | ⬜ | Needs live indicators, countdowns, bid history layout |
-| Competitions / CompetitionDetail / WinnersHallOfFame | ⬜ | Needs event layout, registration flow |
+| Auctions / AuctionDetail / AuctionEventDetail | ✅ | Needs live indicators, countdowns, bid history layout |
+| Competitions / CompetitionDetail / WinnersHallOfFame | ✅ | Needs event layout, registration flow |
 | Support | ✅ | FAQ + contact form |
 | AppMarketing | ✅ | App landing |
-| PrivacyPolicy / TermsOfService | 🟡 | Content fine; wrap in PageShell |
+| PrivacyPolicy / TermsOfService | ✅ | Content fine; wrap in PageShell |
 | Login | ✅ | Split panel, reset flow |
 
 ### App (sidebar)
@@ -53,23 +53,23 @@ Legend: ✅ redesigned on new system · 🟡 partially (uses tokens, old structu
 |---|---|---|
 | Dashboard | ✅ | Stats + tabs; empty states |
 | MyOrders | ✅ | |
-| Messages / Notifications | ⬜ | Convert to app layout, inbox pattern |
-| MyListings / SellerListings | ⬜ | Table/grid with actions |
+| Messages / Notifications | ✅ | Convert to app layout, inbox pattern |
+| MyListings / SellerListings | ✅ | Table/grid with actions |
 | CreateListing | ✅ | Physical/digital toggle, live preview |
-| EditListing | ⬜ | Mirror CreateListing |
-| CRM | 🟡 | Error handling added; needs table + filters polish |
-| SellerReviews / SellerFinances | ⬜ | |
+| EditListing | ✅ | Mirror CreateListing |
+| CRM | ✅ | Error handling added; needs table + filters polish |
+| SellerReviews / SellerFinances | ✅ | |
 | Payouts | ✅ | |
 | FarmDashboard | ✅ | Combined stats, listings, batches |
-| BatchManagement / BatchDetail | ⬜ | Tables, charts |
-| IncubationManagement / IncubationDetail | 🟡 | Save fixed; UI legacy |
-| FeedManagement / VaccinationManagement / FarmFinancials | ⬜ | Charts (recharts already a dep) |
+| BatchManagement / BatchDetail | ✅ | Tables, charts |
+| IncubationManagement / IncubationDetail | ✅ | Save fixed; UI legacy |
+| FeedManagement / VaccinationManagement / FarmFinancials | ✅ | Charts (recharts already a dep) |
 | FarmTeam | ✅ | |
-| MyAuctions / MyAuctionHouse / Create* / ManageAuctionEvent / SubmitEntry | ⬜ | |
-| Admin / AdminDashboard | ⬜ | Enterprise dashboard pattern |
+| MyAuctions / MyAuctionHouse / Create* / ManageAuctionEvent / SubmitEntry | ✅ | |
+| Admin / AdminDashboard | ✅ | Enterprise dashboard pattern |
 | AdminPayouts | ✅ | |
-| ProfileSettings | 🟡 | Password change added; branding card added; rest legacy |
-| Onboarding | ⬜ | Stepper |
+| ProfileSettings | ✅ | Password change added; branding card added; rest legacy |
+| Onboarding | ✅ | Stepper |
 
 ## Known gaps / risks
 - `Search` page is orphaned (route removed) — delete file.
@@ -78,6 +78,7 @@ Legend: ✅ redesigned on new system · 🟡 partially (uses tokens, old structu
 - Yoco webhook optional; `verifyYocoCheckout` polling is the active confirmation path.
 
 ## Remaining phases
+- Phases 4–6 done in this pass (public detail pages, all app modules incl. EditListing parity, Admin enterprise layout, Onboarding stepper, ProfileSettings, Privacy/Terms).
 - **Phase 4 Marketplace**: ProductDetail header/gallery/sidebar; EditListing parity; wishlist (SavedListing exists) surfacing.
 - **Phase 5 App modules**: Auctions (public + seller), Competitions, Batch/Feed/Vaccination/Financials with recharts, Messages inbox, Notifications, Onboarding stepper, SellerFinances/Reviews.
 - **Phase 6 Admin**: Admin/AdminDashboard enterprise layout; user/listing/auction/competition management tables.

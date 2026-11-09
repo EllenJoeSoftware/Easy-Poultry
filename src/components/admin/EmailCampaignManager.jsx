@@ -1,18 +1,28 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/api/client';
-import { Card } from '@/components/ui/card';
+import StatCard from '@/components/shell/StatCard';
+import EmptyState from '@/components/shell/EmptyState';
+import { StatSkeleton } from '@/components/shell/SkeletonCard';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Mail, Plus, Send, Eye, Trash2, Users, Clock, CheckCircle2, XCircle, Edit, Copy, Loader2, Image, Upload, Calendar, Zap, Play, Pause } from 'lucide-react';
+import { Mail, Plus, Send, Eye, Trash2, Users, CheckCircle2, Edit, Copy, Loader2, Image, Calendar, Zap, Play, Pause, Search, X, MoreHorizontal } from 'lucide-react';
 import { toast } from 'sonner';
 import moment from 'moment';
+
+const STATUS_CHIP = {
+  sent: 'bg-fresh-50 text-moss-700 border-fresh-200',
+  draft: 'bg-cream-deep text-ink/60 border-border',
+  scheduled: 'bg-moss-50 text-moss-700 border-moss-100',
+  active: 'bg-yolk-50 text-yolk-700 border-yolk-200',
+  failed: 'bg-terracotta-50 text-terracotta-600 border-terracotta-100',
+};
 
 const EMAIL_TEMPLATES = [
   {
@@ -51,6 +61,8 @@ export default function EmailCampaignManager() {
   const [editingCampaign, setEditingCampaign] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [formData, setFormData] = useState({
     name: '',
     subject: '',
@@ -79,7 +91,8 @@ export default function EmailCampaignManager() {
       queryClient.invalidateQueries(['email-campaigns']);
       toast.success('Campaign created');
       resetForm();
-    }
+    },
+    onError: (e) => toast.error(e?.message || 'Something went wrong')
   });
 
   const updateCampaignMutation = useMutation({
@@ -88,7 +101,8 @@ export default function EmailCampaignManager() {
       queryClient.invalidateQueries(['email-campaigns']);
       toast.success('Campaign updated');
       resetForm();
-    }
+    },
+    onError: (e) => toast.error(e?.message || 'Something went wrong')
   });
 
   const deleteCampaignMutation = useMutation({
@@ -96,7 +110,8 @@ export default function EmailCampaignManager() {
     onSuccess: () => {
       queryClient.invalidateQueries(['email-campaigns']);
       toast.success('Campaign deleted');
-    }
+    },
+    onError: (e) => toast.error(e?.message || 'Something went wrong')
   });
 
   const sendCampaignMutation = useMutation({
@@ -264,7 +279,8 @@ export default function EmailCampaignManager() {
     onSuccess: () => {
       queryClient.invalidateQueries(['email-campaigns']);
       toast.success('Trigger status updated');
-    }
+    },
+    onError: (e) => toast.error(e?.message || 'Something went wrong')
   });
 
   const handleTemplateSelect = (template) => {
@@ -284,232 +300,146 @@ export default function EmailCampaignManager() {
     return 0;
   };
 
+  const q = search.trim().toLowerCase();
+  const visibleCampaigns = campaigns.filter(c =>
+    (statusFilter === 'all' || c.status === statusFilter) &&
+    (!q || c.name?.toLowerCase().includes(q) || c.subject?.toLowerCase().includes(q))
+  );
+  const statusCounts = campaigns.reduce((acc, c) => { acc[c.status] = (acc[c.status] || 0) + 1; return acc; }, {});
+  const cols = 'md:grid-cols-[minmax(0,2fr)_130px_110px_130px_44px]';
+  const tabCls = 'rounded-full px-4 py-2 data-[state=active]:bg-moss-600 data-[state=active]:text-cream';
+
   return (
     <div className="space-y-6">
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
-        <Card className="p-4 border-0 shadow">
-          <Mail className="w-6 h-6 text-moss-600 mb-2" />
-          <p className="text-2xl font-bold">{campaigns.length}</p>
-          <p className="text-sm text-ink/65">Total Campaigns</p>
-        </Card>
-        <Card className="p-4 border-0 shadow">
-          <Send className="w-6 h-6 text-moss-600 mb-2" />
-          <p className="text-2xl font-bold">{campaigns.filter(c => c.status === 'sent').length}</p>
-          <p className="text-sm text-ink/65">Sent</p>
-        </Card>
-        <Card className="p-4 border-0 shadow">
-          <Users className="w-6 h-6 text-terracotta-600 mb-2" />
-          <p className="text-2xl font-bold">{users.length}</p>
-          <p className="text-sm text-ink/65">Total Users</p>
-        </Card>
-        <Card className="p-4 border-0 shadow">
-          <CheckCircle2 className="w-6 h-6 text-fresh-600 mb-2" />
-          <p className="text-2xl font-bold">{campaigns.reduce((sum, c) => sum + (c.sent_count || 0), 0)}</p>
-          <p className="text-sm text-ink/65">Emails Delivered</p>
-        </Card>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {isLoading ? [...Array(4)].map((_, i) => <StatSkeleton key={i} />) : (
+          <>
+            <StatCard icon={Mail} label="Total campaigns" value={campaigns.length} tint="moss" />
+            <StatCard icon={Send} label="Sent" value={campaigns.filter(c => c.status === 'sent').length} tint="sage" />
+            <StatCard icon={Users} label="Total users" value={users.length.toLocaleString()} tint="yolk" />
+            <StatCard icon={CheckCircle2} label="Emails delivered" value={campaigns.reduce((sum, c) => sum + (c.sent_count || 0), 0).toLocaleString()} tint="terracotta" />
+          </>
+        )}
       </div>
 
-      {/* Actions */}
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Email Campaigns</h3>
-        <Button onClick={() => setShowComposer(true)} className="btn-cta">
-          <Plus className="w-4 h-4 mr-2" />
-          New Campaign
+      {/* Toolbar */}
+      <div className="card-premium p-3 flex flex-col lg:flex-row lg:items-center gap-3">
+        <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
+          {['all', 'draft', 'scheduled', 'active', 'sent'].map(s => {
+            const on = statusFilter === s;
+            const n = s === 'all' ? campaigns.length : (statusCounts[s] || 0);
+            return (
+              <button key={s} onClick={() => setStatusFilter(s)}
+                className={`whitespace-nowrap capitalize px-3.5 py-2 rounded-full text-sm font-medium transition-colors ${on ? 'bg-moss-600 text-cream' : 'text-ink/65 hover:bg-moss-50 hover:text-moss-700'}`}>
+                {s} <span className={`ml-1 text-xs ${on ? 'text-cream/70' : 'text-ink/40'}`}>{n}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="relative flex-1 lg:max-w-xs lg:ml-auto">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink/40" />
+          <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search campaigns…"
+            className="w-full bg-cream border border-border rounded-xl pl-9 pr-8 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-moss-300" />
+          {search && <button onClick={() => setSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full hover:bg-cream-deep flex items-center justify-center" aria-label="Clear"><X className="w-3.5 h-3.5 text-ink/50" /></button>}
+        </div>
+        <Button onClick={() => setShowComposer(true)} className="btn-cta px-5 py-2.5 text-sm gap-1.5">
+          <Plus className="w-4 h-4" /> New campaign
         </Button>
       </div>
 
       {/* Campaigns List */}
-      <Card className="border-0 shadow overflow-hidden">
-        {campaigns.length === 0 ? (
-          <div className="p-12 text-center">
-            <Mail className="w-16 h-16 text-ink/25 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold mb-2">No campaigns yet</h3>
-            <p className="text-ink/65">Create your first email campaign</p>
+      {campaigns.length === 0 ? (
+        <EmptyState icon={Mail} title="No campaigns yet" subtitle="Create your first email campaign to reach your users."
+          action={<Button onClick={() => setShowComposer(true)} className="btn-cta px-5 py-2.5 text-sm gap-1.5"><Plus className="w-4 h-4" /> Create campaign</Button>} />
+      ) : visibleCampaigns.length === 0 ? (
+        <EmptyState icon={Mail} title="No campaigns match" subtitle="Try a different filter or search term." />
+      ) : (
+        <div className="card-premium overflow-hidden">
+          <div className={`hidden md:grid ${cols} items-center gap-4 px-5 py-3 bg-cream border-b border-border text-[11px] uppercase tracking-wider font-semibold text-ink/50`}>
+            <span>Campaign</span><span>Recipients</span><span>Status</span><span>Delivery</span><span />
           </div>
-        ) : (
-          <>
-            {/* Mobile View */}
-            <div className="md:hidden divide-y">
-              {campaigns.map((campaign) => (
-                <div key={campaign.id} className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <p className="font-medium text-ink">{campaign.name}</p>
-                      <p className="text-sm text-ink/55">{campaign.subject}</p>
-                      <div className="flex gap-2 mt-2">
-                        <Badge variant="outline" className="capitalize text-xs">{campaign.recipient_type}</Badge>
-                        <Badge className={`text-xs ${
-                          campaign.status === 'sent' ? 'bg-fresh-500' :
-                          campaign.status === 'draft' ? 'bg-cream0' :
-                          campaign.status === 'scheduled' ? 'bg-moss-500' :
-                          campaign.status === 'active' ? 'bg-yolk-500' : 'bg-terracotta-500'
-                        }`}>
-                          {campaign.status}
-                        </Badge>
+          <ul className="divide-y divide-border">
+            {visibleCampaigns.map((campaign) => {
+              const chip = STATUS_CHIP[campaign.status] || STATUS_CHIP.draft;
+              return (
+                <li key={campaign.id} className={`grid grid-cols-1 ${cols} gap-2 md:gap-4 md:items-center px-4 md:px-5 py-3.5 hover:bg-cream/70 transition-colors`}>
+                  <div className="flex items-start gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-xl bg-moss-50 text-moss-700 flex items-center justify-center flex-shrink-0">
+                      {campaign.send_type === 'triggered' ? <Zap className="w-4 h-4" /> : campaign.send_type === 'scheduled' ? <Calendar className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-ink truncate">{campaign.name}</p>
+                      <p className="text-xs text-ink/55 truncate">{campaign.subject}</p>
+                      <div className="flex flex-wrap items-center gap-x-2 gap-y-1 mt-1 text-[11px] text-ink/55">
+                        {campaign.send_type === 'triggered' && <span className="inline-flex items-center gap-1 capitalize"><Zap className="w-3 h-3 text-yolk-500" />{campaign.trigger_type?.replace('_', ' ')}</span>}
+                        {campaign.send_type === 'scheduled' && campaign.scheduled_date && <span className="inline-flex items-center gap-1"><Calendar className="w-3 h-3 text-moss-600" />{moment(campaign.scheduled_date).format('MMM D, h:mm A')}</span>}
+                        <span className="md:hidden chip !py-0 !px-2 text-[10px] capitalize">{campaign.recipient_type?.replace('_', ' ')}</span>
+                        <span className={`md:hidden capitalize inline-flex px-2 py-0.5 rounded-full border text-[10px] font-medium ${chip}`}>{campaign.status}</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2 flex-wrap">
-                    <Button variant="outline" size="sm" onClick={() => { setFormData(campaign); setShowPreview(true); }}>
-                      <Eye className="w-4 h-4 mr-1" />
-                      Preview
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(campaign)}>
-                      <Edit className="w-4 h-4 mr-1" />
-                      Edit
-                    </Button>
+                  <span className="hidden md:inline-flex chip text-[11px] capitalize w-fit">{campaign.recipient_type?.replace('_', ' ')}</span>
+                  <span className={`hidden md:inline-flex capitalize items-center w-fit px-2.5 py-1 rounded-full border text-[11px] font-medium ${chip}`}>{campaign.status}</span>
+                  <span className="hidden md:block text-sm text-ink/65 tabular-nums">
+                    {campaign.status === 'sent' ? `${campaign.sent_count || 0} / ${campaign.total_recipients || 0} sent` : '—'}
+                  </span>
+                  <div className="flex items-center md:justify-end gap-1">
                     {campaign.send_type === 'triggered' ? (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className={campaign.trigger_active ? 'text-yolk-600' : 'text-moss-700'}
-                        onClick={() => toggleTriggerMutation.mutate(campaign)}
-                        disabled={toggleTriggerMutation.isPending}
-                      >
-                        {toggleTriggerMutation.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : 
-                          campaign.trigger_active ? <><Pause className="w-4 h-4 mr-1" />Deactivate</> : <><Play className="w-4 h-4 mr-1" />Activate</>}
-                      </Button>
+                      <button onClick={() => toggleTriggerMutation.mutate(campaign)} disabled={toggleTriggerMutation.isPending}
+                        title={campaign.trigger_active ? 'Deactivate trigger' : 'Activate trigger'}
+                        className={`inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium border ${campaign.trigger_active ? 'bg-yolk-50 text-yolk-700 border-yolk-200' : 'bg-white text-moss-700 border-border hover:bg-moss-50'}`}>
+                        {toggleTriggerMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : campaign.trigger_active ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+                        <span className="hidden sm:inline">{campaign.trigger_active ? 'Pause' : 'Activate'}</span>
+                      </button>
                     ) : (
-                      <Button
-                        size="sm"
-                        className="bg-moss-600 hover:bg-moss-700 text-white"
-                        onClick={() => sendCampaignMutation.mutate(campaign)}
-                        disabled={sendCampaignMutation.isPending}
-                      >
-                        {sendCampaignMutation.isPending ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Send className="w-4 h-4 mr-1" />}
-                        {campaign.status === 'sent' ? 'Resend' : 'Send Now'}
-                      </Button>
+                      <button onClick={() => sendCampaignMutation.mutate(campaign)} disabled={sendCampaignMutation.isPending}
+                        title={campaign.status === 'sent' ? 'Resend campaign' : 'Send campaign'}
+                        className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full text-xs font-medium bg-moss-600 text-cream hover:bg-moss-700 disabled:opacity-60">
+                        {sendCampaignMutation.isPending ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+                        <span className="hidden sm:inline">{campaign.status === 'sent' ? 'Resend' : 'Send'}</span>
+                      </button>
                     )}
-                    <Button variant="outline" size="sm" onClick={() => handleDuplicate(campaign)}>
-                      <Copy className="w-4 h-4 mr-1" />
-                      Copy
-                    </Button>
-                    <Button variant="outline" size="sm" className="text-terracotta-600" onClick={() => deleteCampaignMutation.mutate(campaign.id)}>
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="w-8 h-8 rounded-lg inline-flex items-center justify-center text-ink/55 hover:bg-moss-50 hover:text-moss-700" aria-label="Campaign actions"><MoreHorizontal className="w-4 h-4" /></button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="rounded-xl w-48">
+                        <DropdownMenuItem onSelect={() => { setFormData(campaign); setShowPreview(true); }} className="gap-2"><Eye className="w-4 h-4" /> Preview</DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => handleEdit(campaign)} className="gap-2"><Edit className="w-4 h-4" /> Edit</DropdownMenuItem>
+                        <DropdownMenuItem onSelect={() => handleDuplicate(campaign)} className="gap-2"><Copy className="w-4 h-4" /> Duplicate</DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem onSelect={() => deleteCampaignMutation.mutate(campaign.id)} className="gap-2 text-terracotta-600 focus:text-terracotta-600"><Trash2 className="w-4 h-4" /> Delete</DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Desktop View */}
-            <table className="w-full hidden md:table">
-              <thead className="bg-cream border-b">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Campaign</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Recipients</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Stats</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-ink/55 uppercase">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {campaigns.map((campaign) => (
-                  <tr key={campaign.id} className="hover:bg-cream">
-                    <td className="px-6 py-4">
-                      <p className="font-medium text-ink">{campaign.name}</p>
-                      <p className="text-sm text-ink/55">{campaign.subject}</p>
-                      {campaign.send_type === 'triggered' && (
-                        <div className="flex items-center gap-1 mt-1">
-                          <Zap className="w-3 h-3 text-yolk-500" />
-                          <span className="text-xs text-ink/55 capitalize">{campaign.trigger_type?.replace('_', ' ')}</span>
-                        </div>
-                      )}
-                      {campaign.send_type === 'scheduled' && campaign.scheduled_date && (
-                        <div className="flex items-center gap-1 mt-1">
-                          <Calendar className="w-3 h-3 text-moss-600" />
-                          <span className="text-xs text-ink/55">{moment(campaign.scheduled_date).format('MMM D, h:mm A')}</span>
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge variant="outline" className="capitalize">{campaign.recipient_type}</Badge>
-                    </td>
-                    <td className="px-6 py-4">
-                      <Badge className={
-                        campaign.status === 'sent' ? 'bg-fresh-500' :
-                        campaign.status === 'draft' ? 'bg-cream0' :
-                        campaign.status === 'scheduled' ? 'bg-moss-500' :
-                        campaign.status === 'active' ? 'bg-yolk-500' : 'bg-terracotta-500'
-                      }>
-                        {campaign.status}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-ink/65">
-                      {campaign.status === 'sent' ? (
-                        <span>{campaign.sent_count || 0} / {campaign.total_recipients || 0} sent</span>
-                      ) : (
-                        <span>-</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex gap-1">
-                        <Button variant="ghost" size="sm" onClick={() => { setFormData(campaign); setShowPreview(true); }}>
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" onClick={() => handleEdit(campaign)}>
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        {campaign.send_type === 'triggered' ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className={campaign.trigger_active ? 'text-yolk-600' : 'text-moss-700'}
-                            onClick={() => toggleTriggerMutation.mutate(campaign)}
-                            disabled={toggleTriggerMutation.isPending}
-                            title={campaign.trigger_active ? 'Deactivate trigger' : 'Activate trigger'}
-                          >
-                            {toggleTriggerMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : 
-                              campaign.trigger_active ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
-                          </Button>
-                        ) : (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-moss-700"
-                            onClick={() => sendCampaignMutation.mutate(campaign)}
-                            disabled={sendCampaignMutation.isPending}
-                            title={campaign.status === 'sent' ? 'Resend campaign' : 'Send campaign'}
-                          >
-                            {sendCampaignMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                          </Button>
-                        )}
-                        <Button variant="ghost" size="sm" onClick={() => handleDuplicate(campaign)}>
-                          <Copy className="w-4 h-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-terracotta-600" onClick={() => deleteCampaignMutation.mutate(campaign.id)}>
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </>
-        )}
-      </Card>
+                </li>
+              );
+            })}
+          </ul>
+          <div className="px-5 py-3 bg-cream border-t border-border text-xs text-ink/50">{visibleCampaigns.length} of {campaigns.length} campaigns</div>
+        </div>
+      )}
 
       {/* Composer Dialog */}
       <Dialog open={showComposer} onOpenChange={() => resetForm()}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="rounded-2xl max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{editingCampaign ? 'Edit Campaign' : 'Create Email Campaign'}</DialogTitle>
+            <DialogTitle className="font-display">{editingCampaign ? 'Edit campaign' : 'Create email campaign'}</DialogTitle>
           </DialogHeader>
 
           <Tabs defaultValue="compose" className="space-y-4">
-            <TabsList>
-              <TabsTrigger value="compose">Compose</TabsTrigger>
-              <TabsTrigger value="templates">Templates</TabsTrigger>
-              <TabsTrigger value="delivery">Delivery</TabsTrigger>
-              <TabsTrigger value="recipients">Recipients ({getRecipientCount(formData.recipient_type)})</TabsTrigger>
+            <TabsList className="bg-white border border-border rounded-full p-1 h-auto inline-flex flex-wrap">
+              <TabsTrigger value="compose" className={tabCls}>Compose</TabsTrigger>
+              <TabsTrigger value="templates" className={tabCls}>Templates</TabsTrigger>
+              <TabsTrigger value="delivery" className={tabCls}>Delivery</TabsTrigger>
+              <TabsTrigger value="recipients" className={tabCls}>Recipients ({getRecipientCount(formData.recipient_type)})</TabsTrigger>
             </TabsList>
 
             <TabsContent value="compose" className="space-y-4">
               <div>
                 <Label>Campaign Name *</Label>
-                <Input
+                <Input className="mt-1.5 rounded-xl"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   placeholder="e.g., Weekly Newsletter"
@@ -517,7 +447,7 @@ export default function EmailCampaignManager() {
               </div>
               <div>
                 <Label>Subject Line *</Label>
-                <Input
+                <Input className="mt-1.5 rounded-xl"
                   value={formData.subject}
                   onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   placeholder="e.g., Check out our latest listings!"
@@ -530,28 +460,27 @@ export default function EmailCampaignManager() {
                   onChange={(e) => setFormData({ ...formData, html_content: e.target.value })}
                   placeholder="Paste your HTML email content here..."
                   rows={12}
-                  className="font-mono text-sm"
+                  className="mt-1.5 rounded-xl font-mono text-sm"
                 />
                 <p className="text-xs text-ink/55 mt-1">
                   Use {'{{name}}'}, {'{{email}}'}, {'{{site_url}}'} for personalization
                 </p>
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setShowPreview(true)}>
-                  <Eye className="w-4 h-4 mr-2" />
-                  Preview
+              <div className="flex flex-wrap gap-2">
+                <Button variant="outline" className="rounded-full gap-1.5" onClick={() => setShowPreview(true)}>
+                  <Eye className="w-4 h-4" /> Preview
                 </Button>
                 <div className="relative">
-                  <Button variant="outline" disabled={uploadingImage} onClick={() => document.getElementById('campaign-image-upload').click()}>
-                    {uploadingImage ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Image className="w-4 h-4 mr-2" />}
-                    Add Image
+                  <Button variant="outline" className="rounded-full gap-1.5" disabled={uploadingImage} onClick={() => document.getElementById('campaign-image-upload').click()}>
+                    {uploadingImage ? <Loader2 className="w-4 h-4 animate-spin" /> : <Image className="w-4 h-4" />}
+                    Add image
                   </Button>
-                  <input 
+                  <input
                     id="campaign-image-upload"
-                    type="file" 
-                    accept="image/*" 
-                    onChange={handleImageUpload} 
-                    className="hidden" 
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
                   />
                 </div>
               </div>
@@ -559,16 +488,18 @@ export default function EmailCampaignManager() {
 
             <TabsContent value="templates" className="space-y-4">
               <p className="text-sm text-ink/65">Select a template to start with:</p>
-              <div className="grid gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {EMAIL_TEMPLATES.map((template, idx) => (
-                  <Card
+                  <button
                     key={idx}
-                    className="p-4 cursor-pointer hover:border-moss-600 transition-colors"
+                    type="button"
+                    className="text-left rounded-xl border border-border bg-cream p-4 hover:border-moss-400 hover:bg-moss-50/50 transition-colors"
                     onClick={() => handleTemplateSelect(template)}
                   >
-                    <h4 className="font-semibold">{template.name}</h4>
-                    <p className="text-sm text-ink/65">{template.subject}</p>
-                  </Card>
+                    <div className="w-8 h-8 rounded-lg bg-white border border-border flex items-center justify-center mb-3"><Mail className="w-4 h-4 text-moss-600" /></div>
+                    <h4 className="font-semibold text-ink">{template.name}</h4>
+                    <p className="text-xs text-ink/60 mt-0.5">{template.subject}</p>
+                  </button>
                 ))}
               </div>
             </TabsContent>
@@ -577,7 +508,7 @@ export default function EmailCampaignManager() {
               <div>
                 <Label>Send Type</Label>
                 <Select value={formData.send_type} onValueChange={(value) => setFormData({ ...formData, send_type: value })}>
-                  <SelectTrigger>
+                  <SelectTrigger className="mt-1.5 rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -591,7 +522,7 @@ export default function EmailCampaignManager() {
               {formData.send_type === 'scheduled' && (
                 <div>
                   <Label>Scheduled Date & Time</Label>
-                  <Input
+                  <Input className="mt-1.5 rounded-xl"
                     type="datetime-local"
                     value={formData.scheduled_date ? formData.scheduled_date.slice(0, 16) : ''}
                     onChange={(e) => setFormData({ ...formData, scheduled_date: new Date(e.target.value).toISOString() })}
@@ -606,7 +537,7 @@ export default function EmailCampaignManager() {
                   <div>
                     <Label>Trigger Event</Label>
                     <Select value={formData.trigger_type} onValueChange={(value) => setFormData({ ...formData, trigger_type: value })}>
-                      <SelectTrigger>
+                      <SelectTrigger className="mt-1.5 rounded-xl">
                         <SelectValue placeholder="Select trigger event" />
                       </SelectTrigger>
                       <SelectContent>
@@ -617,7 +548,7 @@ export default function EmailCampaignManager() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="p-4 bg-moss-50 rounded-lg">
+                  <div className="p-4 bg-moss-50 border border-moss-100 rounded-xl">
                     <p className="text-sm text-moss-800">
                       <Zap className="w-4 h-4 inline mr-1" />
                       {formData.trigger_type === 'new_user' && 'Email will be sent to each new user when they register'}
@@ -627,16 +558,16 @@ export default function EmailCampaignManager() {
                       {!formData.trigger_type && 'Select a trigger event to see details'}
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <label className="flex items-center gap-2 rounded-xl bg-cream border border-border px-3 py-2.5 text-sm cursor-pointer">
                     <input
                       type="checkbox"
                       id="trigger_active"
                       checked={formData.trigger_active}
                       onChange={(e) => setFormData({ ...formData, trigger_active: e.target.checked })}
-                      className="w-4 h-4"
+                      className="w-4 h-4 accent-moss-600"
                     />
-                    <Label htmlFor="trigger_active">Activate trigger immediately after saving</Label>
-                  </div>
+                    Activate trigger immediately after saving
+                  </label>
                 </div>
               )}
             </TabsContent>
@@ -645,7 +576,7 @@ export default function EmailCampaignManager() {
               <div>
                 <Label>Recipient Group</Label>
                 <Select value={formData.recipient_type} onValueChange={(value) => setFormData({ ...formData, recipient_type: value })}>
-                  <SelectTrigger>
+                  <SelectTrigger className="mt-1.5 rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -659,10 +590,10 @@ export default function EmailCampaignManager() {
               </div>
 
               {formData.recipient_type === 'custom' && (
-                <div className="border rounded-lg p-4 max-h-64 overflow-y-auto">
-                  <p className="text-sm text-ink/65 mb-2">Select recipients:</p>
+                <div className="border border-border bg-cream rounded-xl p-3 max-h-64 overflow-y-auto">
+                  <p className="text-xs uppercase tracking-wider font-semibold text-ink/45 mb-2 px-2">Select recipients</p>
                   {users.map((user) => (
-                    <label key={user.id} className="flex items-center gap-2 py-1 hover:bg-cream px-2 rounded cursor-pointer">
+                    <label key={user.id} className="flex items-center gap-2 py-1.5 hover:bg-white px-2 rounded-lg cursor-pointer">
                       <input
                         type="checkbox"
                         checked={selectedUsers.includes(user.email)}
@@ -673,10 +604,10 @@ export default function EmailCampaignManager() {
                             setSelectedUsers(selectedUsers.filter(email => email !== user.email));
                           }
                         }}
-                        className="w-4 h-4"
+                        className="w-4 h-4 accent-moss-600"
                       />
-                      <span className="text-sm">{user.full_name || user.email}</span>
-                      <span className="text-xs text-ink/55">({user.email})</span>
+                      <span className="text-sm text-ink">{user.full_name || user.email}</span>
+                      <span className="text-xs text-ink/50 truncate">({user.email})</span>
                     </label>
                   ))}
                 </div>
@@ -684,10 +615,10 @@ export default function EmailCampaignManager() {
             </TabsContent>
           </Tabs>
 
-          <div className="flex justify-end gap-3 pt-4 border-t">
-            <Button variant="outline" onClick={resetForm}>Cancel</Button>
-            <Button onClick={handleSave} className="btn-cta">
-              {editingCampaign ? 'Update Campaign' : 'Save as Draft'}
+          <div className="flex justify-end gap-3 pt-4 border-t border-border">
+            <Button variant="outline" className="rounded-full" onClick={resetForm}>Cancel</Button>
+            <Button onClick={handleSave} className="btn-cta px-5">
+              {editingCampaign ? 'Update campaign' : 'Save as draft'}
             </Button>
           </div>
         </DialogContent>
@@ -695,20 +626,20 @@ export default function EmailCampaignManager() {
 
       {/* Preview Dialog */}
       <Dialog open={showPreview} onOpenChange={setShowPreview}>
-        <DialogContent className="max-w-3xl max-h-[90vh]">
+        <DialogContent className="rounded-2xl max-w-3xl max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>Email Preview</DialogTitle>
+            <DialogTitle className="font-display">Email preview</DialogTitle>
           </DialogHeader>
-          <div className="border rounded-lg overflow-hidden">
-            <div className="bg-cream-deep p-3 border-b">
-              <p className="text-sm"><strong>Subject:</strong> {formData.subject}</p>
+          <div className="border border-border rounded-xl overflow-hidden">
+            <div className="bg-cream p-3 border-b border-border">
+              <p className="text-sm text-ink"><span className="text-ink/55">Subject:</span> <strong>{formData.subject}</strong></p>
             </div>
             <iframe
               srcDoc={formData.html_content
                 ?.replace(/\{\{name\}\}/g, 'John Doe')
                 .replace(/\{\{email\}\}/g, 'john@example.com')
                 .replace(/\{\{site_url\}\}/g, window.location.origin)}
-              className="w-full h-[500px]"
+              className="w-full h-[500px] bg-white"
               title="Email Preview"
             />
           </div>

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { Loader2, Store } from 'lucide-react';
 import { api } from '@/api/client';
-import { Card } from '@/components/ui/card';
-import { Loader2, Star } from 'lucide-react';
+import PageShell from '@/components/shell/PageShell';
 import { ReviewList } from '../components/reviews/SellerReviews';
+import { createPageUrl } from '../utils';
 
 export default function SellerReviews() {
   const [user, setUser] = useState(null);
@@ -20,32 +22,25 @@ export default function SellerReviews() {
   }, []);
 
   if (!user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-moss-600" />
-      </div>
-    );
+    return <div className="min-h-[60vh] flex items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-moss-600" /></div>;
   }
 
   return (
-    <div className="min-h-[80vh] bg-cream">
-      <div className="bg-moss-gradient text-white py-8">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-3">
-            <Star className="w-8 h-8" />
-            <div>
-              <h1 className="text-2xl font-bold">My Reviews</h1>
-              <p className="text-white/80">See what buyers are saying about you</p>
-            </div>
-          </div>
-        </div>
+    <PageShell
+      variant="compact"
+      eyebrow="Sell"
+      title="My reviews"
+      subtitle="See what buyers are saying about you and reply to every review — a quick, friendly response builds trust with the next buyer."
+      breadcrumb={[{ label: 'Dashboard', href: createPageUrl('Dashboard') }, { label: 'Reviews' }]}
+      action={
+        <Link to={createPageUrl('SellerListings') + `?email=${encodeURIComponent(user.email)}`} className="btn-ghost px-5 py-2.5 text-sm gap-1.5 border border-border bg-white">
+          <Store className="w-4 h-4" /> View public profile
+        </Link>
+      }
+    >
+      <div className="max-w-4xl">
+        <ReviewList sellerEmail={user.email} isOwner={true} />
       </div>
-
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <Card className="p-6 card-premium">
-          <ReviewList sellerEmail={user.email} isOwner={true} />
-        </Card>
-      </div>
-    </div>
+    </PageShell>
   );
 }

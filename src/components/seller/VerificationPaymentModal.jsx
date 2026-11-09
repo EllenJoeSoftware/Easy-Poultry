@@ -3,8 +3,15 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Loader2, Shield } from 'lucide-react';
+import { Loader2, Shield, Check } from 'lucide-react';
 import { toast } from 'sonner';
+
+const BENEFITS = [
+  'Verified badge on your profile',
+  'Display your contact number to buyers',
+  'Increased trust from potential buyers',
+  'Priority in search results',
+];
 
 export default function VerificationPaymentModal({ isOpen, onClose, currentUser, formData }) {
   const [processing, setProcessing] = useState(false);
@@ -50,49 +57,36 @@ export default function VerificationPaymentModal({ isOpen, onClose, currentUser,
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="rounded-2xl max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="font-display flex items-center gap-2">
             <Shield className="w-5 h-5 text-moss-600" />
-            Seller Verification
+            Seller verification
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
-          <div className="bg-moss-50 rounded-lg p-4">
-            <p className="text-sm text-ink/75">
-              {adminSettings?.verification_fee_message || 'A one-time admin verification fee is required to become a verified seller.'}
-            </p>
+          <p className="text-sm text-ink/70 leading-relaxed">
+            {adminSettings?.verification_fee_message || 'A one-time admin verification fee is required to become a verified seller.'}
+          </p>
+
+          <div className="rounded-2xl bg-moss-gradient text-cream p-6 text-center relative overflow-hidden">
+            <div className="absolute inset-0 grain opacity-50 pointer-events-none" />
+            <div className="relative">
+              <p className="text-xs uppercase tracking-[0.18em] font-semibold text-yolk-300 mb-1">One-time fee</p>
+              <p className="font-display font-bold text-4xl">R{verificationFee}</p>
+            </div>
           </div>
 
-          <div className="text-center py-4">
-            <p className="text-sm text-ink/55 mb-1">Verification Fee</p>
-            <p className="text-3xl font-bold text-terracotta-600">R{verificationFee}</p>
-          </div>
-
-          <div className="bg-cream rounded-lg p-4 space-y-2 text-sm">
-            <p className="font-medium">Benefits of verification:</p>
-            <ul className="space-y-1 text-ink/65">
-              <li>• Verified badge on your profile</li>
-              <li>• Display your contact number to buyers</li>
-              <li>• Increased trust from potential buyers</li>
-              <li>• Priority in search results</li>
+          <div className="rounded-xl bg-cream border border-border p-4">
+            <p className="eyebrow mb-2">What you get</p>
+            <ul className="space-y-1.5 text-sm text-ink/70">
+              {BENEFITS.map(b => <li key={b} className="flex gap-2"><Check className="w-4 h-4 text-moss-600 flex-shrink-0 mt-0.5" />{b}</li>)}
             </ul>
           </div>
 
-          <Button
-            onClick={handlePayment}
-            disabled={verificationFee === 0 || processing}
-            className="w-full btn-cta"
-          >
-            {processing ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              'Pay with Yoco'
-            )}
+          <Button onClick={handlePayment} disabled={verificationFee === 0 || processing} className="w-full btn-cta py-3">
+            {processing ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing…</> : 'Pay with Yoco'}
           </Button>
         </div>
       </DialogContent>

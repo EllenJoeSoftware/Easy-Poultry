@@ -94,6 +94,8 @@ module.exports = {
           400: '#E6A33B',
           500: '#C8861F',
           600: '#9F6A17',
+          700: '#7D5312',
+          800: '#5C3D0D',
         },
         cream: {
           DEFAULT: '#F3F5EF',

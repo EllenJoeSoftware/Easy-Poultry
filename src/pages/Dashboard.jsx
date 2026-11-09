@@ -139,7 +139,8 @@ export default function Dashboard() {
       toast.success('Sale recorded successfully');
       setMarkSoldDialog(null);
       setSoldQuantity('');
-    }
+    },
+    onError: (e) => toast.error(e?.message || 'Something went wrong')
   });
 
   const handleMarkSold = () => {
@@ -174,7 +175,8 @@ export default function Dashboard() {
       toast.success('Reply sent');
       setReplyingTo(null);
       setReplyMessage('');
-    }
+    },
+    onError: (e) => toast.error(e?.message || 'Something went wrong')
   });
 
   const handleReply = (inquiry) => {
@@ -252,8 +254,8 @@ export default function Dashboard() {
 
         {isSeller && recentTransactions.length > 0 && (
           <Card className="p-6 card-premium mt-8">
-            <h2 className="text-xl font-bold text-ink mb-4">Recent Transactions</h2>
-            <div className="divide-y">
+            <h2 className="font-display text-xl text-ink mb-4">Recent transactions</h2>
+            <div className="divide-y divide-border">
               {recentTransactions.map((transaction) => (
                 <div key={transaction.id} className="py-4 flex items-center justify-between">
                   <div>
@@ -264,14 +266,14 @@ export default function Dashboard() {
                   </div>
                   <div className="text-right">
                     <p className="font-semibold text-ink">R{transaction.amount?.toFixed(2)}</p>
-                    <Badge className={
-                      transaction.status === 'verified' ? 'bg-fresh-500' :
-                      transaction.status === 'pending' ? 'bg-yolk-500' :
-                      transaction.status === 'active' ? 'bg-moss-500' :
-                      'bg-cream0'
-                    }>
+                    <span className={`inline-flex capitalize items-center px-2.5 py-1 rounded-full border text-[11px] font-medium ${
+                      transaction.status === 'verified' ? 'bg-fresh-50 text-moss-700 border-fresh-200' :
+                      transaction.status === 'pending' ? 'bg-yolk-50 text-yolk-700 border-yolk-200' :
+                      transaction.status === 'active' ? 'bg-moss-50 text-moss-700 border-moss-100' :
+                      'bg-cream-deep text-ink/60 border-border'
+                    }`}>
                       {transaction.status}
-                    </Badge>
+                    </span>
                   </div>
                 </div>
               ))}
@@ -620,9 +622,9 @@ export default function Dashboard() {
 
       {markSoldDialog && (
         <Dialog open={!!markSoldDialog} onOpenChange={() => setMarkSoldDialog(null)}>
-          <DialogContent>
+          <DialogContent className="rounded-2xl">
             <DialogHeader>
-              <DialogTitle>Record Sale</DialogTitle>
+              <DialogTitle className="font-display">Record sale</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
@@ -644,7 +646,7 @@ export default function Dashboard() {
                   placeholder="Enter quantity sold"
                 />
               </div>
-              <div className="bg-cream p-3 rounded-lg">
+              <div className="bg-cream p-3 rounded-xl">
                 <p className="text-sm font-medium text-ink">
                   Sale Value: R{(markSoldDialog.price * (parseInt(soldQuantity) || 0)).toFixed(2)}
                 </p>
@@ -660,6 +662,7 @@ export default function Dashboard() {
                 <Button
                   onClick={() => setMarkSoldDialog(null)}
                   variant="outline"
+                  className="rounded-full"
                 >
                   Cancel
                 </Button>

@@ -3,9 +3,8 @@ import { useQuery } from '@tanstack/react-query';
 import { api } from '@/api/client';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Check, Crown } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function TierUpgradeModal({ isOpen, onClose, currentUser }) {
@@ -58,60 +57,52 @@ export default function TierUpgradeModal({ isOpen, onClose, currentUser }) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-3xl">
+      <DialogContent className="rounded-2xl sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Upgrade Your Tier</DialogTitle>
+          <DialogTitle className="font-display flex items-center gap-2"><Crown className="w-5 h-5 text-yolk-500" />Upgrade your tier</DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
-          <div className="bg-moss-50 p-4 rounded-lg border border-moss-200">
-            <p className="text-sm text-ink/75">
-              <strong>Current Tier:</strong> {currentTierName.charAt(0).toUpperCase() + currentTierName.slice(1)}
-            </p>
+          <div className="rounded-xl bg-cream border border-border px-4 py-3 text-sm text-ink/70 flex items-center justify-between">
+            <span>Current tier</span>
+            <span className="chip capitalize">{currentTierName}</span>
           </div>
 
           {availableTiers.length === 0 ? (
-            <p className="text-center text-ink/65">You're already on the highest tier!</p>
+            <p className="text-center text-ink/65 py-6">You're already on the highest tier!</p>
           ) : (
             <>
               <RadioGroup value={selectedTier?.id} onValueChange={(value) => setSelectedTier(tiers.find(t => t.id === value))}>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {availableTiers.map((tier) => (
-                    <Card key={tier.id} className={`p-6 cursor-pointer transition-all ${selectedTier?.id === tier.id ? 'border-2 border-moss-600 bg-moss-600/5' : 'border hover:border-moss-600/50'}`}>
-                      <div className="flex items-start gap-3">
-                        <RadioGroupItem value={tier.id} id={tier.id} />
-                        <label htmlFor={tier.id} className="flex-1 cursor-pointer">
-                          <h3 className="text-xl font-bold text-ink">{tier.name}</h3>
-                          <p className="text-2xl font-bold text-moss-600 mt-1">R{tier.price}/mo</p>
-                          <div className="mt-3 space-y-1 text-sm text-ink/65">
-                            <p>• {tier.max_listings} listings max</p>
-                            <p>• {tier.max_images_per_listing} images per listing</p>
-                            {tier.can_show_phone && <p>• Phone number visible</p>}
-                            {tier.can_feature_listings && <p>• Can feature listings</p>}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {availableTiers.map((tier) => {
+                    const on = selectedTier?.id === tier.id;
+                    return (
+                      <label key={tier.id} htmlFor={tier.id}
+                        className={`card-premium p-5 cursor-pointer transition-all block ${on ? 'ring-2 ring-moss-600 bg-moss-50/40' : 'hover:border-moss-300'}`}>
+                        <div className="flex items-start gap-3">
+                          <RadioGroupItem value={tier.id} id={tier.id} className="mt-1" />
+                          <div className="flex-1">
+                            <div className="flex items-baseline justify-between gap-2">
+                              <h3 className="font-display text-lg text-ink capitalize">{tier.name}</h3>
+                              <p className="font-display font-bold text-xl text-moss-700">R{tier.price}<span className="text-xs font-normal text-ink/50">/mo</span></p>
+                            </div>
+                            <ul className="mt-3 space-y-1.5 text-sm text-ink/70">
+                              <li className="flex gap-2"><Check className="w-4 h-4 text-moss-600 flex-shrink-0 mt-0.5" />{tier.max_listings} listings max</li>
+                              <li className="flex gap-2"><Check className="w-4 h-4 text-moss-600 flex-shrink-0 mt-0.5" />{tier.max_images_per_listing} images per listing</li>
+                              {tier.can_show_phone && <li className="flex gap-2"><Check className="w-4 h-4 text-moss-600 flex-shrink-0 mt-0.5" />Phone number visible</li>}
+                              {tier.can_feature_listings && <li className="flex gap-2"><Check className="w-4 h-4 text-moss-600 flex-shrink-0 mt-0.5" />Can feature listings</li>}
+                            </ul>
                           </div>
-                        </label>
-                      </div>
-                    </Card>
-                  ))}
+                        </div>
+                      </label>
+                    );
+                  })}
                 </div>
               </RadioGroup>
 
-              <div className="flex gap-3">
-                <Button
-                  onClick={handlePayment}
-                  disabled={!selectedTier || processing}
-                  className="flex-1 btn-cta h-12"
-                >
-                  {processing ? (
-                    <>
-                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    'Pay with Yoco'
-                  )}
-                </Button>
-                <Button onClick={onClose} variant="outline" className="h-12">
-                  Cancel
+              <div className="flex flex-col-reverse sm:flex-row gap-3 sm:justify-end">
+                <Button onClick={onClose} variant="outline" className="rounded-full">Cancel</Button>
+                <Button onClick={handlePayment} disabled={!selectedTier || processing} className="btn-cta px-6 py-2.5">
+                  {processing ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Processing…</> : selectedTier ? `Pay R${selectedTier.price} with Yoco` : 'Pay with Yoco'}
                 </Button>
               </div>
             </>
