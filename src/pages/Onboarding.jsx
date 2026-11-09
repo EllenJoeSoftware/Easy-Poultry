@@ -12,9 +12,11 @@ import { Upload, CheckCircle2, Check, ArrowRight, ArrowLeft, Loader2, UserRound,
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '../utils';
+import { useAuth } from '@/lib/AuthContext';
 
-export default function Onboarding() {
+export default function Onboarding({ embedded = false, onComplete } = {}) {
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
   const [step, setStep] = useState(1);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState({
@@ -51,7 +53,8 @@ export default function Onboarding() {
         ...data, 
         payment_reference_number: paymentRef,
         seller_tier: 'basic',
-        seller_activated: sellerActivated
+        seller_activated: sellerActivated,
+        onboarding_completed: true
       });
       
       // Create SellerProfile if user is a seller
@@ -74,9 +77,11 @@ export default function Onboarding() {
       }
       
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('Welcome to Easy Poultry!');
-      navigate(createPageUrl('Home'));
+      try { await refreshUser?.(); } catch { /* ignore */ }
+      if (embedded) onComplete?.();
+      else navigate(createPageUrl('Home'));
     },
     onError: (e) => toast.error(e?.message || 'Something went wrong')
   });
@@ -129,13 +134,7 @@ export default function Onboarding() {
     { value: 'both', label: 'Buy & sell', desc: 'The full experience — the most popular choice.', icon: Handshake },
   ];
 
-  return (
-    <PageShell
-      variant="compact"
-      eyebrow="Welcome"
-      title={<>Let's set up your <span className="italic text-moss-700">account</span>.</>}
-      subtitle={`${total} quick steps — you can change any of this later in Settings.`}
-    >
+  const body = (
       <div className="max-w-3xl mx-auto">
         {/* Stepper */}
         <div className="card-premium p-4 sm:p-5 mb-6">
@@ -357,6 +356,29 @@ export default function Onboarding() {
           )}
         </motion.div>
       </div>
+  );
+
+  if (embedded) {
+    return (
+      <div>
+        <div className="mb-5">
+          <p className="eyebrow mb-1">Welcome</p>
+          <h2 className="font-display text-2xl sm:text-3xl text-ink leading-tight">Let's set up your <span className="italic text-moss-700">account</span>.</h2>
+          <p className="text-sm text-ink/60 mt-1">{total} quick steps — required before you can use Easy Poultry. You can change any of this later in Settings.</p>
+        </div>
+        {body}
+      </div>
+    );
+  }
+
+  return (
+    <PageShell
+      variant="compact"
+      eyebrow="Welcome"
+      title={<>Let's set up your <span className="italic text-moss-700">account</span>.</>}
+      subtitle={`${total} quick steps — you can change any of this later in Settings.`}
+    >
+      {body}
     </PageShell>
   );
 }

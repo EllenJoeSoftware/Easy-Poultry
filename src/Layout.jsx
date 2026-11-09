@@ -1,3 +1,4 @@
+import OnboardingGate from '@/components/onboarding/OnboardingGate';
 import React, { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from './utils';
@@ -45,6 +46,7 @@ export default function Layout({ children, currentPageName }) {
       <AppShell currentPageName={currentPageName}>
         {children}
         <CliffieChat />
+        <OnboardingGate currentPageName={currentPageName} />
       </AppShell>
     );
   }
@@ -260,6 +262,7 @@ export default function Layout({ children, currentPageName }) {
       <main className="bg-cream">{children}</main>
 
       <CliffieChat />
+      <OnboardingGate currentPageName={currentPageName} />
 
       {/* ========== FOOTER ========== */}
       <footer className="relative bg-ink-soft text-cream/90 mt-32 overflow-hidden">

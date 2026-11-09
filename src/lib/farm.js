@@ -1,6 +1,6 @@
 import { api } from '@/api/client';
 
-const safe = async (p) => { try { return (await p) || []; } catch { return []; } };
+const safe = async (p, label = 'farm query') => { try { return (await p) || []; } catch (e) { console.warn(`[farm] ${label} failed:`, e?.code || e?.message || e); return []; } };
 const cache = new Map(); // email -> { ids, primary, at }
 const TTL = 60_000;
 
@@ -41,6 +41,7 @@ export async function getUserFarms(user) {
   if (!primary) primary = [...ids][0] || null;
 
   const out = { ids: [...ids], primary, at: Date.now() };
+  console.info('[farm] resolved farms for', email, out.ids, 'primary:', primary);
   cache.set(email, out);
   return out;
 }
@@ -63,8 +64,8 @@ export async function farmStamp(user) {
 export async function fetchForUserAndFarms(entity, user, sortField = 'created_date', where = null, limit = null) {
   const { ids } = await getUserFarms(user);
   const results = await Promise.all([
-    safe(entity.filter({ created_by: user?.email })),
-    ...ids.map(id => safe(entity.filter({ farm_id: id }))),
+    safe(entity.filter({ created_by: user?.email }), 'by created_by'),
+    ...ids.map(id => safe(entity.filter({ farm_id: id }), `by farm_id ${id}`)),
   ]);
   const map = new Map();
   results.flat().forEach(d => d?.id && map.set(d.id, d));
